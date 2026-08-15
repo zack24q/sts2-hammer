@@ -1,0 +1,16 @@
+bin/
+obj/
+.vs/
+.idea/
+.godot/
+.deploy/
+dist/
+*.DotSettings
+*.DotSettings.user
+
+local.props
+*.uid
+*.import
+*.tmp
+*.log
+.DS_Store

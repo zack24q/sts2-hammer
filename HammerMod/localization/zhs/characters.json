@@ -1,0 +1,21 @@
+{
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.aromaPrinciple": "[sine][blue]稳住架势，瞄准头部。[/blue][/sine]",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.banter.alive.endTurnPing": "等待下一次重击。",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.banter.dead.endTurnPing": "狩猎还没结束。",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.cardsModifierDescription": "大锤卡牌现在会出现在奖励和商店中。",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.cardsModifierTitle": "大锤卡牌",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.defeatMessage": "这次蓄力失去了节奏。",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.description": "积累蓄力，以重击造成更高伤害和晕眩值。受到敌人的未格挡攻击时会失去全部蓄力。",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.eventDeathPrevention": "大锤猎人重新站稳。",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.flavor": "沉重的武器要求耐心，也奖励精准的时机。",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.goldMonologue": "先把装备准备妥当。",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.possessiveAdjective": "他的",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.pronounObject": "他",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.pronounPossessive": "他的",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.pronounSubject": "他",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.selectMessage": "大锤已经准备好了。",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.title": "大锤猎人",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.titleObject": "大锤猎人",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.unlockText": "用[pink]{Prerequisite}[/pink]进行一局游戏来解锁这个角色。",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.victoryMessage": "狩猎完成。"
+}

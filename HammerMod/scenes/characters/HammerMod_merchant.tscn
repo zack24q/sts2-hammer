@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://HammerMod/images/characters/HammerMod_character_select.png" id="1_character"]
+
+[node name="HammerModCharacterMerchant" type="Node2D"]
+
+[node name="Visuals" type="Sprite2D" parent="."]
+position = Vector2(0, -138)
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("1_character")

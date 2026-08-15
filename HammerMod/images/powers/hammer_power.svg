@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <radialGradient id="badge" cx="45%" cy="38%" r="66%">
+      <stop offset="0" stop-color="#6f2c49"/>
+      <stop offset="0.72" stop-color="#351522"/>
+      <stop offset="1" stop-color="#160b10"/>
+    </radialGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff2c8"/>
+      <stop offset="0.42" stop-color="#e8b76e"/>
+      <stop offset="1" stop-color="#8d4b3d"/>
+    </linearGradient>
+    <linearGradient id="handle" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6e382b"/>
+      <stop offset="0.5" stop-color="#c77a4a"/>
+      <stop offset="1" stop-color="#51261f"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="64" cy="64" r="56" fill="url(#badge)" stroke="#ff9bc1" stroke-width="6"/>
+  <circle cx="64" cy="64" r="48" fill="none" stroke="#f4c66f" stroke-width="2" opacity="0.55"/>
+
+  <g transform="rotate(-38 64 64)" stroke="#160b10" stroke-linejoin="round">
+    <path d="M31 23 H93 L104 34 L93 52 H31 L20 41 Z"
+          fill="url(#metal)" stroke-width="6"/>
+    <path d="M31 29 H91 L96 35 H28 Z" fill="#fff6d9" opacity="0.55"/>
+    <path d="M45 23 V52 M80 23 V52" fill="none" stroke="#8b4639" stroke-width="4"/>
+    <path d="M56 51 H69 V111 L62.5 119 L56 111 Z"
+          fill="url(#handle)" stroke-width="6"/>
+    <path d="M59 62 H67 M59 74 H67 M59 86 H67 M59 98 H67"
+          fill="none" stroke="#f0b16b" stroke-width="3"/>
+  </g>
+
+  <path d="M19 82 L25 90 L20 100 L29 95 L37 101 L34 91 L41 84 L31 84 L26 75 Z"
+        fill="#ffd46f" stroke="#351522" stroke-width="3"/>
+</svg>

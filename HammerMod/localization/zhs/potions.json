@@ -1,0 +1,10 @@
+{
+  "HAMMER_MOD_POTION_DASH_JUICE_G.title": "强走药G",
+  "HAMMER_MOD_POTION_DASH_JUICE_G.description": "获得 [blue]{Charge}[/blue] 级蓄力。",
+  "HAMMER_MOD_POTION_FLASH_BOMB.title": "闪光弹",
+  "HAMMER_MOD_POTION_FLASH_BOMB.description": "所有敌人增加 [blue]{Stun}[/blue] 点晕眩值。",
+  "HAMMER_MOD_POTION_ADAMANT_SEED.title": "忍耐种子",
+  "HAMMER_MOD_POTION_ADAMANT_SEED.description": "获得 {Block} 点格挡。直到你的下回合开始，蓄力不会因敌人攻击而降低。",
+  "HAMMER_MOD_POTION_MIGHT_SEED.title": "怪力种子",
+  "HAMMER_MOD_POTION_MIGHT_SEED.description": "本回合获得 [blue]{Strength}[/blue] 点力量，并获得 [blue]{Charge}[/blue] 级蓄力。"
+}
