@@ -15,6 +15,8 @@ namespace HammerMod.Cards;
 [RegisterCard(typeof(HammerModCardPool))]
 public sealed class FaceOff : HammerCard
 {
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Ethereal];
+
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new PowerVar<StrengthPower>(1)
@@ -52,7 +54,7 @@ public sealed class FaceOff : HammerCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Strength.UpgradeValueBy(1);
+        RemoveKeyword(CardKeyword.Ethereal);
     }
 }
 

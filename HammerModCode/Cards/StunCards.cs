@@ -613,7 +613,7 @@ public sealed class ConcussionResonance : HammerCard
 public sealed class ImpactBurst : HammerCard
 {
     public ImpactBurst()
-        : base(1, CardType.Power, CardRarity.Rare, TargetType.Self)
+        : base(2, CardType.Power, CardRarity.Rare, TargetType.Self)
     {
     }
 
