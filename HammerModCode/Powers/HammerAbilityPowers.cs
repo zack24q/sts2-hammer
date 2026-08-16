@@ -198,9 +198,7 @@ public sealed class FelyneKoTechniquePower : HammerAbilityPower
             return;
         }
 
-        var copies = Amount / 100;
-        var bonusStun = Amount % 100;
-        var stun = cardPlay.Resources.EnergySpent * copies + bonusStun;
+        var stun = CalculateStun(Amount, cardPlay.Resources.EnergySpent);
         if (stun <= 0)
             return;
 
@@ -217,6 +215,13 @@ public sealed class FelyneKoTechniquePower : HammerAbilityPower
                 stun,
                 cardPlay);
         }
+    }
+
+    internal static int CalculateStun(int packedAmount, int energySpent)
+    {
+        var copies = packedAmount / 100;
+        var bonusStun = packedAmount % 100;
+        return Math.Max(0, energySpent) * copies + bonusStun;
     }
 }
 

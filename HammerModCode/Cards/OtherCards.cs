@@ -1,7 +1,9 @@
 using HammerMod.Characters;
+using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.Powers;
 using STS2RitsuLib.Cards.DynamicVars;
@@ -64,7 +66,7 @@ public sealed class ShellBreaker : HammerCard
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(11, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move)
+        new DamageVar(9, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move)
     ];
 
     public ShellBreaker()
@@ -81,7 +83,34 @@ public sealed class ShellBreaker : HammerCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(4);
+        RemoveKeyword(CardKeyword.Exhaust);
+    }
+}
+
+[RegisterCard(typeof(HammerModCardPool))]
+public sealed class SwitchGripSwing : HammerCard
+{
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new DamageVar(9, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new CardsVar("Cards", 1)
+    ];
+
+    public SwitchGripSwing()
+        : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
+    {
+    }
+
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        ArgumentNullException.ThrowIfNull(cardPlay.Target);
+        await Attack(choiceContext, cardPlay.Target, DynamicVars.Damage.BaseValue);
+        await CardPileCmd.Draw(choiceContext, DynamicVars["Cards"].IntValue, Owner);
+    }
+
+    protected override void OnUpgrade()
+    {
+        DynamicVars["Cards"].UpgradeValueBy(1);
     }
 }
 
@@ -120,6 +149,57 @@ public sealed class ToolSpecialist : HammerCard
     protected override void OnUpgrade()
     {
         DynamicVars.Block.UpgradeValueBy(3);
+    }
+}
+
+[RegisterCard(typeof(HammerModCardPool))]
+public sealed class QuickCraft : HammerCard
+{
+    private static readonly LocString SelectionPrompt =
+        new("cards", "HAMMER_MOD_CARD_QUICK_CRAFT.selectionPrompt");
+
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new CardsVar("Cards", 3)
+    ];
+
+    public QuickCraft()
+        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
+    {
+    }
+
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        await CardPileCmd.Draw(choiceContext, DynamicVars["Cards"].IntValue, Owner);
+
+        var hand = Owner.PlayerCombatState!.Hand;
+        if (hand.IsEmpty)
+            return;
+
+        var prefs = new CardSelectorPrefs(SelectionPrompt, 1, 1)
+        {
+            Cancelable = false
+        };
+        var selected = (await CardSelectCmd.FromCombatPile(
+            choiceContext,
+            hand,
+            Owner,
+            prefs)).FirstOrDefault();
+
+        if (selected is not null)
+        {
+            await CardPileCmd.Add(
+                selected,
+                PileType.Draw,
+                CardPilePosition.Top,
+                this,
+                skipVisuals: false);
+        }
+    }
+
+    protected override void OnUpgrade()
+    {
+        DynamicVars["Cards"].UpgradeValueBy(1);
     }
 }
 

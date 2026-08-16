@@ -80,7 +80,8 @@ public sealed class LaunchTeammate : HammerCard
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new BlockVar(16, ValueProp.Move),
-        new EnergyVar("Energy", 1)
+        new EnergyVar("Energy", 1),
+        new PowerVar<StrengthPower>(1)
     ];
 
     public LaunchTeammate()
@@ -101,6 +102,12 @@ public sealed class LaunchTeammate : HammerCard
             DynamicVars.Block.BaseValue,
             ValueProp.Move,
             cardPlay);
+        await PowerCmd.Apply<StrengthPower>(
+            choiceContext,
+            teammate.Creature,
+            DynamicVars.Strength.BaseValue,
+            Owner.Creature,
+            this);
         await PowerCmd.Apply<EnergyNextTurnPower>(
             choiceContext,
             teammate.Creature,
@@ -133,7 +140,7 @@ public sealed class DemonPowder : HammerCard
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new PowerVar<StrengthPower>(1)
+        new PowerVar<StrengthPower>(2)
     ];
 
     public DemonPowder()
@@ -173,7 +180,7 @@ public sealed class HardshellPowder : HammerCard
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new BlockVar(5, ValueProp.Move)
+        new BlockVar(8, ValueProp.Move)
     ];
 
     public HardshellPowder()
@@ -216,15 +223,23 @@ public sealed class GetBackUp : HammerCard
 
     public override int MaxUpgradeLevel => 0;
 
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new CardsVar("Cards", 1)
+    ];
+
     public GetBackUp()
         : base(1, CardType.Status, CardRarity.Status, TargetType.Self)
     {
     }
 
-    protected override Task OnPlay(
+    protected override async Task OnPlay(
         PlayerChoiceContext choiceContext,
         CardPlay cardPlay)
     {
-        return Task.CompletedTask;
+        await CardPileCmd.Draw(
+            choiceContext,
+            DynamicVars["Cards"].IntValue,
+            Owner);
     }
 }

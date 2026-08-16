@@ -63,6 +63,29 @@ CARDS = [
     "DemonPowder",
     "HardshellPowder",
     "GetBackUp",
+    "RisingDragonHammer",
+    "LeveragedSwing",
+    "SheatheAndBreathe",
+    "VictoryCharge",
+    "SwitchGripSwing",
+    "QuickCraft",
+    "LegSweepHammer",
+    "EarthsplitterShock",
+    "DoubleSideSwing",
+    "IronbugFollowUp",
+    "SlidingCombo",
+    "SweepingPreparation",
+    "PoundingSmash",
+    "TrueSpinningImpact",
+    "Challenger",
+    "WirebugContinuation",
+    "WeaknessExploit",
+    "ChargeSwitchCourage",
+    "Partbreaker",
+    "ComboBoost",
+    "BloodRite",
+    "HandCrankedTractor",
+    "MarathonHammerer",
 ]
 
 
@@ -81,16 +104,18 @@ def find_font() -> str:
 def accent_for(number: int) -> str:
     if number <= 4:
         return "#d9a441"
-    if number <= 19:
+    if number <= 19 or number in {57, 58, 76}:
         return "#dc7544"
-    if number <= 34:
+    if number <= 34 or number in {55, 62}:
         return "#d6ba4c"
-    if number <= 44:
+    if number <= 44 or number in {56, 61}:
         return "#4db6ad"
-    if number <= 48 or number == 50 or number == 54:
+    if number <= 48 or number in {50, 54, 59, 60}:
         return "#a7adb5"
     if number == 49:
         return "#b7a2d8"
+    if 63 <= number <= 68:
+        return "#d6ba4c"
     return "#5e9fd6"
 
 
@@ -146,8 +171,8 @@ def render(output_path: Path, number: int, font: ImageFont.FreeTypeFont) -> None
 
 
 def main() -> None:
-    if len(CARDS) != 54 or len(set(CARDS)) != len(CARDS):
-        raise ValueError("Card list must contain exactly 54 unique entries.")
+    if len(CARDS) != 77 or len(set(CARDS)) != len(CARDS):
+        raise ValueError("Card list must contain exactly 77 unique entries.")
 
     project_root = Path(__file__).resolve().parents[1]
     output_dir = project_root / "HammerMod" / "images" / "cards" / "placeholders"

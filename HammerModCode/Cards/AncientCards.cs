@@ -40,7 +40,7 @@ public sealed class ImpactCrater : HammerCard, IChargeReleaseCard, IChargeContex
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
 
-        var charge = ChargeLevel;
+        var charge = BeginChargeRelease(cardPlay);
         await Attack(
             choiceContext,
             cardPlay.Target,
@@ -56,7 +56,7 @@ public sealed class ImpactCrater : HammerCard, IChargeReleaseCard, IChargeContex
                 cardPlay);
         }
 
-        await ReleaseCharge(choiceContext, charge);
+        await ReleaseCharge(choiceContext, charge, cardPlay);
     }
 
     private static int ResolveDamage(int charge, bool upgraded)

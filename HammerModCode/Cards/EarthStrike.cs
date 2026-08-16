@@ -41,7 +41,7 @@ public sealed class EarthStrike : HammerCard, IChargeReleaseCard, IChargeContext
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
 
-        var charge = ChargeLevel;
+        var charge = BeginChargeRelease(cardPlay);
         var damage = ResolveDamage(charge, IsUpgraded);
         var stun = ResolveStun(charge, IsUpgraded);
 
@@ -53,7 +53,7 @@ public sealed class EarthStrike : HammerCard, IChargeReleaseCard, IChargeContext
         if (cardPlay.Target.IsAlive)
             await HammerStun.Apply(choiceContext, this, cardPlay.Target, stun, cardPlay);
 
-        await ReleaseCharge(choiceContext, charge);
+        await ReleaseCharge(choiceContext, charge, cardPlay);
     }
 
     private static int ResolveDamage(int charge, bool upgraded)

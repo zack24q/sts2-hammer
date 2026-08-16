@@ -48,8 +48,8 @@ public sealed class SideSmash : HammerCard
 [RegisterCard(typeof(HammerModCardPool))]
 public sealed class ChargedUpswing : HammerCard, IChargeReleaseCard, IChargeContextDescriptionCard
 {
-    private static readonly int[] BaseStun = [3, 4, 6, 8];
-    private static readonly int[] UpgradedStun = [4, 5, 7, 9];
+    private static readonly int[] BaseStun = [3, 5, 8, 12];
+    private static readonly int[] UpgradedStun = [4, 6, 9, 15];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -69,7 +69,7 @@ public sealed class ChargedUpswing : HammerCard, IChargeReleaseCard, IChargeCont
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
-        var charge = ChargeLevel;
+        var charge = BeginChargeRelease(cardPlay);
         await Attack(choiceContext, cardPlay.Target, DynamicVars.Damage.BaseValue);
         await HammerStun.Apply(
             choiceContext,
@@ -77,7 +77,7 @@ public sealed class ChargedUpswing : HammerCard, IChargeReleaseCard, IChargeCont
             cardPlay.Target,
             ResolveStun(charge, IsUpgraded),
             cardPlay);
-        await ReleaseCharge(choiceContext, charge);
+        await ReleaseCharge(choiceContext, charge, cardPlay);
     }
 
     protected override void OnUpgrade()
@@ -92,11 +92,44 @@ public sealed class ChargedUpswing : HammerCard, IChargeReleaseCard, IChargeCont
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
+public sealed class RisingDragonHammer : HammerCard
+{
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new DamageVar(9, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new IntVar("Stun", 7)
+    ];
+
+    public RisingDragonHammer()
+        : base(2, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
+    {
+    }
+
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        ArgumentNullException.ThrowIfNull(cardPlay.Target);
+        await Attack(choiceContext, cardPlay.Target, DynamicVars.Damage.BaseValue);
+        await HammerStun.Apply(
+            choiceContext,
+            this,
+            cardPlay.Target,
+            DynamicVars["Stun"].IntValue,
+            cardPlay);
+    }
+
+    protected override void OnUpgrade()
+    {
+        DynamicVars.Damage.UpgradeValueBy(3);
+        DynamicVars["Stun"].UpgradeValueBy(2);
+    }
+}
+
+[RegisterCard(typeof(HammerModCardPool))]
 public sealed class GroundShock : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(10, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new DamageVar(15, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
         new IntVar("Stun", 3)
     ];
 
@@ -123,6 +156,42 @@ public sealed class GroundShock : HammerCard
     {
         DynamicVars.Damage.UpgradeValueBy(4);
         DynamicVars["Stun"].UpgradeValueBy(1);
+    }
+}
+
+[RegisterCard(typeof(HammerModCardPool))]
+public sealed class EarthsplitterShock : HammerCard
+{
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new DamageVar(24, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new IntVar("Stun", 7)
+    ];
+
+    public EarthsplitterShock()
+        : base(3, CardType.Attack, CardRarity.Rare, TargetType.AllEnemies)
+    {
+    }
+
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        var targets = CombatState!.HittableEnemies.ToArray();
+        await AttackAll(choiceContext, DynamicVars.Damage.BaseValue);
+        foreach (var enemy in targets.Where(static enemy => enemy.IsAlive))
+        {
+            await HammerStun.Apply(
+                choiceContext,
+                this,
+                enemy,
+                DynamicVars["Stun"].IntValue,
+                cardPlay);
+        }
+    }
+
+    protected override void OnUpgrade()
+    {
+        DynamicVars.Damage.UpgradeValueBy(6);
+        DynamicVars["Stun"].UpgradeValueBy(3);
     }
 }
 
@@ -221,7 +290,7 @@ public sealed class HomeRunSwing : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class BigBangCombo : HammerCard
+public sealed class BigBangCombo : HammerCard, IContextualDescriptionCard
 {
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Retain];
 
@@ -231,7 +300,17 @@ public sealed class BigBangCombo : HammerCard
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new DamageVar(6, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
-        new IntVar("Hits", 3),
+        ModCardVars.Computed(
+            "Hits",
+            static context =>
+            {
+                var originalHitCount = context.Target?.IsStunned == true
+                    ? context.GetCardIntOrDefault("StunnedHits", 6)
+                    : context.GetCardIntOrDefault("BaseHits", 3);
+                return PreviewAttackHitCount(context, originalHitCount);
+            },
+            baseValue: 3),
+        new IntVar("BaseHits", 3),
         new IntVar("StunnedHits", 6)
     ];
 
@@ -245,7 +324,7 @@ public sealed class BigBangCombo : HammerCard
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
         var hits = cardPlay.Target.IsStunned
             ? DynamicVars["StunnedHits"].IntValue
-            : DynamicVars["Hits"].IntValue;
+            : DynamicVars["BaseHits"].IntValue;
         await Attack(choiceContext, cardPlay.Target, DynamicVars.Damage.BaseValue, hits);
     }
 
@@ -321,7 +400,7 @@ public sealed class DizzyFall : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class ConcussionGuard : HammerCard
+public sealed class ConcussionGuard : HammerCard, IContextualDescriptionCard
 {
     protected override bool ShouldGlowGoldInternal =>
         AnyHittableEnemy(static enemy => HammerStun.GetCurrent(enemy) > 0);
@@ -333,30 +412,26 @@ public sealed class ConcussionGuard : HammerCard
     [
         ModCardVars.ComputedBlock(
             "Block",
-            static context =>
-            {
-                var baseBlock = context.IsUpgraded ? 10 : 7;
-                return baseBlock + (context.Target is null ? 0 : HammerStun.GetCurrent(context.Target));
-            },
-            baseValue: 7),
-        new IntVar("BaseBlock", 7)
+            static context => context.HasCombatState
+                ? context.CombatState!.HittableEnemies.Sum(HammerStun.GetCurrent)
+                : 0,
+            baseValue: 0)
     ];
 
     public ConcussionGuard()
-        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy)
+        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        ArgumentNullException.ThrowIfNull(cardPlay.Target);
-        var block = DynamicVars["BaseBlock"].IntValue + HammerStun.GetCurrent(cardPlay.Target);
+        var block = CombatState!.HittableEnemies.Sum(HammerStun.GetCurrent);
         await GainBlock(block, cardPlay);
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars["BaseBlock"].UpgradeValueBy(3);
+        RemoveKeyword(CardKeyword.Exhaust);
     }
 }
 
@@ -368,7 +443,7 @@ public sealed class FelyneKoTechnique : HammerCard
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new IntVar("BonusStun", 1)
+        new IntVar("BonusStun", 0)
     ];
 
     public FelyneKoTechnique()

@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Hooks;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
@@ -20,12 +21,19 @@ public interface IChargeReleaseCard
 {
 }
 
-public interface IChargeContextDescriptionCard
+public interface IContextualDescriptionCard
+{
+}
+
+public interface IChargeContextDescriptionCard : IContextualDescriptionCard
 {
 }
 
 public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
 {
+    private bool _snapshotChargeOnNextRelease;
+    private int? _releaseChargeSnapshot;
+
     protected static IEnumerable<DynamicVar> ChargeTierVars(
         string prefix,
         IReadOnlyList<int> baseValues,
@@ -52,8 +60,24 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
     protected int ChargeLevel =>
         this is IChargeReleaseCard
         && Owner.Creature.GetPower<OverchargePower>() is not null
-            ? 3
+            ? HammerResources.MaxCharge
             : HammerResources.GetCharge(Owner);
+
+    internal void SnapshotChargeOnNextRelease()
+    {
+        _snapshotChargeOnNextRelease = true;
+    }
+
+    protected int BeginChargeRelease(CardPlay cardPlay)
+    {
+        if (_snapshotChargeOnNextRelease && cardPlay.IsFirstInSeries)
+        {
+            _releaseChargeSnapshot = ChargeLevel;
+            _snapshotChargeOnNextRelease = false;
+        }
+
+        return _releaseChargeSnapshot ?? ChargeLevel;
+    }
 
     protected bool HasChargeAtLeast(int amount)
     {
@@ -89,7 +113,7 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
     public virtual IEnumerable<CardDescriptionFragment> GetDescriptionFragments(
         CardDescriptionContext context)
     {
-        if (this is not IChargeContextDescriptionCard)
+        if (this is not IContextualDescriptionCard)
             return [];
 
         var isInHand = context.PileType == PileType.Hand
@@ -120,23 +144,44 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
             source: this);
     }
 
-    protected async Task ReleaseCharge(PlayerChoiceContext choiceContext, int releasedCharge)
+    protected async Task ReleaseCharge(
+        PlayerChoiceContext choiceContext,
+        int releasedCharge,
+        CardPlay cardPlay)
     {
-        await SecondaryResourceCmd.Reset(
-            Owner,
-            HammerResources.Charge.Id,
-            source: this);
-
-        if (releasedCharge == 3
-            && Owner.Creature.GetPower<EndlessMomentumPower>() is { } momentum)
+        var usesSnapshot = _releaseChargeSnapshot.HasValue;
+        try
         {
-            await momentum.TriggerRelease(choiceContext, this);
+            if (usesSnapshot && !cardPlay.IsFirstInSeries)
+                return;
+
+            await SecondaryResourceCmd.Reset(
+                Owner,
+                HammerResources.Charge.Id,
+                source: this);
+
+            if (releasedCharge == HammerResources.MaxCharge
+                && Owner.Creature.GetPower<EndlessMomentumPower>() is { } momentum)
+            {
+                await momentum.TriggerRelease(choiceContext, this);
+            }
+
+            if (releasedCharge == HammerResources.MaxCharge
+                && Owner.Creature.GetPower<ChargeSwitchCouragePower>() is { } courage)
+            {
+                await courage.TriggerRelease(choiceContext, this);
+            }
+
+            if (releasedCharge == HammerResources.MaxCharge
+                && Owner.GetRelic<WirebugCage>() is { } wirebugCage)
+            {
+                await wirebugCage.TriggerFullRelease(choiceContext);
+            }
         }
-
-        if (releasedCharge == 3
-            && Owner.GetRelic<WirebugCage>() is { } wirebugCage)
+        finally
         {
-            await wirebugCage.TriggerFullRelease(choiceContext);
+            if (usesSnapshot && cardPlay.IsLastInSeries)
+                _releaseChargeSnapshot = null;
         }
     }
 
@@ -152,7 +197,7 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
         int hitCount = 1)
     {
         await DamageCmd.Attack(damage)
-            .WithHitCount(hitCount)
+            .WithHitCount(ResolveAttackHitCount(hitCount))
             .FromCard(this)
             .Targeting(target)
             .Execute(choiceContext);
@@ -164,10 +209,58 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
         int hitCount = 1)
     {
         await DamageCmd.Attack(damage)
-            .WithHitCount(hitCount)
+            .WithHitCount(ResolveAttackHitCount(hitCount))
             .FromCard(this)
             .TargetingAllOpponents(CombatState!)
             .Execute(choiceContext);
+    }
+
+    protected int ResolveAttackHitCount(int originalHitCount)
+    {
+        return ResolveAttackHitCount(
+            originalHitCount,
+            Owner.Creature.GetPowerAmount<ComboBoostPower>());
+    }
+
+    protected static int PreviewAttackHitCount(
+        ComputedDynamicVarContext context,
+        int originalHitCount)
+    {
+        if (!IsLiveHandPreview(context))
+            return originalHitCount;
+
+        return ResolveAttackHitCount(
+            originalHitCount,
+            context.Player!.Creature.GetPowerAmount<ComboBoostPower>());
+    }
+
+    protected static int PreviewEnergyXValue(ComputedDynamicVarContext context)
+    {
+        if (!IsLiveHandPreview(context) || !context.HasCombatState)
+            return 0;
+
+        var card = context.Card!;
+        var energyToSpend = card.EnergyCost.GetAmountToSpend();
+        return Hook.ModifyXValue(
+            context.CombatState!,
+            card,
+            energyToSpend);
+    }
+
+    private static bool IsLiveHandPreview(ComputedDynamicVarContext context)
+    {
+        return context.HasPlayer
+            && context.HasCard
+            && !context.IsUpgradePreview
+            && context.Card!.Pile?.Type == PileType.Hand;
+    }
+
+    private static int ResolveAttackHitCount(int originalHitCount, int extraHitCount)
+    {
+        if (originalHitCount < 2)
+            return originalHitCount;
+
+        return originalHitCount + extraHitCount;
     }
 
     protected async Task DealEffectDamage(

@@ -65,7 +65,7 @@ public sealed class WaterStrike : HammerCard
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(7, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new DamageVar(9, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
         new BlockVar(6, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move)
     ];
 
@@ -85,8 +85,39 @@ public sealed class WaterStrike : HammerCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(2);
+        DynamicVars.Damage.UpgradeValueBy(3);
         DynamicVars.Block.UpgradeValueBy(3);
+    }
+}
+
+[RegisterCard(typeof(HammerModCardPool))]
+public sealed class LeveragedSwing : HammerCard
+{
+    protected override bool ShouldGlowGoldInternal => AnyHittableEnemyIntendsToAttack();
+
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new DamageVar(9, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new EnergyVar("Energy", 1)
+    ];
+
+    public LeveragedSwing()
+        : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
+    {
+    }
+
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        ArgumentNullException.ThrowIfNull(cardPlay.Target);
+        var refundEnergy = IntendsToAttack(cardPlay.Target);
+        await Attack(choiceContext, cardPlay.Target, DynamicVars.Damage.BaseValue);
+        if (refundEnergy)
+            await PlayerCmd.GainEnergy(DynamicVars["Energy"].IntValue, Owner);
+    }
+
+    protected override void OnUpgrade()
+    {
+        DynamicVars.Damage.UpgradeValueBy(3);
     }
 }
 
@@ -129,6 +160,46 @@ public sealed class PredictiveFootwork : HammerCard
     protected override void OnUpgrade()
     {
         DynamicVars["Power"].UpgradeValueBy(1);
+    }
+}
+
+[RegisterCard(typeof(HammerModCardPool))]
+public sealed class LegSweepHammer : HammerCard
+{
+    protected override bool ShouldGlowGoldInternal => AnyHittableEnemyIntendsToAttack();
+
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new DamageVar(6, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new PowerVar<WeakPower>(1)
+    ];
+
+    public LegSweepHammer()
+        : base(1, CardType.Attack, CardRarity.Uncommon, TargetType.AllEnemies)
+    {
+    }
+
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        var attackingEnemies = CombatState!.HittableEnemies
+            .Where(IntendsToAttack)
+            .ToArray();
+
+        await AttackAll(choiceContext, DynamicVars.Damage.BaseValue);
+        foreach (var enemy in attackingEnemies.Where(static enemy => enemy.IsAlive))
+        {
+            await PowerCmd.Apply<WeakPower>(
+                choiceContext,
+                enemy,
+                DynamicVars.Weak.BaseValue,
+                Owner.Creature,
+                this);
+        }
+    }
+
+    protected override void OnUpgrade()
+    {
+        DynamicVars.Damage.UpgradeValueBy(3);
     }
 }
 
@@ -287,16 +358,16 @@ public sealed class OffsetUpswing : HammerCard
             {
                 var hits = GetAttackCount(context.Target);
                 return context.IsUpgraded
-                    ? 18 + 4 * hits
-                    : 14 + 3 * hits;
+                    ? 18 + 5 * hits
+                    : 16 + 4 * hits;
             },
-            baseValue: 14),
+            baseValue: 16),
         ModCardVars.Computed(
             "AttackCount",
             static context => GetAttackCount(context.Target),
             baseValue: 0),
-        new IntVar("BaseDamage", 14),
-        new IntVar("DamagePerAttack", 3)
+        new IntVar("BaseDamage", 16),
+        new IntVar("DamagePerAttack", 4)
     ];
 
     public OffsetUpswing()
@@ -308,13 +379,13 @@ public sealed class OffsetUpswing : HammerCard
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
         var hits = GetAttackCount(cardPlay.Target);
-        var damage = IsUpgraded ? 18 + 4 * hits : 14 + 3 * hits;
+        var damage = IsUpgraded ? 18 + 5 * hits : 16 + 4 * hits;
         await Attack(choiceContext, cardPlay.Target, damage);
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars["BaseDamage"].UpgradeValueBy(4);
+        DynamicVars["BaseDamage"].UpgradeValueBy(2);
         DynamicVars["DamagePerAttack"].UpgradeValueBy(1);
     }
 }
