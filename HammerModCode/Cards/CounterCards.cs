@@ -1,4 +1,5 @@
 using HammerMod.Characters;
+using HammerMod.Gameplay;
 using HammerMod.Powers;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Combat.History.Entries;
@@ -25,19 +26,19 @@ public sealed class FaceOff : HammerCard
     protected override bool ShouldGlowGoldInternal => IsPlayable;
 
     protected override bool IsPlayable =>
-        CombatManager.Instance.History.CardPlaysFinished.Any(
-            entry => entry.HappenedThisTurn(CombatState)
-                && entry.CardPlay.Card.Owner == Owner
-                && entry.CardPlay.Card.Type == CardType.Attack);
+        AnyHittableEnemy(target => HammerTargetTypes.IsFaceOffTarget(Owner, target));
 
     public FaceOff()
-        : base(1, CardType.Skill, CardRarity.Rare, TargetType.AnyEnemy)
+        : base(1, CardType.Skill, CardRarity.Rare, HammerTargetTypes.FaceOff)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
+        if (!HammerTargetTypes.IsFaceOffTarget(Owner, cardPlay.Target))
+            return;
+
         await PowerCmd.Apply<FaceOffPower>(
             choiceContext,
             Owner.Creature,
@@ -201,15 +202,14 @@ public sealed class LegSweepHammer : HammerCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(3);
+        DynamicVars.Damage.UpgradeValueBy(2);
+        DynamicVars.Weak.UpgradeValueBy(1);
     }
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
 public sealed class DeepBreath : HammerCard
 {
-    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
-
     protected override bool ShouldGlowGoldInternal => AnyHittableEnemyIntendsToAttack();
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
@@ -235,7 +235,7 @@ public sealed class DeepBreath : HammerCard
 
     protected override void OnUpgrade()
     {
-        AddKeyword(CardKeyword.Retain);
+        DynamicVars["AttackEnergy"].UpgradeValueBy(1);
     }
 }
 
@@ -248,25 +248,26 @@ public sealed class UnloadingStance : HammerCard
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new BlockVar(6, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
-        new IntVar("StrengthLoss", 2)
+        new BlockVar(5, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new IntVar("StrengthLoss", 3)
     ];
 
     public UnloadingStance()
-        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy)
+        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        ArgumentNullException.ThrowIfNull(cardPlay.Target);
-        var debuff = IntendsToAttack(cardPlay.Target);
+        var attackingEnemies = CombatState!.HittableEnemies
+            .Where(IntendsToAttack)
+            .ToArray();
         await GainBlock(DynamicVars.Block.BaseValue, cardPlay);
-        if (debuff)
+        foreach (var enemy in attackingEnemies.Where(static enemy => enemy.IsAlive))
         {
             await PowerCmd.Apply<UnloadingStancePower>(
                 choiceContext,
-                cardPlay.Target,
+                enemy,
                 DynamicVars["StrengthLoss"].BaseValue,
                 Owner.Creature,
                 this);
@@ -275,8 +276,8 @@ public sealed class UnloadingStance : HammerCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Block.UpgradeValueBy(3);
-        DynamicVars["StrengthLoss"].UpgradeValueBy(1);
+        DynamicVars.Block.UpgradeValueBy(2);
+        DynamicVars["StrengthLoss"].UpgradeValueBy(2);
     }
 }
 
@@ -354,22 +355,7 @@ public sealed class OffsetUpswing : HammerCard
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        ModCardVars.ComputedDamage(
-            "Damage",
-            static context =>
-            {
-                var hits = GetAttackCount(context.Target);
-                return context.IsUpgraded
-                    ? 18 + 5 * hits
-                    : 16 + 4 * hits;
-            },
-            baseValue: 16),
-        ModCardVars.Computed(
-            "AttackCount",
-            static context => GetAttackCount(context.Target),
-            baseValue: 0),
-        new IntVar("BaseDamage", 16),
-        new IntVar("DamagePerAttack", 4)
+        new DamageVar(8, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move)
     ];
 
     public OffsetUpswing()
@@ -381,14 +367,19 @@ public sealed class OffsetUpswing : HammerCard
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
         var hits = GetAttackCount(cardPlay.Target);
-        var damage = IsUpgraded ? 18 + 5 * hits : 16 + 4 * hits;
-        await Attack(choiceContext, cardPlay.Target, damage);
+        if (hits > 0)
+        {
+            await Attack(
+                choiceContext,
+                cardPlay.Target,
+                DynamicVars.Damage.BaseValue,
+                hits);
+        }
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars["BaseDamage"].UpgradeValueBy(2);
-        DynamicVars["DamagePerAttack"].UpgradeValueBy(1);
+        DynamicVars.Damage.UpgradeValueBy(2);
     }
 }
 
@@ -400,8 +391,8 @@ public sealed class BreakMomentum : HammerCard
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(10, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
-        new PowerVar<WeakPower>(1)
+        new DamageVar(6, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new PowerVar<StrengthPower>(3)
     ];
 
     public BreakMomentum()
@@ -412,14 +403,14 @@ public sealed class BreakMomentum : HammerCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
-        var weaken = cardPlay.Target.GetPowerAmount<StrengthPower>() > 0;
+        var reduceStrength = cardPlay.Target.GetPowerAmount<StrengthPower>() > 0;
         await Attack(choiceContext, cardPlay.Target, DynamicVars.Damage.BaseValue);
-        if (weaken && cardPlay.Target.IsAlive)
+        if (reduceStrength && cardPlay.Target.IsAlive)
         {
-            await PowerCmd.Apply<WeakPower>(
+            await PowerCmd.Apply<StrengthPower>(
                 choiceContext,
                 cardPlay.Target,
-                DynamicVars.Weak.BaseValue,
+                -DynamicVars.Strength.BaseValue,
                 Owner.Creature,
                 this);
         }
@@ -428,7 +419,7 @@ public sealed class BreakMomentum : HammerCard
     protected override void OnUpgrade()
     {
         DynamicVars.Damage.UpgradeValueBy(3);
-        DynamicVars.Weak.UpgradeValueBy(1);
+        DynamicVars.Strength.UpgradeValueBy(2);
     }
 }
 
@@ -437,7 +428,7 @@ public sealed class CounterForm : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new IntVar("Block", 7)
+        new IntVar("Block", 3)
     ];
 
     public CounterForm()
@@ -457,6 +448,6 @@ public sealed class CounterForm : HammerCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars["Block"].UpgradeValueBy(3);
+        DynamicVars["Block"].UpgradeValueBy(1);
     }
 }

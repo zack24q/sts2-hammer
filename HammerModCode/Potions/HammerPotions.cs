@@ -88,7 +88,7 @@ public sealed class AdamantSeed : HammerPotion
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new BlockVar(12, ValueProp.Unpowered)
+        new BlockVar(24, ValueProp.Unpowered)
     ];
 
     protected override async Task OnUse(
@@ -101,12 +101,6 @@ public sealed class AdamantSeed : HammerPotion
             DynamicVars.Block.BaseValue,
             ValueProp.Unpowered,
             null);
-        await PowerCmd.Apply<AdamantSeedPower>(
-            choiceContext,
-            target,
-            1,
-            Owner.Creature,
-            null);
     }
 }
 
@@ -118,8 +112,7 @@ public sealed class MightSeed : HammerPotion
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new PowerVar<StrengthPower>(3),
-        new IntVar("Charge", 3)
+        new PowerVar<StrengthPower>(10)
     ];
 
     protected override async Task OnUse(
@@ -133,10 +126,40 @@ public sealed class MightSeed : HammerPotion
             DynamicVars.Strength.BaseValue,
             Owner.Creature,
             null);
-        await SecondaryResourceCmd.Gain(
-            Owner,
-            HammerResources.Charge.Id,
-            DynamicVars["Charge"].IntValue,
-            source: this);
+    }
+}
+
+[RegisterPotion(typeof(HammerModPotionPool))]
+public sealed class Pitfall : HammerPotion
+{
+    public override PotionRarity Rarity => PotionRarity.Rare;
+    public override TargetType TargetType => TargetType.AnyEnemy;
+
+    public override PotionAssetProfile AssetProfile => new(
+        ImagePath: $"{Entry.ResPath}/images/potions/FlashBomb.png",
+        OutlinePath: $"{Entry.ResPath}/images/potions/FlashBomb.png");
+
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new PowerVar<VulnerablePower>(3)
+    ];
+
+    protected override async Task OnUse(
+        PlayerChoiceContext choiceContext,
+        Creature? target)
+    {
+        ArgumentNullException.ThrowIfNull(target);
+        await PowerCmd.Apply<FaceOffPower>(
+            choiceContext,
+            Owner.Creature,
+            1,
+            target,
+            null);
+        await PowerCmd.Apply<VulnerablePower>(
+            choiceContext,
+            target,
+            DynamicVars.Vulnerable.BaseValue,
+            Owner.Creature,
+            null);
     }
 }

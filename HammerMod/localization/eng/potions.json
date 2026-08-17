@@ -1,10 +1,12 @@
 {
-  "HAMMER_MOD_POTION_DASH_JUICE_G.title": "Mega Dash Juice",
+  "HAMMER_MOD_POTION_DASH_JUICE_G.title": "Dash Juice",
   "HAMMER_MOD_POTION_DASH_JUICE_G.description": "Gain [blue]{Charge}[/blue] Charge.",
   "HAMMER_MOD_POTION_FLASH_BOMB.title": "Flash Bomb",
   "HAMMER_MOD_POTION_FLASH_BOMB.description": "Add [blue]{Stun}[/blue] Stun to all enemies.",
-  "HAMMER_MOD_POTION_ADAMANT_SEED.title": "Adamant Seed",
-  "HAMMER_MOD_POTION_ADAMANT_SEED.description": "Gain {Block} Block. Until the start of your next turn, enemy attacks cannot reduce your Charge.",
-  "HAMMER_MOD_POTION_MIGHT_SEED.title": "Might Seed",
-  "HAMMER_MOD_POTION_MIGHT_SEED.description": "Gain [blue]{Strength}[/blue] temporary Strength this turn and [blue]{Charge}[/blue] Charge."
+  "HAMMER_MOD_POTION_ADAMANT_SEED.title": "Endurance Pill",
+  "HAMMER_MOD_POTION_ADAMANT_SEED.description": "Gain {Block} Block.",
+  "HAMMER_MOD_POTION_MIGHT_SEED.title": "Might Pill",
+  "HAMMER_MOD_POTION_MIGHT_SEED.description": "Gain {StrengthPower:diff()} temporary Strength this turn.",
+  "HAMMER_MOD_POTION_PITFALL.title": "Pitfall",
+  "HAMMER_MOD_POTION_PITFALL.description": "The chosen enemy deals 0 damage to you this turn.\nApply {VulnerablePower:diff()} Vulnerable to it."
 }

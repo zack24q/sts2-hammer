@@ -2,6 +2,7 @@ using HammerMod.Characters;
 using HammerMod.Gameplay;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using STS2RitsuLib.Combat.SecondaryResources;
 using STS2RitsuLib.Interop.AutoRegistration;
@@ -22,6 +23,9 @@ public sealed class Charge : ModCardTemplate
     [
         new IntVar("Charge", ChargeGain)
     ];
+
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips =>
+        HammerCardHoverTips.Create(HammerCardMechanic.Charge);
 
     public Charge() : base(1, CardType.Skill, CardRarity.Basic, TargetType.Self)
     {

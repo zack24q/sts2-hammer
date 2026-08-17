@@ -2,6 +2,8 @@ using HammerMod.Characters;
 using HammerMod.Powers;
 using HammerMod.Relics;
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
@@ -14,8 +16,12 @@ using STS2RitsuLib.Models;
 namespace HammerMod.Gameplay;
 
 [RegisterSingleton]
-public sealed class HammerRules : HookedSingletonModel, ISecondaryResourceHookListener
+public sealed class HammerRules : HookedSingletonModel,
+    ISecondaryResourceHookListener
 {
+    private ICombatState? _trackedCombat;
+    private readonly HashSet<Creature> _playersWhoAttackedThisTurn = [];
+
     public HammerRules() : base(HookType.Combat)
     {
     }
@@ -37,6 +43,53 @@ public sealed class HammerRules : HookedSingletonModel, ISecondaryResourceHookLi
             context.Player.Character.PowerUpAnimDelay);
     }
 
+    public override Task AfterCardPlayed(
+        PlayerChoiceContext choiceContext,
+        CardPlay cardPlay)
+    {
+        var owner = cardPlay.Card.Owner.Creature;
+        if (owner.CombatState is { } combat)
+        {
+            EnsureCombat(combat);
+            if (cardPlay.Card.Type == CardType.Attack && cardPlay.IsLastInSeries)
+                _playersWhoAttackedThisTurn.Add(owner);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public override Task AfterSideTurnEnd(
+        PlayerChoiceContext choiceContext,
+        CombatSide side,
+        IEnumerable<Creature> participants)
+    {
+        if (side == CombatSide.Player)
+        {
+            foreach (var participant in participants)
+                _playersWhoAttackedThisTurn.Remove(participant);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    internal bool HasPlayedAttackThisTurn(Creature player)
+    {
+        if (CurrentCombatState is not { } combat)
+            return false;
+
+        EnsureCombat(combat);
+        return _playersWhoAttackedThisTurn.Contains(player);
+    }
+
+    private void EnsureCombat(ICombatState combat)
+    {
+        if (ReferenceEquals(_trackedCombat, combat))
+            return;
+
+        _trackedCombat = combat;
+        _playersWhoAttackedThisTurn.Clear();
+    }
+
     public override async Task AfterDamageReceived(
         PlayerChoiceContext choiceContext,
         Creature target,
@@ -50,14 +103,12 @@ public sealed class HammerRules : HookedSingletonModel, ISecondaryResourceHookLi
         if (!target.IsPlayer
             || player is null
             || player.Character is not HammerModCharacter
-            || dealer is null
-            || !dealer.IsMonster
-            || !props.HasFlag(ValueProp.Move)
             || result.UnblockedDamage <= 0
             || HammerResources.GetCharge(player) <= 0
-            || target.GetPower<DashJuicePower>() is not null
             || target.GetPower<AdamantSeedPower>() is not null
-            || player.GetRelic<RocksteadyMantle>() is not null)
+            || player.GetRelic<RocksteadyMantle>() is not null
+                && dealer?.IsMonster == true
+                && props.HasFlag(ValueProp.Move))
         {
             return;
         }

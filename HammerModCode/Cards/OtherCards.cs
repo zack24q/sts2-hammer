@@ -2,9 +2,11 @@ using HammerMod.Characters;
 using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
+using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.Models.Powers;
 using STS2RitsuLib.Cards.DynamicVars;
 using STS2RitsuLib.Interop.AutoRegistration;
@@ -12,7 +14,7 @@ using STS2RitsuLib.Interop.AutoRegistration;
 namespace HammerMod.Cards;
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class WakeUpHit : HammerCard
+public sealed class WakeUpHit : HammerCard, ITargetPreviewDescriptionCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -110,6 +112,7 @@ public sealed class SwitchGripSwing : HammerCard
 
     protected override void OnUpgrade()
     {
+        DynamicVars.Damage.UpgradeValueBy(1);
         DynamicVars["Cards"].UpgradeValueBy(1);
     }
 }
@@ -204,11 +207,69 @@ public sealed class QuickCraft : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
+public sealed class RecoveryMedicine : HammerCard
+{
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
+    public override bool CanBeGeneratedInCombat => false;
+
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new PowerVar<RegenPower>(5)
+    ];
+
+    protected override bool ShouldGlowGoldInternal => IsPlayable;
+
+    protected override bool IsPlayable =>
+        CombatState is not null
+        && CanPlayWhenNoEnemyDealsAttackDamage(
+            CombatState.Enemies
+                .Where(static enemy => enemy.IsAlive)
+                .Select(GetIntendedAttackDamage));
+
+    public RecoveryMedicine()
+        : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
+    {
+    }
+
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        await PowerCmd.Apply<RegenPower>(
+            choiceContext,
+            Owner.Creature,
+            DynamicVars["RegenPower"].BaseValue,
+            Owner.Creature,
+            this);
+    }
+
+    protected override void OnUpgrade()
+    {
+        AddKeyword(CardKeyword.Retain);
+    }
+
+    private int GetIntendedAttackDamage(Creature enemy)
+    {
+        var targets = CombatState!.Players
+            .Where(static player => player.Creature.IsAlive)
+            .Select(static player => player.Creature)
+            .ToArray();
+        return enemy.Monster?.NextMove.Intents
+            .OfType<AttackIntent>()
+            .Sum(intent => intent.GetTotalDamage(targets, enemy)) ?? 0;
+    }
+
+    internal static bool CanPlayWhenNoEnemyDealsAttackDamage(
+        IEnumerable<int> enemyAttackDamage)
+    {
+        return !enemyAttackDamage.Any(static damage => damage > 0);
+    }
+}
+
+[RegisterCard(typeof(HammerModCardPool))]
 public sealed class WarmUpExercise : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new IntVar("Stats", 2)
+        new IntVar("Stats", 3)
     ];
 
     public WarmUpExercise()
@@ -235,6 +296,6 @@ public sealed class WarmUpExercise : HammerCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars["Stats"].UpgradeValueBy(1);
+        AddKeyword(CardKeyword.Innate);
     }
 }

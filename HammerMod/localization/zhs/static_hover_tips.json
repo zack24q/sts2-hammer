@@ -1,4 +1,4 @@
 {
   "HAMMER_MOD_RESOURCE_CHARGE.title": "蓄力",
-  "HAMMER_MOD_RESOURCE_CHARGE.description": "当前蓄力为 [blue]{Amount}[/blue]/[blue]{MaxAmount}[/blue]。蓄力跨回合保留；受到敌人攻击造成的未格挡伤害时清空。带有“释放蓄力”的牌结算后清空蓄力。"
+  "HAMMER_MOD_RESOURCE_CHARGE.description": "当前蓄力为[blue]{Amount}[/blue]/[blue]{MaxAmount}[/blue]。蓄力跨回合保留，受到未格挡伤害会清空蓄力等级。"
 }

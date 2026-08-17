@@ -12,7 +12,7 @@ attribution is required; the source is recorded here for provenance.
 
 ## STS2-RitsuLib
 
-The test bundle includes STS2-RitsuLib 0.5.12 from:
+The test bundle includes STS2-RitsuLib 0.5.13 from:
 
 https://github.com/BAKAOLC/STS2-RitsuLib
 

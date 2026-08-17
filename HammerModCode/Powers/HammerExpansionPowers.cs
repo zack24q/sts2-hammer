@@ -2,6 +2,7 @@ using HammerMod.Cards;
 using HammerMod.Gameplay;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Commands.Builders;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
@@ -240,6 +241,28 @@ public sealed class ComboBoostPower : HammerAbilityPower
 {
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
+
+    public override int ModifyAttackHitCount(AttackCommand attack, int hitCount)
+    {
+        return CalculateHitCount(
+            attack.Attacker == Owner
+                && attack.ModelSource is CardModel { Type: CardType.Attack },
+            attack._hitCount,
+            hitCount,
+            Amount);
+    }
+
+    internal static int CalculateHitCount(
+        bool isOwnersAttackCard,
+        int originalHitCount,
+        int currentHitCount,
+        int extraHitCount)
+    {
+        if (!isOwnersAttackCard || originalHitCount < 2 || currentHitCount < 1)
+            return currentHitCount;
+
+        return currentHitCount + Math.Max(0, extraHitCount);
+    }
 }
 
 [RegisterPower]
@@ -255,13 +278,11 @@ public sealed class HandCrankedTractorPower : HammerAbilityPower
     {
         if (Amount <= 0
             || card.Owner.Creature != Owner
-            || card is not HammerCard hammerCard
             || card is not IChargeReleaseCard)
         {
             return currentPlayCount;
         }
 
-        hammerCard.SnapshotChargeOnNextRelease();
         return currentPlayCount + 1;
     }
 
@@ -329,13 +350,36 @@ public sealed class MarathonHammererPower : HammerAbilityPower, ISecondaryResour
         {
             var strengthBefore = Owner.GetPowerAmount<StrengthPower>();
             Flash();
-            await PowerCmd.Apply<StrengthPower>(
-                choiceContext,
-                Owner,
-                adjustment,
-                Owner,
-                cardSource,
-                silent: true);
+            if (adjustment > 0)
+            {
+                await PowerCmd.Apply<StrengthPower>(
+                    choiceContext,
+                    Owner,
+                    adjustment,
+                    Owner,
+                    cardSource,
+                    silent: true);
+            }
+            else if (Owner.GetPower<StrengthPower>() is { } strength)
+            {
+                strength.SetAmount(strength.Amount + adjustment, silent: true);
+                if (strength.ShouldRemoveDueToAmount())
+                    await PowerCmd.Remove(strength);
+            }
+            else
+            {
+                data.GrantedStrength = 0;
+                if (desiredStrength > 0)
+                {
+                    await PowerCmd.Apply<StrengthPower>(
+                        choiceContext,
+                        Owner,
+                        desiredStrength,
+                        Owner,
+                        cardSource,
+                        silent: true);
+                }
+            }
             var strengthAfter = Owner.GetPowerAmount<StrengthPower>();
             data.GrantedStrength += strengthAfter - strengthBefore;
         }
@@ -353,13 +397,12 @@ public sealed class MarathonHammererPower : HammerAbilityPower, ISecondaryResour
         if (grantedStrength == 0)
             return;
 
-        await PowerCmd.Apply<StrengthPower>(
-            new ThrowingPlayerChoiceContext(),
-            owner,
-            -grantedStrength,
-            owner,
-            null,
-            silent: true);
+        if (owner.GetPower<StrengthPower>() is not { } strength)
+            return;
+
+        strength.SetAmount(strength.Amount - grantedStrength, silent: true);
+        if (strength.ShouldRemoveDueToAmount())
+            await PowerCmd.Remove(strength);
     }
 
     internal static int CalculateStrength(int charge, int stacks)
@@ -373,10 +416,35 @@ public sealed class BloodRitePower : HammerAbilityPower
 {
     private const int DamageStep = 10;
 
+    private sealed class Data
+    {
+        public List<CardPlay> ActivePlays { get; } = [];
+        public Dictionary<CardPlay, Dictionary<Creature, int>> HpLostByTarget { get; } = [];
+    }
+
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
 
-    public override async Task AfterDamageGiven(
+    protected override object InitInternalData()
+    {
+        return new Data();
+    }
+
+    public override Task BeforeCardPlayed(CardPlay cardPlay)
+    {
+        if (cardPlay.Card.Owner.Creature != Owner
+            || cardPlay.Card.Type != CardType.Attack)
+        {
+            return Task.CompletedTask;
+        }
+
+        var data = GetInternalData<Data>();
+        data.ActivePlays.Add(cardPlay);
+        data.HpLostByTarget[cardPlay] = [];
+        return Task.CompletedTask;
+    }
+
+    public override Task AfterDamageGiven(
         PlayerChoiceContext choiceContext,
         Creature? dealer,
         DamageResult result,
@@ -386,16 +454,45 @@ public sealed class BloodRitePower : HammerAbilityPower
     {
         if (dealer != Owner
             || !target.IsMonster
+            || cardSource?.Type != CardType.Attack
+            || !props.IsPoweredAttack())
+        {
+            return Task.CompletedTask;
+        }
+
+        var hpLost = Math.Max(0, result.UnblockedDamage - result.OverkillDamage);
+        if (hpLost <= 0)
+            return Task.CompletedTask;
+
+        var data = GetInternalData<Data>();
+        for (var index = data.ActivePlays.Count - 1; index >= 0; index--)
+        {
+            var activePlay = data.ActivePlays[index];
+            if (!ReferenceEquals(activePlay.Card, cardSource))
+                continue;
+
+            var losses = data.HpLostByTarget[activePlay];
+            losses[target] = losses.GetValueOrDefault(target) + hpLost;
+            break;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public override async Task AfterCardPlayed(
+        PlayerChoiceContext choiceContext,
+        CardPlay cardPlay)
+    {
+        var data = GetInternalData<Data>();
+        data.ActivePlays.Remove(cardPlay);
+        if (!data.HpLostByTarget.Remove(cardPlay, out var losses)
             || !Owner.IsAlive
             || Owner.CurrentHp >= Owner.MaxHp)
         {
             return;
         }
 
-        var healing = CalculateHealing(
-            result.UnblockedDamage,
-            result.OverkillDamage,
-            Amount);
+        var healing = CalculateHealing(losses.Values, Amount);
         if (healing <= 0)
             return;
 
@@ -403,15 +500,12 @@ public sealed class BloodRitePower : HammerAbilityPower
         await CreatureCmd.Heal(Owner, healing);
     }
 
-    private static int CalculateHealing(
-        int unblockedDamage,
-        int overkillDamage,
-        int stacks)
+    internal static int CalculateHealing(IEnumerable<int> hpLostByTarget, int stacks)
     {
-        var actualDamage = Math.Max(0, unblockedDamage - overkillDamage);
-        if (actualDamage <= DamageStep || stacks <= 0)
+        if (stacks <= 0)
             return 0;
 
-        return actualDamage / DamageStep * stacks;
+        return hpLostByTarget.Sum(
+            static hpLost => Math.Max(0, hpLost) / DamageStep) * stacks;
     }
 }

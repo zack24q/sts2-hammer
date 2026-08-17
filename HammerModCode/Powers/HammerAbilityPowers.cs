@@ -12,6 +12,7 @@ using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
 using STS2RitsuLib.Combat.SecondaryResources;
+using STS2RitsuLib.Combat.AttackHits;
 using STS2RitsuLib.Interop.AutoRegistration;
 using STS2RitsuLib.Scaffolding.Content;
 
@@ -61,7 +62,7 @@ public sealed class OverchargePower : HammerAbilityPower
 public sealed class OverchargeBacklashPower : HammerAbilityPower
 {
     public override PowerType Type => PowerType.Debuff;
-    public override PowerStackType StackType => PowerStackType.Single;
+    public override PowerStackType StackType => PowerStackType.Counter;
     protected override bool IsVisibleInternal => false;
 
     public override async Task AfterPlayerTurnStart(
@@ -107,7 +108,6 @@ public sealed class FocusPower : HammerAbilityPower
             return;
 
         var copies = Amount / 100;
-        var upgradedCopies = Amount % 100;
         var missingCharge = Math.Max(0, 3 - HammerResources.GetCharge(player));
         var chargeGains = Math.Min(copies, missingCharge);
         var drawTriggers = copies - chargeGains;
@@ -123,10 +123,9 @@ public sealed class FocusPower : HammerAbilityPower
 
         if (drawTriggers > 0)
         {
-            var upgradedDraws = Math.Min(upgradedCopies, drawTriggers);
             await CardPileCmd.Draw(
                 choiceContext,
-                drawTriggers + upgradedDraws,
+                drawTriggers,
                 player);
         }
     }
@@ -135,49 +134,55 @@ public sealed class FocusPower : HammerAbilityPower
 [RegisterPower]
 public sealed class EndlessMomentumPower : HammerAbilityPower
 {
-    private sealed class Data
-    {
-        public bool TriggeredThisTurn;
-    }
-
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
-
-    protected override object InitInternalData()
-    {
-        return new Data();
-    }
-
-    public override Task AfterPlayerTurnStart(
-        PlayerChoiceContext choiceContext,
-        Player player)
-    {
-        if (player.Creature == Owner)
-            GetInternalData<Data>().TriggeredThisTurn = false;
-
-        return Task.CompletedTask;
-    }
+    public override int DisplayAmount => Math.Max(1, Amount / 100);
 
     public async Task TriggerRelease(
         PlayerChoiceContext choiceContext,
         CardModel source)
     {
-        var data = GetInternalData<Data>();
-        if (data.TriggeredThisTurn)
+        var (energy, cards) = CalculateRewards(Amount);
+        if (energy <= 0 || cards <= 0)
             return;
 
-        data.TriggeredThisTurn = true;
         Flash();
-        await PlayerCmd.GainEnergy(Amount, Owner.Player!);
-        await CardPileCmd.Draw(choiceContext, Amount, Owner.Player!);
+        await PlayerCmd.GainEnergy(energy, Owner.Player!);
+        await CardPileCmd.Draw(choiceContext, cards, Owner.Player!);
+    }
+
+    internal static (int Energy, int Cards) CalculateRewards(int packedAmount)
+    {
+        var safeAmount = Math.Max(0, packedAmount);
+        var copies = safeAmount / 100;
+        var upgradedCopies = safeAmount % 100;
+        return (copies + upgradedCopies, copies);
     }
 }
 
 [RegisterPower]
-public sealed class DashJuicePower : HammerAbilityPower
+public sealed class DashJuicePower : HammerAbilityPower, ISecondaryResourceHookListener
 {
     public override PowerType Type => PowerType.Buff;
-    public override PowerStackType StackType => PowerStackType.Single;
+    public override PowerStackType StackType => PowerStackType.Counter;
+
+    public async Task AfterSecondaryResourceChanged(SecondaryResourceChangeContext context)
+    {
+        if (context.Player.Creature != Owner
+            || context.Definition.Id != HammerResources.Charge.Id
+            || context.Delta <= 0)
+        {
+            return;
+        }
+
+        Flash();
+        await CreatureCmd.GainBlock(
+            Owner,
+            Amount * context.Delta,
+            ValueProp.Unpowered,
+            null,
+            fast: true);
+    }
 }
 
 [RegisterPower]
@@ -288,35 +293,40 @@ public sealed class ConcussionResonancePower : HammerAbilityPower
 }
 
 [RegisterPower]
-public sealed class ImpactBurstPower : HammerAbilityPower
+public sealed class ImpactBurstPower : HammerAbilityPower, IAttackHitHookListener
 {
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
 
-    public override async Task AfterDamageGiven(
-        PlayerChoiceContext choiceContext,
-        Creature? dealer,
-        DamageResult result,
-        ValueProp props,
-        Creature target,
-        CardModel? cardSource)
+    public async Task AfterAttackHit(AttackHitContext context)
     {
-        if (dealer != Owner
-            || !target.IsMonster
-            || !target.IsAlive
-            || result.UnblockedDamage <= 0
+        if (context.Dealer != Owner
+            || context.CardSource?.Type != CardType.Attack
+            || context.TotalHitCount < 2
+            || context.HitNumber != context.TotalHitCount
             || Owner.Player is null)
         {
             return;
         }
 
-        await HammerStun.Apply(
-            choiceContext,
-            Owner.Player,
-            this,
-            target,
-            Amount,
-            cardSource);
+        Flash();
+        var stun = CalculateStun((int)context.TotalHitCount, Amount);
+        foreach (var target in context.Targets.Where(
+                     static target => target.IsMonster && target.IsAlive))
+        {
+            await HammerStun.Apply(
+                context.ChoiceContext,
+                Owner.Player,
+                this,
+                target,
+                stun,
+                context.CardSource);
+        }
+    }
+
+    internal static int CalculateStun(int hitCount, int stunPerHit)
+    {
+        return Math.Max(0, hitCount) * Math.Max(0, stunPerHit);
     }
 }
 
@@ -334,7 +344,7 @@ public sealed class FaceOffPower : HammerAbilityPower
         Creature? dealer,
         CardModel? cardSource)
     {
-        if (target != Owner || dealer != Applier || !props.IsPoweredAttack())
+        if (target != Owner || dealer != Applier)
             return 1m;
 
         return 0m;
@@ -393,7 +403,6 @@ public sealed class CounterFormPower : HammerAbilityPower
 {
     private sealed class Data
     {
-        public bool TriggeredThisTurn;
         public HashSet<CardPlay> QualifyingPlays { get; } = [];
     }
 
@@ -405,24 +414,10 @@ public sealed class CounterFormPower : HammerAbilityPower
         return new Data();
     }
 
-    public override Task AfterPlayerTurnStart(
-        PlayerChoiceContext choiceContext,
-        Player player)
-    {
-        if (player.Creature == Owner)
-        {
-            GetInternalData<Data>().TriggeredThisTurn = false;
-            GetInternalData<Data>().QualifyingPlays.Clear();
-        }
-
-        return Task.CompletedTask;
-    }
-
     public override Task BeforeCardPlayed(CardPlay cardPlay)
     {
         var data = GetInternalData<Data>();
-        if (!data.TriggeredThisTurn
-            && cardPlay.Card.Owner.Creature == Owner
+        if (cardPlay.Card.Owner.Creature == Owner
             && cardPlay.Card.Type == CardType.Attack
             && cardPlay.Target?.Monster?.IntendsToAttack == true)
         {
@@ -437,13 +432,9 @@ public sealed class CounterFormPower : HammerAbilityPower
         CardPlay cardPlay)
     {
         var data = GetInternalData<Data>();
-        if (data.TriggeredThisTurn
-            || !data.QualifyingPlays.Remove(cardPlay))
-        {
+        if (!data.QualifyingPlays.Remove(cardPlay))
             return;
-        }
 
-        data.TriggeredThisTurn = true;
         Flash();
         await CreatureCmd.GainBlock(
             Owner,
@@ -459,6 +450,7 @@ public sealed class AftershockPower : HammerAbilityPower
 {
     public override PowerType Type => PowerType.Debuff;
     public override PowerStackType StackType => PowerStackType.Counter;
+    public override PowerInstanceType InstanceType => PowerInstanceType.InstancedPerApplier;
 
     public override async Task AfterPlayerTurnStart(
         PlayerChoiceContext choiceContext,

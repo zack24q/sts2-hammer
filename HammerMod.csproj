@@ -10,7 +10,7 @@
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <RootNamespace>HammerMod</RootNamespace>
         <RitsuLibPackageId>STS2.RitsuLib.Compat.0.107.1</RitsuLibPackageId>
-        <RitsuLibVersion>0.5.12</RitsuLibVersion>
+        <RitsuLibVersion>0.5.13</RitsuLibVersion>
         <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
         <PathMap>$(AppOutputBase)=.\</PathMap>
         <NoWarn>$(NoWarn);MSB3270;CS0436</NoWarn>
@@ -32,6 +32,8 @@
         <PackageReference Include="Krafs.Publicizer" Version="2.2.1" PrivateAssets="all"/>
         <!-- Match the installed STS2 API while keeping RitsuLib as the only framework dependency. -->
         <PackageReference Include="$(RitsuLibPackageId)" Version="$(RitsuLibVersion)"/>
+        <PackageReference Update="Godot.SourceGenerators" PrivateAssets="all"/>
+        <PackageReference Update="GodotSharpEditor" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -47,9 +49,9 @@
     <ItemGroup>
         <!-- 中文：排除 Godot、IDE 和构建输出目录，避免本地生成文件参与编译。 -->
         <!-- English: Exclude Godot, IDE, and build output directories so local generated files are not compiled. -->
-        <Compile Remove=".godot/**;.idea/**;.vs/**;bin/**;obj/**"/>
-        <EmbeddedResource Remove=".godot/**;.idea/**;.vs/**;bin/**;obj/**"/>
-        <None Remove=".godot/**;.idea/**;.vs/**;bin/**;obj/**"/>
+        <Compile Remove=".godot/**;.idea/**;.vs/**;bin/**;obj/**;tests/**"/>
+        <EmbeddedResource Remove=".godot/**;.idea/**;.vs/**;bin/**;obj/**;tests/**"/>
+        <None Remove=".godot/**;.idea/**;.vs/**;bin/**;obj/**;tests/**"/>
 
         <AdditionalFiles Include="HammerMod/localization/**/*.json"/>
 

@@ -1,11 +1,13 @@
 using HammerMod.Gameplay;
 using HammerMod.Powers;
 using HammerMod.Relics;
+using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Hooks;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
@@ -21,70 +23,65 @@ public interface IChargeReleaseCard
 {
 }
 
-public interface IContextualDescriptionCard
+public interface ICombatPreviewDescriptionCard
 {
 }
 
-public interface IChargeContextDescriptionCard : IContextualDescriptionCard
+public interface ITargetPreviewDescriptionCard
 {
 }
 
 public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
 {
-    private bool _snapshotChargeOnNextRelease;
-    private int? _releaseChargeSnapshot;
+    private readonly ChargeReleaseSnapshot _releaseChargeSnapshot = new();
 
     protected static IEnumerable<DynamicVar> ChargeTierVars(
+        string prefix,
+        IReadOnlyList<int> baseValues)
+    {
+        for (var charge = 0; charge <= HammerResources.MaxCharge; charge++)
+            yield return new IntVar($"{prefix}{charge}", baseValues[charge]);
+    }
+
+    protected void UpgradeChargeTierVars(
         string prefix,
         IReadOnlyList<int> baseValues,
         IReadOnlyList<int> upgradedValues)
     {
         for (var charge = 0; charge <= HammerResources.MaxCharge; charge++)
         {
-            var tier = charge;
-            yield return ModCardVars.Computed(
-                $"{prefix}{tier}",
-                context => context.IsUpgraded ? upgradedValues[tier] : baseValues[tier],
-                baseValue: baseValues[tier]);
+            DynamicVars[$"{prefix}{charge}"].UpgradeValueBy(
+                upgradedValues[charge] - baseValues[charge]);
         }
     }
 
     public override CardAssetProfile AssetProfile => new(
         PortraitPath: $"{Entry.ResPath}/images/cards/placeholders/{GetType().Name}.png");
 
+    public override IEnumerable<CardKeyword> CanonicalKeywords =>
+        this is IChargeReleaseCard ? [HammerKeywords.ChargeRelease] : [];
+
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips =>
+        HammerCardHoverTips.Create(this);
+
     protected HammerCard(int baseCost, CardType type, CardRarity rarity, TargetType target)
         : base(baseCost, type, rarity, target)
     {
     }
 
-    protected int ChargeLevel =>
-        this is IChargeReleaseCard
-        && Owner.Creature.GetPower<OverchargePower>() is not null
-            ? HammerResources.MaxCharge
-            : HammerResources.GetCharge(Owner);
-
-    internal void SnapshotChargeOnNextRelease()
-    {
-        _snapshotChargeOnNextRelease = true;
-    }
+    protected int ChargeLevel => HammerResources.GetCharge(Owner);
 
     protected int BeginChargeRelease(CardPlay cardPlay)
     {
-        if (_snapshotChargeOnNextRelease && cardPlay.IsFirstInSeries)
-        {
-            _releaseChargeSnapshot = ChargeLevel;
-            _snapshotChargeOnNextRelease = false;
-        }
-
-        return _releaseChargeSnapshot ?? ChargeLevel;
+        return _releaseChargeSnapshot.Begin(
+            ChargeLevel,
+            cardPlay.IsFirstInSeries);
     }
 
     protected bool HasChargeAtLeast(int amount)
     {
         return CombatState is not null
-            && (this is IChargeReleaseCard
-                && Owner.Creature.GetPower<OverchargePower>() is not null
-                || HammerResources.GetCharge(Owner) >= amount);
+            && HammerResources.GetCharge(Owner) >= amount;
     }
 
     protected bool AnyHittableEnemy(Func<Creature, bool> predicate)
@@ -101,35 +98,17 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
         ComputedDynamicVarContext context,
         bool isChargeReleaseCard = false)
     {
-        if (!context.HasPlayer || context.Card?.Pile?.Type != PileType.Hand)
+        var player = context.Player;
+        if (player is null || !UsesLiveCombatValues(context))
             return 0;
 
-        return isChargeReleaseCard
-            && context.Player.Creature.GetPower<OverchargePower>() is not null
-                ? 3
-                : HammerResources.GetCharge(context.Player);
+        return HammerResources.GetCharge(player);
     }
 
     public virtual IEnumerable<CardDescriptionFragment> GetDescriptionFragments(
         CardDescriptionContext context)
     {
-        if (this is not IContextualDescriptionCard)
-            return [];
-
-        var isInHand = context.PileType == PileType.Hand
-            && context.Card.Pile?.Type == PileType.Hand
-            && !context.IsUpgradePreview;
-        var suffix = isInHand
-            ? ".handDescription"
-            : ".tierDescription";
-
-        return
-        [
-            new CardDescriptionFragment(
-                new LocString("cards", Id.Entry + suffix),
-                CardDescriptionFragmentPlacement.BeforeBase,
-                0)
-        ];
+        return [];
     }
 
     protected async Task GainCharge(int amount)
@@ -149,24 +128,27 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
         int releasedCharge,
         CardPlay cardPlay)
     {
-        var usesSnapshot = _releaseChargeSnapshot.HasValue;
         try
         {
-            if (usesSnapshot && !cardPlay.IsFirstInSeries)
+            if (!_releaseChargeSnapshot.ShouldRelease(cardPlay.IsLastInSeries))
                 return;
 
-            await SecondaryResourceCmd.Reset(
-                Owner,
-                HammerResources.Charge.Id,
-                source: this);
+            if (ShouldClearCharge(
+                    Owner.Creature.GetPower<OverchargePower>() is not null))
+            {
+                await SecondaryResourceCmd.Reset(
+                    Owner,
+                    HammerResources.Charge.Id,
+                    source: this);
+            }
 
-            if (releasedCharge == HammerResources.MaxCharge
+            if (releasedCharge >= 3
                 && Owner.Creature.GetPower<EndlessMomentumPower>() is { } momentum)
             {
                 await momentum.TriggerRelease(choiceContext, this);
             }
 
-            if (releasedCharge == HammerResources.MaxCharge
+            if (releasedCharge >= 3
                 && Owner.Creature.GetPower<ChargeSwitchCouragePower>() is { } courage)
             {
                 await courage.TriggerRelease(choiceContext, this);
@@ -180,8 +162,7 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
         }
         finally
         {
-            if (usesSnapshot && cardPlay.IsLastInSeries)
-                _releaseChargeSnapshot = null;
+            _releaseChargeSnapshot.Finish(cardPlay.IsLastInSeries);
         }
     }
 
@@ -197,7 +178,7 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
         int hitCount = 1)
     {
         await DamageCmd.Attack(damage)
-            .WithHitCount(ResolveAttackHitCount(hitCount))
+            .WithHitCount(hitCount)
             .FromCard(this)
             .Targeting(target)
             .Execute(choiceContext);
@@ -209,7 +190,7 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
         int hitCount = 1)
     {
         await DamageCmd.Attack(damage)
-            .WithHitCount(ResolveAttackHitCount(hitCount))
+            .WithHitCount(hitCount)
             .FromCard(this)
             .TargetingAllOpponents(CombatState!)
             .Execute(choiceContext);
@@ -226,7 +207,7 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
         ComputedDynamicVarContext context,
         int originalHitCount)
     {
-        if (!IsLiveHandPreview(context))
+        if (!UsesLiveCombatValues(context) || context.Player is null)
             return originalHitCount;
 
         return ResolveAttackHitCount(
@@ -236,7 +217,7 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
 
     protected static int PreviewEnergyXValue(ComputedDynamicVarContext context)
     {
-        if (!IsLiveHandPreview(context) || !context.HasCombatState)
+        if (!UsesLiveCombatValues(context) || !context.HasCombatState)
             return 0;
 
         var card = context.Card!;
@@ -247,15 +228,26 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
             energyToSpend);
     }
 
-    private static bool IsLiveHandPreview(ComputedDynamicVarContext context)
+    private static bool UsesLiveCombatValues(ComputedDynamicVarContext context)
     {
-        return context.HasPlayer
-            && context.HasCard
-            && !context.IsUpgradePreview
-            && context.Card!.Pile?.Type == PileType.Hand;
+        return ShouldUseLiveCombatValues(
+            context.IsCardInCombat,
+            CombatManager.Instance.IsInProgress);
     }
 
-    private static int ResolveAttackHitCount(int originalHitCount, int extraHitCount)
+    internal static bool ShouldUseLiveCombatValues(
+        bool isCardInCombat,
+        bool combatInProgress)
+    {
+        return isCardInCombat && combatInProgress;
+    }
+
+    internal static bool ShouldClearCharge(bool overchargeActive)
+    {
+        return !overchargeActive;
+    }
+
+    internal static int ResolveAttackHitCount(int originalHitCount, int extraHitCount)
     {
         if (originalHitCount < 2)
             return originalHitCount;
@@ -278,6 +270,14 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
             ValueProp.Unblockable | ValueProp.Unpowered,
             Owner.Creature,
             this);
+    }
+
+    protected static async Task LoseHpDirectly(Creature target, decimal amount)
+    {
+        if (amount <= 0 || !target.IsAlive)
+            return;
+
+        await CreatureCmd.SetCurrentHp(target, Math.Max(0, target.CurrentHp - amount));
     }
 
     protected static bool IntendsToAttack(Creature? target)

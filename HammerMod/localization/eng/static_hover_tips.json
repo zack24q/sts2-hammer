@@ -1,4 +1,4 @@
 {
   "HAMMER_MOD_RESOURCE_CHARGE.title": "Charge",
-  "HAMMER_MOD_RESOURCE_CHARGE.description": "Current Charge: [blue]{Amount}[/blue]/[blue]{MaxAmount}[/blue]. Charge persists between turns, is cleared by unblocked enemy attack damage, and is cleared after a card releases it."
+  "HAMMER_MOD_RESOURCE_CHARGE.description": "Current Charge: [blue]{Amount}[/blue]/[blue]{MaxAmount}[/blue]. Charge persists between turns and is cleared by unblocked damage."
 }

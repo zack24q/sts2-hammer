@@ -12,12 +12,12 @@ namespace HammerMod.Cards;
 [RegisterCard(typeof(HammerModCardPool))]
 [RegisterCharacterStarterCard(typeof(HammerModCharacter), 1, Order = 40)]
 [RegisterArchaicToothTranscendence(typeof(ImpactCrater))]
-public sealed class EarthStrike : HammerCard, IChargeReleaseCard, IChargeContextDescriptionCard
+public sealed class EarthStrike : HammerCard, IChargeReleaseCard, ICombatPreviewDescriptionCard
 {
-    private static readonly int[] BaseDamage = [11, 16, 22, 30];
+    private static readonly int[] BaseDamage = [12, 16, 22, 30];
     private static readonly int[] UpgradedDamage = [15, 20, 27, 36];
-    private static readonly int[] BaseStun = [0, 2, 4, 5];
-    private static readonly int[] UpgradedStun = [1, 3, 5, 6];
+    private static readonly int[] BaseStun = [1, 2, 4, 6];
+    private static readonly int[] UpgradedStun = [2, 3, 6, 8];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -29,8 +29,8 @@ public sealed class EarthStrike : HammerCard, IChargeReleaseCard, IChargeContext
             "Stun",
             static context => ResolveStun(PreviewCharge(context, true), context.IsUpgraded),
             baseValue: BaseStun[0]),
-        .. ChargeTierVars("DamageAt", BaseDamage, UpgradedDamage),
-        .. ChargeTierVars("StunAt", BaseStun, UpgradedStun)
+        .. ChargeTierVars("DamageAt", BaseDamage),
+        .. ChargeTierVars("StunAt", BaseStun)
     ];
 
     public EarthStrike() : base(2, CardType.Attack, CardRarity.Basic, TargetType.AnyEnemy)
@@ -54,6 +54,12 @@ public sealed class EarthStrike : HammerCard, IChargeReleaseCard, IChargeContext
             await HammerStun.Apply(choiceContext, this, cardPlay.Target, stun, cardPlay);
 
         await ReleaseCharge(choiceContext, charge, cardPlay);
+    }
+
+    protected override void OnUpgrade()
+    {
+        UpgradeChargeTierVars("DamageAt", BaseDamage, UpgradedDamage);
+        UpgradeChargeTierVars("StunAt", BaseStun, UpgradedStun);
     }
 
     private static int ResolveDamage(int charge, bool upgraded)

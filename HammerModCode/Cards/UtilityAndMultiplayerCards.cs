@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
+using STS2RitsuLib.Cards.DynamicVars;
 using STS2RitsuLib.Interop.AutoRegistration;
 
 namespace HammerMod.Cards;
@@ -79,9 +80,9 @@ public sealed class LaunchTeammate : HammerCard
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new BlockVar(16, ValueProp.Move),
+        new BlockVar(8, ValueProp.Move),
         new EnergyVar("Energy", 1),
-        new PowerVar<StrengthPower>(1)
+        new PowerVar<StrengthPower>(2)
     ];
 
     public LaunchTeammate()
@@ -125,7 +126,7 @@ public sealed class LaunchTeammate : HammerCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Block.UpgradeValueBy(6);
+        DynamicVars.Block.UpgradeValueBy(2);
     }
 }
 
@@ -176,11 +177,9 @@ public sealed class HardshellPowder : HammerCard
     public override CardMultiplayerConstraint MultiplayerConstraint =>
         CardMultiplayerConstraint.MultiplayerOnly;
 
-    public override bool GainsBlock => true;
-
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new BlockVar(8, ValueProp.Move)
+        new PowerVar<DexterityPower>(1)
     ];
 
     public HardshellPowder()
@@ -195,17 +194,18 @@ public sealed class HardshellPowder : HammerCard
         foreach (var player in CombatState!.Players.Where(
                      static player => player.Creature.IsAlive))
         {
-            await CreatureCmd.GainBlock(
+            await PowerCmd.Apply<DexterityPower>(
+                choiceContext,
                 player.Creature,
-                DynamicVars.Block.BaseValue,
-                ValueProp.Move,
-                cardPlay);
+                DynamicVars.Dexterity.BaseValue,
+                Owner.Creature,
+                this);
         }
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Block.UpgradeValueBy(3);
+        DynamicVars.Dexterity.UpgradeValueBy(1);
     }
 }
 

@@ -174,38 +174,27 @@ public sealed class FrostcraftCharm : HammerRelic
 [RegisterRelic(typeof(HammerModRelicPool))]
 public sealed class SlidingBoostJewel : HammerRelic, ISecondaryResourceHookListener
 {
-    private int _lastTriggeredRound = -1;
-
     public override RelicRarity Rarity => RelicRarity.Common;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new PowerVar<StrengthPower>(2)
+        new PowerVar<StrengthPower>(1)
     ];
-
-    public override Task BeforeCombatStart()
-    {
-        _lastTriggeredRound = -1;
-        return Task.CompletedTask;
-    }
 
     public async Task AfterSecondaryResourceChanged(SecondaryResourceChangeContext context)
     {
-        var round = context.CombatState.RoundNumber;
         if (context.Player != Owner
             || context.Definition.Id != HammerResources.Charge.Id
-            || context.Delta <= 0
-            || _lastTriggeredRound == round)
+            || context.Delta <= 0)
         {
             return;
         }
 
-        _lastTriggeredRound = round;
         Flash();
         await PowerCmd.Apply<SlidingBoostPower>(
             new ThrowingPlayerChoiceContext(),
             Owner.Creature,
-            DynamicVars.Strength.BaseValue,
+            DynamicVars.Strength.BaseValue * context.Delta,
             Owner.Creature,
             null);
     }
@@ -214,11 +203,11 @@ public sealed class SlidingBoostJewel : HammerRelic, ISecondaryResourceHookListe
 [RegisterRelic(typeof(HammerModRelicPool))]
 public sealed class CounterstrikeCharm : HammerRelic
 {
-    public override RelicRarity Rarity => RelicRarity.Common;
+    public override RelicRarity Rarity => RelicRarity.Rare;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new IntVar("Charge", 1),
+        new PowerVar<StrengthPower>(2),
         new BlockVar(6, ValueProp.Unpowered)
     ];
 
@@ -275,7 +264,7 @@ public sealed class DownedPursuitCharm : HammerRelic
 {
     private int _lastTriggeredRound = -1;
 
-    public override RelicRarity Rarity => RelicRarity.Uncommon;
+    public override RelicRarity Rarity => RelicRarity.Common;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -372,4 +361,25 @@ public sealed class EvasionMantle : HammerRelic
 public sealed class RocksteadyMantle : HammerRelic
 {
     public override RelicRarity Rarity => RelicRarity.Shop;
+
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new BlockVar(3, ValueProp.Unpowered)
+    ];
+
+    public override async Task AfterPlayerTurnStart(
+        PlayerChoiceContext choiceContext,
+        Player player)
+    {
+        if (player != Owner)
+            return;
+
+        Flash();
+        await CreatureCmd.GainBlock(
+            Owner.Creature,
+            DynamicVars.Block.BaseValue,
+            ValueProp.Unpowered,
+            null,
+            fast: true);
+    }
 }

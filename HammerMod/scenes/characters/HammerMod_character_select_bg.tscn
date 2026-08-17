@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Texture2D" path="res://HammerMod/images/characters/HammerMod_character_select.png" id="1_character"]
-[ext_resource type="Texture2D" path="res://HammerMod/images/characters/HammerMod_character_icon.png" id="2_icon"]
+[ext_resource type="Texture2D" path="res://HammerMod/images/powers/hammer_power.svg" id="2_icon"]
 
 [node name="HammerModCharacterSelectBg" type="Control"]
 layout_mode = 3

@@ -4,7 +4,7 @@
   "pck_name": "HammerMod",
   "author": "zack",
   "description": "RitsuLib-based minimal playable demo for the Hammer character.",
-  "version": "0.1.35",
+  "version": "0.1.41",
   "has_pck": true,
   "has_dll": true,
   "affects_gameplay": true,
@@ -12,7 +12,7 @@
   "dependencies": [
     {
       "id": "STS2-RitsuLib",
-      "version": "0.5.12"
+      "version": "0.5.13"
     }
   ]
 }

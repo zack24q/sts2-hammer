@@ -19,11 +19,13 @@ public static class HammerStun
 
     public static int GetThreshold(Creature target)
     {
-        var priorStuns = Math.Clamp(
-            target.GetPowerAmount<HammerStunResistancePower>(),
-            0,
-            20);
+        return CalculateThreshold(
+            target.GetPowerAmount<HammerStunResistancePower>());
+    }
 
+    internal static int CalculateThreshold(int priorStuns)
+    {
+        priorStuns = Math.Clamp(priorStuns, 0, 20);
         return 10 * (1 << priorStuns);
     }
 

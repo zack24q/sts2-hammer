@@ -21,6 +21,8 @@ public partial class Entry
 
         Logger = RitsuLibFramework.CreateLogger(ModId);
         HammerResources.Register();
+        HammerKeywords.Register();
+        HammerTargetTypes.Register();
         ModTypeDiscoveryHub.RegisterModAssembly(ModId, assembly);
 
         Logger.Info("HammerMod content initialized.");

@@ -4,15 +4,18 @@ using HammerMod.Powers;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.Powers;
 using STS2RitsuLib.Cards.DynamicVars;
 using STS2RitsuLib.Interop.AutoRegistration;
+using STS2RitsuLib.Models.Capabilities;
+using STS2RitsuLib.Scaffolding.Content;
 
 namespace HammerMod.Cards;
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class DoubleSideSwing : HammerCard, IContextualDescriptionCard
+public sealed class DoubleSideSwing : HammerCard, ICombatPreviewDescriptionCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -48,7 +51,7 @@ public sealed class DoubleSideSwing : HammerCard, IContextualDescriptionCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class IronbugFollowUp : HammerCard, IContextualDescriptionCard
+public sealed class IronbugFollowUp : HammerCard, ICombatPreviewDescriptionCard
 {
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
@@ -86,58 +89,44 @@ public sealed class IronbugFollowUp : HammerCard, IContextualDescriptionCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(2);
+        DynamicVars["Cards"].UpgradeValueBy(1);
     }
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class SlidingCombo : HammerCard, IContextualDescriptionCard
+public sealed class SlidingCombo : HammerCard
 {
     protected override bool ShouldGlowGoldInternal => HasChargeAtLeast(2);
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(2, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
-        ModCardVars.Computed(
-            "Hits",
-            static context => PreviewAttackHitCount(
-                context,
-                context.GetCardIntOrDefault("BaseHits", 3)),
-            baseValue: 3),
-        new IntVar("BaseHits", 3),
         new IntVar("RequiredCharge", 2),
-        new PowerVar<StrengthPower>(1)
+        new IntVar("NormalStrength", 2),
+        new IntVar("ChargedStrength", 4)
     ];
 
     public SlidingCombo()
-        : base(0, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
+        : base(0, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        ArgumentNullException.ThrowIfNull(cardPlay.Target);
-        var gainStrength = ChargeLevel >= DynamicVars["RequiredCharge"].IntValue;
-        await Attack(
+        var strength = ChargeLevel >= DynamicVars["RequiredCharge"].IntValue
+            ? DynamicVars["ChargedStrength"].IntValue
+            : DynamicVars["NormalStrength"].IntValue;
+        await PowerCmd.Apply<SlidingComboStrengthPower>(
             choiceContext,
-            cardPlay.Target,
-            DynamicVars.Damage.BaseValue,
-            DynamicVars["BaseHits"].IntValue);
-
-        if (gainStrength)
-        {
-            await PowerCmd.Apply<SlidingComboStrengthPower>(
-                choiceContext,
-                Owner.Creature,
-                DynamicVars.Strength.BaseValue,
-                Owner.Creature,
-                this);
-        }
+            Owner.Creature,
+            strength,
+            Owner.Creature,
+            this);
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Strength.UpgradeValueBy(1);
+        DynamicVars["NormalStrength"].UpgradeValueBy(2);
+        DynamicVars["ChargedStrength"].UpgradeValueBy(2);
     }
 }
 
@@ -146,7 +135,7 @@ public sealed class SweepingPreparation : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(9, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new DamageVar(6, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
         new CardsVar("Cards", 1)
     ];
 
@@ -171,19 +160,26 @@ public sealed class SweepingPreparation : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class PoundingSmash : HammerCard, IContextualDescriptionCard
+public sealed class PoundingSmash : HammerCard, ICombatPreviewDescriptionCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(6, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new DamageVar(3, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
         ModCardVars.Computed(
             "Hits",
             static context => PreviewAttackHitCount(
                 context,
-                context.GetCardIntOrDefault("BaseHits", 3)),
-            baseValue: 3),
-        new IntVar("BaseHits", 3),
-        new IntVar("Stun", 4)
+                context.GetCardIntOrDefault("BaseHits", 4)),
+            baseValue: 4),
+        ModCardVars.Computed(
+            "ResolvedStun",
+            static context => PreviewAttackHitCount(
+                    context,
+                    context.GetCardIntOrDefault("BaseHits", 4))
+                * context.GetCardIntOrDefault("StunPerHit", 2),
+            baseValue: 8),
+        new IntVar("BaseHits", 4),
+        new IntVar("StunPerHit", 2)
     ];
 
     public PoundingSmash()
@@ -194,11 +190,13 @@ public sealed class PoundingSmash : HammerCard, IContextualDescriptionCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
+        var baseHits = DynamicVars["BaseHits"].IntValue;
+        var resolvedHits = ResolveAttackHitCount(baseHits);
         await Attack(
             choiceContext,
             cardPlay.Target,
             DynamicVars.Damage.BaseValue,
-            DynamicVars["BaseHits"].IntValue);
+            baseHits);
 
         if (cardPlay.Target.IsAlive)
         {
@@ -206,20 +204,19 @@ public sealed class PoundingSmash : HammerCard, IContextualDescriptionCard
                 choiceContext,
                 this,
                 cardPlay.Target,
-                DynamicVars["Stun"].IntValue,
+                resolvedHits * DynamicVars["StunPerHit"].IntValue,
                 cardPlay);
         }
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(2);
-        DynamicVars["Stun"].UpgradeValueBy(2);
+        DynamicVars["BaseHits"].UpgradeValueBy(2);
     }
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class TrueSpinningImpact : HammerCard, IContextualDescriptionCard
+public sealed class TrueSpinningImpact : HammerCard, ICombatPreviewDescriptionCard
 {
     protected override bool HasEnergyCostX => true;
 
@@ -232,10 +229,11 @@ public sealed class TrueSpinningImpact : HammerCard, IContextualDescriptionCard
             baseValue: 0),
         ModCardVars.Computed(
             "ResolvedStun",
-            static context => PreviewHits(context)
-                * context.GetCardIntOrDefault("StunPerHit", 1),
+            static context => PreviewEnergyXValue(context)
+                * context.GetCardIntOrDefault("StunPerEnergy", 2),
             baseValue: 0),
-        new IntVar("StunPerHit", 1)
+        new IntVar("BonusHits", 0),
+        new IntVar("StunPerEnergy", 2)
     ];
 
     public TrueSpinningImpact()
@@ -245,12 +243,12 @@ public sealed class TrueSpinningImpact : HammerCard, IContextualDescriptionCard
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        var originalHitCount = ResolveEnergyXValue();
+        var energyX = ResolveEnergyXValue();
+        var originalHitCount = energyX + DynamicVars["BonusHits"].IntValue;
         if (originalHitCount <= 0)
             return;
 
         var targets = CombatState!.HittableEnemies.ToArray();
-        var resolvedHitCount = ResolveAttackHitCount(originalHitCount);
         await AttackAll(
             choiceContext,
             DynamicVars.Damage.BaseValue,
@@ -262,20 +260,21 @@ public sealed class TrueSpinningImpact : HammerCard, IContextualDescriptionCard
                 choiceContext,
                 this,
                 target,
-                resolvedHitCount * DynamicVars["StunPerHit"].IntValue,
+                energyX * DynamicVars["StunPerEnergy"].IntValue,
                 cardPlay);
         }
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(2);
-        DynamicVars["StunPerHit"].UpgradeValueBy(1);
+        DynamicVars["BonusHits"].UpgradeValueBy(1);
     }
 
     private static int PreviewHits(ComputedDynamicVarContext context)
     {
-        return PreviewAttackHitCount(context, PreviewEnergyXValue(context));
+        var originalHitCount = PreviewEnergyXValue(context)
+            + context.GetCardIntOrDefault("BonusHits", 0);
+        return PreviewAttackHitCount(context, originalHitCount);
     }
 }
 
@@ -347,7 +346,7 @@ public sealed class WeaknessExploit : HammerCard
     ];
 
     public WeaknessExploit()
-        : base(2, CardType.Power, CardRarity.Uncommon, TargetType.Self)
+        : base(2, CardType.Power, CardRarity.Rare, TargetType.Self)
     {
     }
 
@@ -372,7 +371,7 @@ public sealed class ChargeSwitchCourage : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new PowerVar<StrengthPower>(1)
+        new PowerVar<StrengthPower>(3)
     ];
 
     public ChargeSwitchCourage()
@@ -405,7 +404,7 @@ public sealed class Partbreaker : HammerCard
     ];
 
     public Partbreaker()
-        : base(3, CardType.Power, CardRarity.Rare, TargetType.Self)
+        : base(2, CardType.Power, CardRarity.Rare, TargetType.Self)
     {
     }
 
@@ -464,7 +463,7 @@ public sealed class BloodRite : HammerCard
     ];
 
     public BloodRite()
-        : base(3, CardType.Power, CardRarity.Rare, TargetType.Self)
+        : base(2, CardType.Power, CardRarity.Rare, TargetType.Self)
     {
     }
 

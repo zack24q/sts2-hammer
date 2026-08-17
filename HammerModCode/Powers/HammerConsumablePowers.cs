@@ -8,7 +8,6 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
-using STS2RitsuLib.Combat.SecondaryResources;
 using STS2RitsuLib.Interop.AutoRegistration;
 
 namespace HammerMod.Powers;
@@ -32,11 +31,12 @@ public sealed class CounterstrikeRecoveryPower : HammerAbilityPower
             return;
 
         relic.Flash();
-        await SecondaryResourceCmd.Gain(
-            player,
-            HammerResources.Charge.Id,
-            relic.DynamicVars["Charge"].IntValue,
-            source: relic);
+        await PowerCmd.Apply<CounterstrikeStrengthPower>(
+            choiceContext,
+            Owner,
+            relic.DynamicVars.Strength.BaseValue,
+            Owner,
+            null);
         await CreatureCmd.GainBlock(
             Owner,
             relic.DynamicVars.Block.BaseValue,
@@ -44,6 +44,13 @@ public sealed class CounterstrikeRecoveryPower : HammerAbilityPower
             null,
             fast: true);
     }
+}
+
+[RegisterPower]
+public sealed class CounterstrikeStrengthPower : TemporaryStrengthPower
+{
+    public override AbstractModel OriginModel => ModelDb.Relic<CounterstrikeCharm>();
+    protected override bool IsPositive => true;
 }
 
 [RegisterPower]

@@ -10,12 +10,12 @@ namespace HammerMod.Cards;
 
 [RegisterCard(typeof(HammerModCardPool))]
 [RegisterDustyTomeCard(typeof(HammerModCharacter))]
-public sealed class ImpactCrater : HammerCard, IChargeReleaseCard, IChargeContextDescriptionCard
+public sealed class ImpactCrater : HammerCard, IChargeReleaseCard, ICombatPreviewDescriptionCard
 {
-    private static readonly int[] BaseDamage = [25, 33, 44, 57];
-    private static readonly int[] UpgradedDamage = [37, 48, 63, 76];
-    private static readonly int[] BaseStun = [4, 6, 8, 11];
-    private static readonly int[] UpgradedStun = [6, 8, 11, 15];
+    private static readonly int[] BaseDamage = [14, 18, 24, 32];
+    private static readonly int[] UpgradedDamage = [18, 22, 30, 40];
+    private static readonly int[] BaseStun = [4, 7, 11, 16];
+    private static readonly int[] UpgradedStun = [5, 9, 14, 20];
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -27,8 +27,8 @@ public sealed class ImpactCrater : HammerCard, IChargeReleaseCard, IChargeContex
             "Stun",
             static context => ResolveStun(PreviewCharge(context, true), context.IsUpgraded),
             baseValue: BaseStun[0]),
-        .. ChargeTierVars("DamageAt", BaseDamage, UpgradedDamage),
-        .. ChargeTierVars("StunAt", BaseStun, UpgradedStun)
+        .. ChargeTierVars("DamageAt", BaseDamage),
+        .. ChargeTierVars("StunAt", BaseStun)
     ];
 
     public ImpactCrater()
@@ -57,6 +57,12 @@ public sealed class ImpactCrater : HammerCard, IChargeReleaseCard, IChargeContex
         }
 
         await ReleaseCharge(choiceContext, charge, cardPlay);
+    }
+
+    protected override void OnUpgrade()
+    {
+        UpgradeChargeTierVars("DamageAt", BaseDamage, UpgradedDamage);
+        UpgradeChargeTierVars("StunAt", BaseStun, UpgradedStun);
     }
 
     private static int ResolveDamage(int charge, bool upgraded)
