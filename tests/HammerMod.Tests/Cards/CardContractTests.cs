@@ -48,7 +48,7 @@ public sealed partial class CardContractTests
     public void CardRegistrationContainsNoDuplicateRuntimeTypes()
     {
         Assert.NotEmpty(RegisteredCardTypes);
-        Assert.Equal(87, AllRegisteredCardTypes.Length);
+        Assert.Equal(88, AllRegisteredCardTypes.Length);
         Assert.Equal(
             AllRegisteredCardTypes.Length,
             AllRegisteredCardTypes.Distinct().Count());
@@ -71,16 +71,73 @@ public sealed partial class CardContractTests
             .ToArray();
 
         Assert.Equal(4, cards.Count(static card => card.Rarity == CardRarity.Basic));
-        Assert.Equal(19, cards.Count(static card => card.Rarity == CardRarity.Common));
+        Assert.Equal(20, cards.Count(static card => card.Rarity == CardRarity.Common));
         Assert.Equal(36, cards.Count(static card => card.Rarity == CardRarity.Uncommon));
         Assert.Equal(26, cards.Count(static card => card.Rarity == CardRarity.Rare));
         Assert.Equal(1, cards.Count(static card => card.Rarity == CardRarity.Ancient));
         Assert.Equal(1, cards.Count(static card => card.Rarity == CardRarity.Status));
 
         Assert.Equal(34, cards.Count(static card => card.Type == CardType.Attack));
-        Assert.Equal(34, cards.Count(static card => card.Type == CardType.Skill));
+        Assert.Equal(35, cards.Count(static card => card.Type == CardType.Skill));
         Assert.Equal(18, cards.Count(static card => card.Type == CardType.Power));
         Assert.Equal(1, cards.Count(static card => card.Type == CardType.Status));
+    }
+
+    [Fact]
+    public void DesignDocumentCardTableMatchesRuntimeMetadata()
+    {
+        var designPath = Path.Combine(FindRepositoryRoot(), "hammer_card_design.md");
+        var design = File.ReadAllText(designPath);
+        var relicSection = design.IndexOf("\n## 职业遗物", StringComparison.Ordinal);
+        Assert.True(relicSection > 0, "The design document must contain a relic section.");
+
+        var rows = ParseDesignCardRows(design[..relicSection]);
+        Assert.Equal(AllRegisteredCardTypes.Length, rows.Count);
+        Assert.DoesNotContain(
+            rows.GroupBy(static row => row.Title, StringComparer.Ordinal),
+            static group => group.Count() > 1);
+
+        foreach (var cardType in AllRegisteredCardTypes)
+        {
+            var prefix = $"HAMMER_MOD_CARD_{ToUpperSnakeCase(cardType.Name)}";
+            var title = ChineseLocalization.Value[$"{prefix}.title"];
+            var row = Assert.Single(rows, row => row.Title == title);
+            var card = Assert.IsAssignableFrom<CardModel>(Activator.CreateInstance(cardType));
+            var upgradedCard = CreateUpgradedCard(cardType);
+
+            Assert.Equal(card.Rarity, ParseDesignRarity(row.Metadata));
+            Assert.Equal(card.Type, ParseDesignType(row.Metadata));
+            AssertDesignCosts(card, upgradedCard, row);
+            AssertDesignKeywords(card, upgradedCard, row);
+
+            if (typeof(IChargeReleaseCard).IsAssignableFrom(cardType))
+            {
+                Assert.Contains(
+                    "释放蓄力",
+                    row.BaseEffect,
+                    StringComparison.Ordinal);
+            }
+        }
+    }
+
+    [Fact]
+    public void DesignDocumentUsesCurrentCardSemantics()
+    {
+        var designPath = Path.Combine(FindRepositoryRoot(), "hammer_card_design.md");
+        var design = File.ReadAllText(designPath);
+        var relicSection = design.IndexOf("\n## 职业遗物", StringComparison.Ordinal);
+        Assert.True(relicSection > 0, "The design document must contain a relic section.");
+        var rows = ParseDesignCardRows(design[..relicSection])
+            .ToDictionary(static row => row.Title, StringComparer.Ordinal);
+
+        Assert.StartsWith("获得13格挡，失去1级蓄力", rows["紧急回避"].BaseEffect);
+        Assert.Contains("失去等同于", rows["头重脚轻"].BaseEffect, StringComparison.Ordinal);
+        Assert.DoesNotContain("效果伤害", rows["头重脚轻"].BaseEffect, StringComparison.Ordinal);
+        Assert.Contains("直到敌方回合结束", rows["迎面相杀"].BaseEffect, StringComparison.Ordinal);
+        Assert.Contains("伤害降低至0", rows["迎面相杀"].BaseEffect, StringComparison.Ordinal);
+        Assert.DoesNotContain("攻击伤害", rows["迎面相杀"].BaseEffect, StringComparison.Ordinal);
+        Assert.Contains("直到你的下个回合开始", rows["游走蹭刀"].BaseEffect, StringComparison.Ordinal);
+        Assert.Contains("以3级以上蓄力等级打出", rows["越砸越疼"].BaseEffect, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -636,6 +693,9 @@ public sealed partial class CardContractTests
         AssertCardValues(upgradedChargeSwitchStrength, 1, [("StrengthPower", 0)]);
         Assert.Contains(CardKeyword.Innate, GetKeywords(upgradedChargeSwitchStrength));
 
+        AssertCardValues<ChargeSwitchCourage>(1, ("Charge", 1));
+        AssertUpgradedCardValues<ChargeSwitchCourage>(0, ("Charge", 1));
+
         AssertCardValues<EndlessMomentum>(1, ("Energy", 1));
         AssertUpgradedCardValues<EndlessMomentum>(1, ("Energy", 2));
 
@@ -904,6 +964,139 @@ public sealed partial class CardContractTests
         Assert.IsAssignableFrom<IEnumerable>(GetProperty(card, "Keywords"));
     }
 
+    private static IReadOnlyList<DesignCardRow> ParseDesignCardRows(string cardSection)
+    {
+        var knownTitles = ChineseLocalization.Value
+            .Where(static entry => entry.Key.EndsWith(".title", StringComparison.Ordinal))
+            .Select(static entry => entry.Value)
+            .ToHashSet(StringComparer.Ordinal);
+        var rows = new List<DesignCardRow>();
+
+        foreach (var line in cardSection.Split('\n'))
+        {
+            if (!line.StartsWith('|'))
+                continue;
+
+            var cells = line.Split('|')
+                .Skip(1)
+                .SkipLast(1)
+                .Select(static cell => cell.Trim())
+                .ToArray();
+            if (cells.Length < 3 || !knownTitles.Contains(cells[0]))
+                continue;
+
+            rows.Add(new DesignCardRow(
+                cells[0],
+                cells[1],
+                cells[2],
+                cells.Length >= 4 ? cells[3] : string.Empty));
+        }
+
+        return rows;
+    }
+
+    private static CardRarity ParseDesignRarity(string metadata)
+    {
+        var token = metadata.Split('·')[0].Replace("联机", string.Empty, StringComparison.Ordinal);
+        return token switch
+        {
+            "初始" => CardRarity.Basic,
+            "白" => CardRarity.Common,
+            "蓝" => CardRarity.Uncommon,
+            "金" => CardRarity.Rare,
+            "先古" => CardRarity.Ancient,
+            "状态" => CardRarity.Status,
+            _ => throw new InvalidDataException($"Unknown design rarity: {metadata}")
+        };
+    }
+
+    private static CardType ParseDesignType(string metadata)
+    {
+        if (metadata.StartsWith("状态·", StringComparison.Ordinal))
+            return CardType.Status;
+
+        var parts = metadata.Split('·');
+        Assert.True(parts.Length >= 3, $"Invalid card metadata: {metadata}");
+        return parts[1] switch
+        {
+            "攻击" => CardType.Attack,
+            "技能" => CardType.Skill,
+            "能力" => CardType.Power,
+            _ => throw new InvalidDataException($"Unknown design card type: {metadata}")
+        };
+    }
+
+    private static void AssertDesignCosts(
+        CardModel card,
+        CardModel upgradedCard,
+        DesignCardRow row)
+    {
+        var costMatch = Regex.Match(
+            row.Metadata,
+            @"(?<cost>\d+|X)\s*费",
+            RegexOptions.CultureInvariant);
+        Assert.True(costMatch.Success, $"Missing cost in design row for {row.Title}.");
+
+        var baseCost = Assert.IsType<CardEnergyCost>(GetProperty(card, "EnergyCost"));
+        var upgradedCost = Assert.IsType<CardEnergyCost>(GetProperty(upgradedCard, "EnergyCost"));
+        var costToken = costMatch.Groups["cost"].Value;
+        var documentsX = costToken == "X";
+        Assert.Equal(baseCost.CostsX, documentsX);
+        Assert.Equal(upgradedCost.CostsX, documentsX);
+        if (documentsX)
+            return;
+
+        var documentedBaseCost = int.Parse(costToken);
+        Assert.Equal(
+            baseCost.GetWithModifiers(CostModifiers.None),
+            documentedBaseCost);
+
+        var upgradeCostMatch = Regex.Match(
+            row.UpgradeEffect,
+            @"费用降(?:为|至)\s*(?<cost>\d+)",
+            RegexOptions.CultureInvariant);
+        var documentedUpgradeCost = upgradeCostMatch.Success
+            ? int.Parse(upgradeCostMatch.Groups["cost"].Value)
+            : documentedBaseCost;
+        Assert.Equal(
+            upgradedCost.GetWithModifiers(CostModifiers.None),
+            documentedUpgradeCost);
+    }
+
+    private static void AssertDesignKeywords(
+        CardModel card,
+        CardModel upgradedCard,
+        DesignCardRow row)
+    {
+        var baseKeywords = GetKeywords(card);
+        var upgradedKeywords = GetKeywords(upgradedCard);
+        foreach (var (keyword, label) in new[]
+                 {
+                     (CardKeyword.Exhaust, "消耗"),
+                     (CardKeyword.Retain, "保留"),
+                     (CardKeyword.Ethereal, "虚无"),
+                     (CardKeyword.Innate, "固有")
+                 })
+        {
+            var hasBaseKeyword = baseKeywords.Contains(keyword);
+            Assert.Equal(
+                hasBaseKeyword,
+                Regex.IsMatch(
+                    row.BaseEffect,
+                    $@"(?:^|[。；]){label}。",
+                    RegexOptions.CultureInvariant));
+
+            var hasUpgradedKeyword = upgradedKeywords.Contains(keyword);
+            if (hasBaseKeyword == hasUpgradedKeyword)
+                continue;
+
+            Assert.Contains(
+                hasUpgradedKeyword ? $"添加{label}" : $"移除{label}",
+                row.UpgradeEffect,
+                StringComparison.Ordinal);
+        }
+    }
+
     private static void AssertMechanicForMarkup(
         string description,
         string markup,
@@ -999,10 +1192,23 @@ public sealed partial class CardContractTests
         return card;
     }
 
-    private static IReadOnlyCollection<CardKeyword> GetKeywords(HammerCard card)
+    private static IReadOnlyCollection<CardKeyword> GetKeywords(CardModel card)
     {
         return Assert.IsAssignableFrom<IEnumerable<CardKeyword>>(GetProperty(card, "Keywords"))
             .ToArray();
+    }
+
+    private static CardModel CreateUpgradedCard(Type cardType)
+    {
+        var card = Assert.IsAssignableFrom<CardModel>(Activator.CreateInstance(cardType));
+        var maxUpgradeLevel = Assert.IsType<int>(GetProperty(card, "MaxUpgradeLevel"));
+        if (maxUpgradeLevel <= 0)
+            return card;
+
+        SetProperty(card, "IsMutable", true);
+        Invoke(card, "UpgradeInternal");
+        Invoke(card, "FinalizeUpgradeInternal");
+        return card;
     }
 
     private static void SetProperty(object instance, string propertyName, object value)
@@ -1108,6 +1314,12 @@ public sealed partial class CardContractTests
     {
         return WordBoundaryRegex().Replace(value, "$1_$2").ToUpperInvariant();
     }
+
+    private sealed record DesignCardRow(
+        string Title,
+        string Metadata,
+        string BaseEffect,
+        string UpgradeEffect);
 
     [GeneratedRegex("([a-z0-9])([A-Z])", RegexOptions.CultureInvariant)]
     private static partial Regex WordBoundaryRegex();

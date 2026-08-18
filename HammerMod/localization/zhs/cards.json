@@ -117,8 +117,8 @@
   "HAMMER_MOD_CARD_IMPACT_BURST.description": "针对多段攻击，你的攻击牌可以额外造成等同于{StunPerHit:diff()}倍攻击段数的[gold]晕眩[/gold]。",
   "HAMMER_MOD_CARD_IMPACT_BURST.smartDescription": "针对多段攻击，你的攻击牌可以额外造成等同于{StunPerHit:diff()}倍攻击段数的[gold]晕眩[/gold]。",
   "HAMMER_MOD_CARD_FACE_OFF.title": "迎面相杀",
-  "HAMMER_MOD_CARD_FACE_OFF.description": "只有在本回合打出过攻击牌后才能打出。\n在本回合中，该敌人对你造成的伤害降低至0。\n获得{StrengthPower:diff()}点[gold]力量[/gold]。",
-  "HAMMER_MOD_CARD_FACE_OFF.smartDescription": "只有在本回合打出过攻击牌后才能打出。\n在本回合中，该敌人对你造成的伤害降低至0。\n获得{StrengthPower:diff()}点[gold]力量[/gold]。",
+  "HAMMER_MOD_CARD_FACE_OFF.description": "只有在本回合打出过攻击牌后才能打出。\n直到敌方回合结束，该敌人对你造成的伤害降低至0。\n获得{StrengthPower:diff()}点[gold]力量[/gold]。",
+  "HAMMER_MOD_CARD_FACE_OFF.smartDescription": "只有在本回合打出过攻击牌后才能打出。\n直到敌方回合结束，该敌人对你造成的伤害降低至0。\n获得{StrengthPower:diff()}点[gold]力量[/gold]。",
   "HAMMER_MOD_CARD_WATER_STRIKE.title": "水面击",
   "HAMMER_MOD_CARD_WATER_STRIKE.description": "造成{Damage:diff()}点伤害。\n如果敌人的意图是攻击，则获得{Block:diff()}点[gold]格挡[/gold]。",
   "HAMMER_MOD_CARD_WATER_STRIKE.smartDescription": "造成{Damage:diff()}点伤害。\n如果敌人的意图是攻击，则获得{Block:diff()}点[gold]格挡[/gold]。",
@@ -262,5 +262,8 @@
   "HAMMER_MOD_CARD_FREE_MEAL.smartDescription": "你下一瓶使用的药水不会被消耗。",
   "HAMMER_MOD_CARD_LUCKY_VOUCHER.title": "激运票",
   "HAMMER_MOD_CARD_LUCKY_VOUCHER.description": "战斗结束时，可以重掷1次卡牌奖励。",
-  "HAMMER_MOD_CARD_LUCKY_VOUCHER.smartDescription": "战斗结束时，可以重掷1次卡牌奖励。"
+  "HAMMER_MOD_CARD_LUCKY_VOUCHER.smartDescription": "战斗结束时，可以重掷1次卡牌奖励。",
+  "HAMMER_MOD_CARD_CHARGE_SWITCH_COURAGE.title": "蓄力变化·勇",
+  "HAMMER_MOD_CARD_CHARGE_SWITCH_COURAGE.description": "本回合内，每打出一张攻击牌，提升{Charge:diff()}级[gold]蓄力[/gold]。",
+  "HAMMER_MOD_CARD_CHARGE_SWITCH_COURAGE.smartDescription": "本回合内，每打出一张攻击牌，提升{Charge:diff()}级[gold]蓄力[/gold]。"
 }

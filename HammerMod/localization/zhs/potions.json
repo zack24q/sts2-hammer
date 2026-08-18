@@ -8,5 +8,5 @@
   "HAMMER_MOD_POTION_MIGHT_SEED.title": "怪力药丸",
   "HAMMER_MOD_POTION_MIGHT_SEED.description": "本回合获得{StrengthPower:diff()}点[gold]力量[/gold]。",
   "HAMMER_MOD_POTION_PITFALL.title": "落穴",
-  "HAMMER_MOD_POTION_PITFALL.description": "目标敌人本回合对你造成的伤害变为0。\n给予其{VulnerablePower:diff()}层[gold]易伤[/gold]。"
+  "HAMMER_MOD_POTION_PITFALL.description": "直到敌方回合结束，目标敌人对你造成的伤害变为0。\n给予其{VulnerablePower:diff()}层[gold]易伤[/gold]。"
 }

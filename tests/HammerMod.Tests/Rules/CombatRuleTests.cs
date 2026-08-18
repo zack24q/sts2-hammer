@@ -2,6 +2,7 @@ using HammerMod.Cards;
 using HammerMod.Gameplay;
 using HammerMod.Powers;
 using HammerMod.Relics;
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Powers;
 
 namespace HammerMod.Tests.Rules;
@@ -282,6 +283,23 @@ public sealed class CombatRuleTests
         Assert.Equal(
             expected,
             ChargeSwitchStrengthPower.CalculateStrength(charge, stacks));
+    }
+
+    [Theory]
+    [InlineData(true, CardType.Attack, true)]
+    [InlineData(false, CardType.Attack, false)]
+    [InlineData(true, CardType.Skill, false)]
+    [InlineData(true, CardType.Power, false)]
+    public void ChargeSwitchCourageTriggersForEachAttackPlay(
+        bool ownerMatches,
+        CardType cardType,
+        bool expected)
+    {
+        Assert.Equal(
+            expected,
+            ChargeSwitchCouragePower.ShouldTrigger(
+                ownerMatches,
+                cardType));
     }
 
     [Theory]

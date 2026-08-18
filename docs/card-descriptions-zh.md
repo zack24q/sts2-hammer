@@ -1,6 +1,6 @@
 # 大锤猎手全部卡牌中文描述
 
-> 来源：`HammerMod/localization/zhs/cards.json` 当前工作区版本。共87张卡牌；以下保留动态变量和官方条件语法，便于逐句精简。
+> 来源：`HammerMod/localization/zhs/cards.json` 当前工作区版本。共88张卡牌；以下保留动态变量和官方条件语法，便于逐句精简。
 
 ## 1. 纵挥
 
@@ -392,7 +392,7 @@
 
 ```text
 只有在本回合打出过攻击牌后才能打出。
-在本回合中，该敌人对你造成的伤害降低至0。
+直到敌方回合结束，该敌人对你造成的伤害降低至0。
 获得{StrengthPower:diff()}点[gold]力量[/gold]。
 ```
 
@@ -862,6 +862,15 @@
 
 ```text
 战斗结束时，可以重掷1次卡牌奖励。
+```
+
+## 88. 蓄力变化·勇
+
+- ID：`HAMMER_MOD_CARD_CHARGE_SWITCH_COURAGE`
+- 当前描述：
+
+```text
+本回合内，每打出一张攻击牌，提升{Charge:diff()}级[gold]蓄力[/gold]。
 ```
 
 # 卡面附加描述与选择提示

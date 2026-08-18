@@ -61,5 +61,7 @@
   "HAMMER_MOD_POWER_FREE_MEAL_POWER.title": "Free Meal",
   "HAMMER_MOD_POWER_FREE_MEAL_POWER.description": "The next Potion you use will not be consumed.",
   "HAMMER_MOD_POWER_LUCKY_VOUCHER_POWER.title": "Lucky Voucher",
-  "HAMMER_MOD_POWER_LUCKY_VOUCHER_POWER.description": "At the end of combat, you may reroll the card reward once."
+  "HAMMER_MOD_POWER_LUCKY_VOUCHER_POWER.description": "At the end of combat, you may reroll the card reward once.",
+  "HAMMER_MOD_POWER_CHARGE_SWITCH_COURAGE_POWER.title": "Charge Switch: Courage",
+  "HAMMER_MOD_POWER_CHARGE_SWITCH_COURAGE_POWER.description": "This turn, whenever you play an Attack, gain [blue]{Amount}[/blue] Charge."
 }

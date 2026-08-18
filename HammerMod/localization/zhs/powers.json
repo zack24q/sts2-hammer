@@ -61,5 +61,7 @@
   "HAMMER_MOD_POWER_FREE_MEAL_POWER.title": "满足感",
   "HAMMER_MOD_POWER_FREE_MEAL_POWER.description": "你下一瓶使用的药水不会被消耗。",
   "HAMMER_MOD_POWER_LUCKY_VOUCHER_POWER.title": "激运票",
-  "HAMMER_MOD_POWER_LUCKY_VOUCHER_POWER.description": "战斗结束时，可以重掷1次卡牌奖励。"
+  "HAMMER_MOD_POWER_LUCKY_VOUCHER_POWER.description": "战斗结束时，可以重掷1次卡牌奖励。",
+  "HAMMER_MOD_POWER_CHARGE_SWITCH_COURAGE_POWER.title": "蓄力变化·勇",
+  "HAMMER_MOD_POWER_CHARGE_SWITCH_COURAGE_POWER.description": "本回合内，每打出一张攻击牌，提升[blue]{Amount}[/blue]级蓄力。"
 }

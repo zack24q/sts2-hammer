@@ -375,6 +375,52 @@ public sealed class ChargeSwitchStrengthPower : HammerAbilityPower, ISecondaryRe
 }
 
 [RegisterPower]
+public sealed class ChargeSwitchCouragePower : HammerAbilityPower
+{
+    public override PowerType Type => PowerType.Buff;
+    public override PowerStackType StackType => PowerStackType.Counter;
+
+    public override async Task AfterCardPlayed(
+        PlayerChoiceContext choiceContext,
+        CardPlay cardPlay)
+    {
+        if (!ShouldTrigger(
+                cardPlay.Card.Owner.Creature == Owner,
+                cardPlay.Card.Type)
+            || Owner.Player is null)
+        {
+            return;
+        }
+
+        Flash();
+        await SecondaryResourceCmd.Gain(
+            Owner.Player,
+            HammerResources.Charge.Id,
+            Amount,
+            source: this);
+    }
+
+    public override async Task AfterSideTurnEnd(
+        PlayerChoiceContext choiceContext,
+        CombatSide side,
+        IEnumerable<Creature> participants)
+    {
+        if (!participants.Contains(Owner))
+            return;
+
+        await PowerCmd.Remove(this);
+    }
+
+    internal static bool ShouldTrigger(
+        bool ownerMatches,
+        CardType cardType)
+    {
+        return ownerMatches
+            && cardType == CardType.Attack;
+    }
+}
+
+[RegisterPower]
 public sealed class BloodRitePower : HammerAbilityPower
 {
     private const int DamageStep = 10;

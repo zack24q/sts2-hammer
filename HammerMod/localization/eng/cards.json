@@ -117,8 +117,8 @@
   "HAMMER_MOD_CARD_IMPACT_BURST.description": "For multi-hit Attacks, inflict additional [gold]Stun[/gold] equal to {StunPerHit:diff()} times the number of hits.",
   "HAMMER_MOD_CARD_IMPACT_BURST.smartDescription": "For multi-hit Attacks, inflict additional [gold]Stun[/gold] equal to {StunPerHit:diff()} times the number of hits.",
   "HAMMER_MOD_CARD_FACE_OFF.title": "Face Off",
-  "HAMMER_MOD_CARD_FACE_OFF.description": "Can only be played after you have played an Attack this turn.\nThat enemy deals 0 damage to you this turn.\nGain {StrengthPower:diff()} [gold]Strength[/gold].",
-  "HAMMER_MOD_CARD_FACE_OFF.smartDescription": "Can only be played after you have played an Attack this turn.\nThat enemy deals 0 damage to you this turn.\nGain {StrengthPower:diff()} [gold]Strength[/gold].",
+  "HAMMER_MOD_CARD_FACE_OFF.description": "Can only be played after you have played an Attack this turn.\nThat enemy deals 0 damage to you until the enemy turn ends.\nGain {StrengthPower:diff()} [gold]Strength[/gold].",
+  "HAMMER_MOD_CARD_FACE_OFF.smartDescription": "Can only be played after you have played an Attack this turn.\nThat enemy deals 0 damage to you until the enemy turn ends.\nGain {StrengthPower:diff()} [gold]Strength[/gold].",
   "HAMMER_MOD_CARD_WATER_STRIKE.title": "Water Strike",
   "HAMMER_MOD_CARD_WATER_STRIKE.description": "Deal {Damage:diff()} damage.\nIf the enemy intends to attack, gain {Block:diff()} [gold]Block[/gold].",
   "HAMMER_MOD_CARD_WATER_STRIKE.smartDescription": "Deal {Damage:diff()} damage.\nIf the enemy intends to attack, gain {Block:diff()} [gold]Block[/gold].",
@@ -262,5 +262,8 @@
   "HAMMER_MOD_CARD_FREE_MEAL.smartDescription": "The next Potion you use will not be consumed.",
   "HAMMER_MOD_CARD_LUCKY_VOUCHER.title": "Lucky Voucher",
   "HAMMER_MOD_CARD_LUCKY_VOUCHER.description": "At the end of combat, you may reroll the card reward once.",
-  "HAMMER_MOD_CARD_LUCKY_VOUCHER.smartDescription": "At the end of combat, you may reroll the card reward once."
+  "HAMMER_MOD_CARD_LUCKY_VOUCHER.smartDescription": "At the end of combat, you may reroll the card reward once.",
+  "HAMMER_MOD_CARD_CHARGE_SWITCH_COURAGE.title": "Charge Switch: Courage",
+  "HAMMER_MOD_CARD_CHARGE_SWITCH_COURAGE.description": "This turn, whenever you play an Attack, gain {Charge:diff()} [gold]Charge[/gold].",
+  "HAMMER_MOD_CARD_CHARGE_SWITCH_COURAGE.smartDescription": "This turn, whenever you play an Attack, gain {Charge:diff()} [gold]Charge[/gold]."
 }

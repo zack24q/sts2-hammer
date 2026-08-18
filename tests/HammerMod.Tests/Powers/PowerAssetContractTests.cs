@@ -25,7 +25,7 @@ public sealed class PowerAssetContractTests
     [Fact]
     public void EveryRegisteredPowerUsesThePackagedSharedIcon()
     {
-        Assert.Equal(32, RegisteredPowerTypes.Length);
+        Assert.Equal(33, RegisteredPowerTypes.Length);
         Assert.Equal(ConcretePowerTypes, RegisteredPowerTypes);
         Assert.True(File.Exists(Path.Combine(
             FindRepositoryRoot(),

@@ -79,7 +79,8 @@ internal static class HammerCardHoverTips
                 or SilkbindSpinningBludgeon or MightyChargeRoll or ReadyToCharge
                 or KeepingSway or SteadierWithEverySpin or HammerIai or Focus
                 or BraceWithTheHammer or EmergencyEvade or SwingAtEveryOpening or ChargeStep
-                or WirebugContinuation or ChargeAsYouStrike => HammerCardMechanic.Charge,
+                or WirebugContinuation or ChargeAsYouStrike or ChargeSwitchCourage =>
+                HammerCardMechanic.Charge,
 
             DashJuice => HammerCardMechanic.Charge | HammerCardMechanic.Block,
             AffinitySliding => HammerCardMechanic.Charge | HammerCardMechanic.Strength,

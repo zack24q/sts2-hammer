@@ -96,6 +96,7 @@ CARDS = [
     "Coalescence",
     "FreeMeal",
     "LuckyVoucher",
+    "ChargeSwitchCourage",
 ]
 
 
@@ -181,8 +182,8 @@ def render(output_path: Path, number: int, font: ImageFont.FreeTypeFont) -> None
 
 
 def main() -> None:
-    if len(CARDS) != 87 or len(set(CARDS)) != len(CARDS):
-        raise ValueError("Card list must contain exactly 87 unique entries.")
+    if len(CARDS) != 88 or len(set(CARDS)) != len(CARDS):
+        raise ValueError("Card list must contain exactly 88 unique entries.")
 
     project_root = Path(__file__).resolve().parents[1]
     output_dir = project_root / "HammerMod" / "images" / "cards" / "placeholders"

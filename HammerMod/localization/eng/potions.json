@@ -8,5 +8,5 @@
   "HAMMER_MOD_POTION_MIGHT_SEED.title": "Might Pill",
   "HAMMER_MOD_POTION_MIGHT_SEED.description": "Gain {StrengthPower:diff()} [gold]Strength[/gold] this turn.",
   "HAMMER_MOD_POTION_PITFALL.title": "Pitfall",
-  "HAMMER_MOD_POTION_PITFALL.description": "The chosen enemy deals 0 damage to you this turn.\nApply {VulnerablePower:diff()} [gold]Vulnerable[/gold] to it."
+  "HAMMER_MOD_POTION_PITFALL.description": "The chosen enemy deals 0 damage to you until the enemy turn ends.\nApply {VulnerablePower:diff()} [gold]Vulnerable[/gold] to it."
 }

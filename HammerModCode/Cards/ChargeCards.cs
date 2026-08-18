@@ -807,3 +807,34 @@ public sealed class ChargeSwitchStrength : HammerCard, ICombatPreviewDescription
         AddKeyword(CardKeyword.Innate);
     }
 }
+
+[RegisterCard(typeof(HammerModCardPool))]
+public sealed class ChargeSwitchCourage : HammerCard
+{
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new IntVar("Charge", 1)
+    ];
+
+    public ChargeSwitchCourage()
+        : base(1, CardType.Skill, CardRarity.Common, TargetType.Self)
+    {
+    }
+
+    protected override async Task OnPlay(
+        PlayerChoiceContext choiceContext,
+        CardPlay cardPlay)
+    {
+        await PowerCmd.Apply<ChargeSwitchCouragePower>(
+            choiceContext,
+            Owner.Creature,
+            DynamicVars["Charge"].IntValue,
+            Owner.Creature,
+            this);
+    }
+
+    protected override void OnUpgrade()
+    {
+        EnergyCost.UpgradeBy(-1);
+    }
+}
