@@ -1,4 +1,4 @@
 {
   "HAMMER_MOD_RESOURCE_CHARGE.title": "蓄力",
-  "HAMMER_MOD_RESOURCE_CHARGE.description": "当前蓄力为[blue]{Amount}[/blue]/[blue]{MaxAmount}[/blue]。蓄力跨回合保留，受到未格挡伤害会清空蓄力等级。"
+  "HAMMER_MOD_RESOURCE_CHARGE.description": "当前蓄力为[blue]{Amount}[/blue]/[blue]{MaxAmount}[/blue]。蓄力会跨回合保留。受到较大攻击伤害时会减少蓄力层数，未格挡伤害每达到5点就降低1层蓄力等级。"
 }

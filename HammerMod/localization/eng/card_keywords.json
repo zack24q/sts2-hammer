@@ -1,8 +1,6 @@
 {
   "HAMMER_MOD_KEYWORD_CHARGE.title": "Charge",
-  "HAMMER_MOD_KEYWORD_CHARGE.description": "Charge persists between turns. Unblocked damage normally clears all Charge, but some effects can prevent this.",
+  "HAMMER_MOD_KEYWORD_CHARGE.description": "Charge persists between turns. Taking a large amount of attack damage reduces Charge. Lose 1 Charge for every full 5 unblocked damage taken.",
   "HAMMER_MOD_KEYWORD_CHARGE_RELEASE.title": "Release Charge",
-  "HAMMER_MOD_KEYWORD_CHARGE_RELEASE.description": "After this card finishes all of its releases, clear all Charge unless another effect prevents it.",
-  "HAMMER_MOD_KEYWORD_STUN.title": "Stun",
-  "HAMMER_MOD_KEYWORD_STUN.description": "When an enemy's Stun reaches its current threshold, it becomes Stunned. Each time it is Stunned, its next threshold doubles."
+  "HAMMER_MOD_KEYWORD_CHARGE_RELEASE.description": "After this card finishes all of its releases, clear all Charge unless another effect prevents it."
 }

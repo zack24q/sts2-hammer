@@ -20,11 +20,14 @@ internal enum HammerCardMechanic
     Thorns = 1 << 9,
     Replay = 1 << 10,
     Block = 1 << 11,
-    GetBackUp = 1 << 12
+    BackOnYourFeet = 1 << 12,
+    Frail = 1 << 13
 }
 
 internal static class HammerCardHoverTips
 {
+    internal static StaticHoverTip StunHoverTip => StaticHoverTip.Stun;
+
     internal static IEnumerable<IHoverTip> Create(HammerCard card)
     {
         return Create(GetMechanics(card));
@@ -34,10 +37,9 @@ internal static class HammerCardHoverTips
     {
         if (mechanics.HasFlag(HammerCardMechanic.Charge))
             yield return HoverTipFactory.FromKeyword(HammerKeywords.Charge);
-        if (mechanics.HasFlag(HammerCardMechanic.Stun))
-            yield return HoverTipFactory.FromKeyword(HammerKeywords.Stun);
-        if (mechanics.HasFlag(HammerCardMechanic.Stunned))
-            yield return HoverTipFactory.Static(StaticHoverTip.Stun);
+        if (mechanics.HasFlag(HammerCardMechanic.Stun)
+            || mechanics.HasFlag(HammerCardMechanic.Stunned))
+            yield return HoverTipFactory.Static(StunHoverTip);
         if (mechanics.HasFlag(HammerCardMechanic.ChargeRelease))
             yield return HoverTipFactory.FromKeyword(HammerKeywords.ChargeRelease);
         if (mechanics.HasFlag(HammerCardMechanic.Strength))
@@ -48,6 +50,8 @@ internal static class HammerCardHoverTips
             yield return HoverTipFactory.FromPower<WeakPower>();
         if (mechanics.HasFlag(HammerCardMechanic.Vulnerable))
             yield return HoverTipFactory.FromPower<VulnerablePower>();
+        if (mechanics.HasFlag(HammerCardMechanic.Frail))
+            yield return HoverTipFactory.FromPower<FrailPower>();
         if (mechanics.HasFlag(HammerCardMechanic.Regeneration))
             yield return HoverTipFactory.FromPower<RegenPower>();
         if (mechanics.HasFlag(HammerCardMechanic.Thorns))
@@ -56,9 +60,9 @@ internal static class HammerCardHoverTips
             yield return HoverTipFactory.Static(StaticHoverTip.ReplayStatic);
         if (mechanics.HasFlag(HammerCardMechanic.Block))
             yield return HoverTipFactory.Static(StaticHoverTip.Block);
-        if (mechanics.HasFlag(HammerCardMechanic.GetBackUp))
+        if (mechanics.HasFlag(HammerCardMechanic.BackOnYourFeet))
         {
-            foreach (var tip in HoverTipFactory.FromCardWithCardHoverTips<GetBackUp>())
+            foreach (var tip in HoverTipFactory.FromCardWithCardHoverTips<BackOnYourFeet>())
                 yield return tip;
         }
     }
@@ -69,38 +73,39 @@ internal static class HammerCardHoverTips
         {
             EarthStrike or ChargedUpswing or ImpactCrater =>
                 HammerCardMechanic.Charge | HammerCardMechanic.Stun,
+            BluntWeaponExpert => HammerCardMechanic.Charge | HammerCardMechanic.Stun,
 
-            ChargedOverheadSmash or ChargedSideSmash or MightyChargeSlam
-                or SilkbindSpinningBludgeon or ChargedGuard or ReadyToCharge
-                or KeepingSway or SpinningCharge or SheatheAndBreathe or Focus
-                or ChargedStand or EmergencyEvade or StepSweep or ChargeStep
-                or WirebugContinuation => HammerCardMechanic.Charge,
+            ChargedOverheadSmash or ChargedSideSmash or MightyChargeBonk
+                or SilkbindSpinningBludgeon or MightyChargeRoll or ReadyToCharge
+                or KeepingSway or SteadierWithEverySpin or HammerIai or Focus
+                or BraceWithTheHammer or EmergencyEvade or SwingAtEveryOpening or ChargeStep
+                or WirebugContinuation or ChargeAsYouStrike => HammerCardMechanic.Charge,
 
             DashJuice => HammerCardMechanic.Charge | HammerCardMechanic.Block,
-            SlidingCombo => HammerCardMechanic.Charge | HammerCardMechanic.Strength,
-            MarathonHammerer => HammerCardMechanic.Charge | HammerCardMechanic.Strength,
+            AffinitySliding => HammerCardMechanic.Charge | HammerCardMechanic.Strength,
+            ChargeSwitchStrength => HammerCardMechanic.Charge | HammerCardMechanic.Strength,
 
             Overcharge => HammerCardMechanic.Charge
-                | HammerCardMechanic.ChargeRelease
-                | HammerCardMechanic.Weak
-                | HammerCardMechanic.Vulnerable,
+                | HammerCardMechanic.ChargeRelease,
             EndlessMomentum => HammerCardMechanic.Charge
                 | HammerCardMechanic.ChargeRelease,
-            ChargeSwitchCourage => HammerCardMechanic.Charge
+            HarderWithEverySmash => HammerCardMechanic.Charge
                 | HammerCardMechanic.ChargeRelease
                 | HammerCardMechanic.Strength,
             HandCrankedTractor => HammerCardMechanic.Charge
                 | HammerCardMechanic.ChargeRelease
                 | HammerCardMechanic.Replay,
 
-            SideSmash or RisingDragonHammer or GroundShock or EarthsplitterShock
-                or FlashHammer or DizzyFall or ConcussionGuard or FelyneKoTechnique
-                or HeadHunterSmash or Aftershock or ImpactBurst or PoundingSmash
+            Upswing or MightyUpswing or GroundShock or EarthsplitterShock
+                or FlashHammer or HeadOverHeels or ConcussionGuard or FelyneKoTechnique
+                or SmashThatHead or Aftershock or ImpactBurst or InvincibleWindFireWheel
                 or TrueSpinningImpact => HammerCardMechanic.Stun,
             VictoryCharge or HomeRunSwing or BigBangCombo => HammerCardMechanic.Stunned,
             PileDriver => HammerCardMechanic.Stun | HammerCardMechanic.Stunned,
             FocusBlowEarthquake => HammerCardMechanic.Stun
-                | HammerCardMechanic.Stunned
+                | HammerCardMechanic.Vulnerable,
+            StaminaDrainingHammer => HammerCardMechanic.Stun
+                | HammerCardMechanic.Weak
                 | HammerCardMechanic.Vulnerable,
             ConcussionResonance => HammerCardMechanic.Stun
                 | HammerCardMechanic.Weak
@@ -109,13 +114,17 @@ internal static class HammerCardHoverTips
             FaceOff or UnloadingStance or BreakMomentum or Challenger
                 or DemonPowder => HammerCardMechanic.Strength,
             WarmUpExercise => HammerCardMechanic.Strength | HammerCardMechanic.Dexterity,
-            LaunchTeammate => HammerCardMechanic.Strength | HammerCardMechanic.GetBackUp,
+            LaunchTeammate => HammerCardMechanic.Strength | HammerCardMechanic.BackOnYourFeet,
             HardshellPowder => HammerCardMechanic.Dexterity,
             PredictiveFootwork => HammerCardMechanic.Weak | HammerCardMechanic.Vulnerable,
             LegSweepHammer => HammerCardMechanic.Weak,
             WeaknessExploit or Partbreaker => HammerCardMechanic.Vulnerable,
             RecoveryMedicine => HammerCardMechanic.Regeneration,
-            WaterStance => HammerCardMechanic.Thorns,
+            Coalescence => HammerCardMechanic.Weak
+                | HammerCardMechanic.Vulnerable
+                | HammerCardMechanic.Frail
+                | HammerCardMechanic.Strength,
+            WeaveAndBonk => HammerCardMechanic.Thorns,
             CounterForm or ShellBreaker => HammerCardMechanic.Block,
             _ => HammerCardMechanic.None
         };

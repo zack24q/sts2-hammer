@@ -1,3 +1,4 @@
+using HammerMod.Cards;
 using HammerMod.Characters;
 using HammerMod.Gameplay;
 using HammerMod.Powers;
@@ -8,8 +9,10 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.Relics;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.Powers;
+using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.ValueProps;
 using STS2RitsuLib.Combat.SecondaryResources;
 using STS2RitsuLib.Interop.AutoRegistration;
@@ -21,10 +24,15 @@ public abstract class HammerRelic : ModRelicTemplate
 {
     private string ImagePath => $"{Entry.ResPath}/images/relics/{GetType().Name}.png";
 
+    internal virtual HammerCardMechanic HoverTipMechanics => HammerCardMechanic.None;
+
     public override RelicAssetProfile AssetProfile => new(
         IconPath: ImagePath,
         IconOutlinePath: ImagePath,
         BigIconPath: ImagePath);
+
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips =>
+        HammerCardHoverTips.Create(HoverTipMechanics);
 }
 
 [RegisterRelic(typeof(HammerModRelicPool))]
@@ -32,6 +40,8 @@ public abstract class HammerRelic : ModRelicTemplate
 [RegisterTouchOfOrobasRefinement(typeof(MasterHammerTechniqueCharm))]
 public sealed class HammerTechniqueCharm : HammerRelic
 {
+    internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Charge;
+
     public override RelicRarity Rarity => RelicRarity.Starter;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
@@ -43,7 +53,7 @@ public sealed class HammerTechniqueCharm : HammerRelic
         PlayerChoiceContext choiceContext,
         Player player)
     {
-        if (player != Owner || HammerResources.GetCharge(player) > 0)
+        if (player != Owner)
             return;
 
         Flash();
@@ -58,6 +68,8 @@ public sealed class HammerTechniqueCharm : HammerRelic
 [RegisterRelic(typeof(HammerModRelicPool))]
 public sealed class MasterHammerTechniqueCharm : HammerRelic
 {
+    internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Charge;
+
     public override RelicRarity Rarity => RelicRarity.Starter;
 
     public override RelicAssetProfile AssetProfile => new(
@@ -65,23 +77,18 @@ public sealed class MasterHammerTechniqueCharm : HammerRelic
         IconOutlinePath: $"{Entry.ResPath}/images/relics/MasterHammerTechniqueCharm.svg",
         BigIconPath: $"{Entry.ResPath}/images/relics/MasterHammerTechniqueCharm.svg");
 
-    protected override IEnumerable<DynamicVar> CanonicalVars =>
-    [
-        new IntVar("Charge", 2)
-    ];
-
     public override async Task AfterPlayerTurnStartEarly(
         PlayerChoiceContext choiceContext,
         Player player)
     {
-        if (player != Owner || HammerResources.GetCharge(player) > 0)
+        if (player != Owner)
             return;
 
         Flash();
         await SecondaryResourceCmd.Gain(
             player,
             HammerResources.Charge.Id,
-            DynamicVars["Charge"].IntValue,
+            HammerResources.MaxCharge,
             source: this);
     }
 }
@@ -172,37 +179,89 @@ public sealed class FrostcraftCharm : HammerRelic
 }
 
 [RegisterRelic(typeof(HammerModRelicPool))]
-public sealed class SlidingBoostJewel : HammerRelic, ISecondaryResourceHookListener
+public sealed class SlidingBoostJewel : HammerRelic
 {
+    internal override HammerCardMechanic HoverTipMechanics =>
+        HammerCardMechanic.Strength | HammerCardMechanic.Dexterity;
+
     public override RelicRarity Rarity => RelicRarity.Common;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new PowerVar<StrengthPower>(1)
+        new IntVar("ThresholdPercent", 35),
+        new PowerVar<StrengthPower>(3),
+        new PowerVar<DexterityPower>(3)
     ];
 
-    public async Task AfterSecondaryResourceChanged(SecondaryResourceChangeContext context)
-    {
-        if (context.Player != Owner
-            || context.Definition.Id != HammerResources.Charge.Id
-            || context.Delta <= 0)
-        {
-            return;
-        }
+    private bool _bonusesApplied;
 
+    public override async Task AfterRoomEntered(AbstractRoom room)
+    {
+        _bonusesApplied = false;
+        if (room is not CombatRoom)
+            return;
+
+        await SyncBonuses();
+    }
+
+    public override Task AfterCombatEnd(CombatRoom room)
+    {
+        _bonusesApplied = false;
+        return Task.CompletedTask;
+    }
+
+    public override async Task AfterCurrentHpChanged(Creature creature, decimal delta)
+    {
+        if (creature == Owner.Creature && creature.CombatState is not null)
+            await SyncBonuses();
+    }
+
+    private async Task SyncBonuses()
+    {
+        var shouldApply = IsAtOrBelowThreshold(
+            Owner.Creature.CurrentHp,
+            Owner.Creature.MaxHp,
+            DynamicVars["ThresholdPercent"].IntValue);
+        if (shouldApply == _bonusesApplied)
+            return;
+
+        var multiplier = shouldApply ? 1 : -1;
+        _bonusesApplied = shouldApply;
         Flash();
-        await PowerCmd.Apply<SlidingBoostPower>(
-            new ThrowingPlayerChoiceContext(),
+        var choiceContext = new ThrowingPlayerChoiceContext();
+        await PowerCmd.Apply<StrengthPower>(
+            choiceContext,
             Owner.Creature,
-            DynamicVars.Strength.BaseValue * context.Delta,
+            DynamicVars.Strength.BaseValue * multiplier,
             Owner.Creature,
-            null);
+            null,
+            silent: true);
+        await PowerCmd.Apply<DexterityPower>(
+            choiceContext,
+            Owner.Creature,
+            DynamicVars.Dexterity.BaseValue * multiplier,
+            Owner.Creature,
+            null,
+            silent: true);
+    }
+
+    internal static bool IsAtOrBelowThreshold(
+        decimal currentHp,
+        decimal maxHp,
+        int thresholdPercent)
+    {
+        return maxHp > 0
+            && currentHp * 100m <= maxHp * Math.Clamp(thresholdPercent, 0, 100);
     }
 }
 
 [RegisterRelic(typeof(HammerModRelicPool))]
 public sealed class CounterstrikeCharm : HammerRelic
 {
+    internal override HammerCardMechanic HoverTipMechanics =>
+        HammerCardMechanic.Strength
+        | HammerCardMechanic.Block;
+
     public override RelicRarity Rarity => RelicRarity.Rare;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
@@ -211,19 +270,21 @@ public sealed class CounterstrikeCharm : HammerRelic
         new BlockVar(6, ValueProp.Unpowered)
     ];
 
-    public async Task ScheduleRecovery(PlayerChoiceContext choiceContext)
+    public async Task TriggerCounterstrike(PlayerChoiceContext choiceContext)
     {
-        if (Owner.Creature.GetPower<CounterstrikeRecoveryPower>() is not null)
-            return;
-
         Flash();
-        await PowerCmd.Apply<CounterstrikeRecoveryPower>(
+        await PowerCmd.Apply<CounterstrikeStrengthPower>(
             choiceContext,
             Owner.Creature,
-            1,
+            DynamicVars.Strength.BaseValue,
             Owner.Creature,
+            null);
+        await CreatureCmd.GainBlock(
+            Owner.Creature,
+            DynamicVars.Block.BaseValue,
+            ValueProp.Unpowered,
             null,
-            silent: true);
+            fast: true);
     }
 }
 
@@ -231,6 +292,8 @@ public sealed class CounterstrikeCharm : HammerRelic
 public sealed class WirebugCage : HammerRelic
 {
     private int _lastTriggeredRound = -1;
+
+    internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Charge;
 
     public override RelicRarity Rarity => RelicRarity.Rare;
 
@@ -263,6 +326,8 @@ public sealed class WirebugCage : HammerRelic
 public sealed class DownedPursuitCharm : HammerRelic
 {
     private int _lastTriggeredRound = -1;
+
+    internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Stun;
 
     public override RelicRarity Rarity => RelicRarity.Common;
 
@@ -299,6 +364,8 @@ public sealed class EvasionMantle : HammerRelic
 {
     private int _lastTriggeredRound = -1;
     private readonly HashSet<CardPlay> _qualifyingPlays = [];
+
+    internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Strength;
 
     public override RelicRarity Rarity => RelicRarity.Shop;
 
@@ -360,26 +427,36 @@ public sealed class EvasionMantle : HammerRelic
 [RegisterRelic(typeof(HammerModRelicPool))]
 public sealed class RocksteadyMantle : HammerRelic
 {
+    internal override HammerCardMechanic HoverTipMechanics =>
+        HammerCardMechanic.Charge;
+
     public override RelicRarity Rarity => RelicRarity.Shop;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new BlockVar(3, ValueProp.Unpowered)
+        new IntVar("HpLossReduction", 2)
     ];
 
-    public override async Task AfterPlayerTurnStart(
-        PlayerChoiceContext choiceContext,
-        Player player)
+    public override decimal ModifyHpLostAfterOsty(
+        Creature target,
+        decimal amount,
+        ValueProp props,
+        Creature? dealer,
+        MegaCrit.Sts2.Core.Models.CardModel? cardSource)
     {
-        if (player != Owner)
-            return;
+        return target == Owner.Creature
+            ? ReduceHpLoss(amount, DynamicVars["HpLossReduction"].IntValue)
+            : amount;
+    }
 
+    public override Task AfterModifyingHpLostAfterOsty()
+    {
         Flash();
-        await CreatureCmd.GainBlock(
-            Owner.Creature,
-            DynamicVars.Block.BaseValue,
-            ValueProp.Unpowered,
-            null,
-            fast: true);
+        return Task.CompletedTask;
+    }
+
+    internal static decimal ReduceHpLoss(decimal amount, int reduction)
+    {
+        return Math.Max(0m, amount - Math.Max(0, reduction));
     }
 }

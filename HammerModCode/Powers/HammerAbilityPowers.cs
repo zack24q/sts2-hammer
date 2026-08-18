@@ -59,41 +59,6 @@ public sealed class OverchargePower : HammerAbilityPower
 }
 
 [RegisterPower]
-public sealed class OverchargeBacklashPower : HammerAbilityPower
-{
-    public override PowerType Type => PowerType.Debuff;
-    public override PowerStackType StackType => PowerStackType.Counter;
-    protected override bool IsVisibleInternal => false;
-
-    public override async Task AfterPlayerTurnStart(
-        PlayerChoiceContext choiceContext,
-        Player player)
-    {
-        if (player.Creature != Owner)
-            return;
-
-        var amount = Amount;
-        await PowerCmd.Remove(this);
-        var weak = await PowerCmd.Apply<WeakPower>(
-            choiceContext,
-            Owner,
-            amount,
-            Owner,
-            null);
-        var vulnerable = await PowerCmd.Apply<VulnerablePower>(
-            choiceContext,
-            Owner,
-            amount,
-            Owner,
-            null);
-        if (weak is not null)
-            weak.SkipNextDurationTick = false;
-        if (vulnerable is not null)
-            vulnerable.SkipNextDurationTick = false;
-    }
-}
-
-[RegisterPower]
 public sealed class FocusPower : HammerAbilityPower
 {
     public override PowerType Type => PowerType.Buff;
@@ -107,10 +72,9 @@ public sealed class FocusPower : HammerAbilityPower
         if (player.Creature != Owner)
             return;
 
-        var copies = Amount / 100;
-        var missingCharge = Math.Max(0, 3 - HammerResources.GetCharge(player));
-        var chargeGains = Math.Min(copies, missingCharge);
-        var drawTriggers = copies - chargeGains;
+        var (chargeGains, cards) = CalculateTurnRewards(
+            Amount,
+            HammerResources.GetCharge(player));
 
         if (chargeGains > 0)
         {
@@ -121,13 +85,27 @@ public sealed class FocusPower : HammerAbilityPower
                 source: this);
         }
 
-        if (drawTriggers > 0)
+        if (cards > 0)
         {
             await CardPileCmd.Draw(
                 choiceContext,
-                drawTriggers,
+                cards,
                 player);
         }
+    }
+
+    internal static (int Charge, int Cards) CalculateTurnRewards(
+        int packedAmount,
+        int currentCharge)
+    {
+        var safeAmount = Math.Max(0, packedAmount);
+        var copies = safeAmount / 100;
+        var upgradedCopies = Math.Min(copies, safeAmount % 100);
+        var missingCharge = Math.Max(0, HammerResources.MaxCharge - currentCharge);
+        var chargeGains = Math.Min(copies, missingCharge);
+        var fullChargeTriggers = copies - chargeGains;
+        var upgradedFullChargeTriggers = Math.Min(upgradedCopies, fullChargeTriggers);
+        return (chargeGains, fullChargeTriggers + upgradedFullChargeTriggers);
     }
 }
 
@@ -161,27 +139,37 @@ public sealed class EndlessMomentumPower : HammerAbilityPower
 }
 
 [RegisterPower]
-public sealed class DashJuicePower : HammerAbilityPower, ISecondaryResourceHookListener
+public sealed class DashJuicePower : HammerAbilityPower
 {
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
 
-    public async Task AfterSecondaryResourceChanged(SecondaryResourceChangeContext context)
+    public override async Task AfterSideTurnEnd(
+        PlayerChoiceContext choiceContext,
+        CombatSide side,
+        IEnumerable<Creature> participants)
     {
-        if (context.Player.Creature != Owner
-            || context.Definition.Id != HammerResources.Charge.Id
-            || context.Delta <= 0)
-        {
+        if (side != CombatSide.Player
+            || !participants.Contains(Owner)
+            || Owner.Player is null)
             return;
-        }
+
+        var block = CalculateBlock(HammerResources.GetCharge(Owner.Player), Amount);
+        if (block <= 0)
+            return;
 
         Flash();
         await CreatureCmd.GainBlock(
             Owner,
-            Amount * context.Delta,
+            block,
             ValueProp.Unpowered,
             null,
             fast: true);
+    }
+
+    internal static int CalculateBlock(int charge, int blockPerCharge)
+    {
+        return Math.Max(0, charge) * Math.Max(0, blockPerCharge);
     }
 }
 
@@ -361,7 +349,7 @@ public sealed class FaceOffPower : HammerAbilityPower
 }
 
 [RegisterPower]
-public sealed class WaterStancePower : HammerAbilityPower
+public sealed class WeaveAndBonkPower : HammerAbilityPower
 {
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
@@ -472,7 +460,7 @@ public sealed class AftershockPower : HammerAbilityPower
 }
 
 [RegisterPower]
-public sealed class UnloadingStancePower : TemporaryStrengthPower
+public sealed class UnloadingStancePower : HammerTemporaryStrengthPower
 {
     public override AbstractModel OriginModel => ModelDb.Card<UnloadingStance>();
     protected override bool IsPositive => false;

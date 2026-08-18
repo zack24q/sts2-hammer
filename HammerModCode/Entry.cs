@@ -1,4 +1,5 @@
 using System.Reflection;
+using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Modding;
 using HammerMod.Gameplay;
@@ -15,6 +16,8 @@ public partial class Entry
 
     public static Logger Logger { get; private set; } = null!;
 
+    private static bool _patchesApplied;
+
     public static void Initialize()
     {
         var assembly = Assembly.GetExecutingAssembly();
@@ -24,6 +27,12 @@ public partial class Entry
         HammerKeywords.Register();
         HammerTargetTypes.Register();
         ModTypeDiscoveryHub.RegisterModAssembly(ModId, assembly);
+
+        if (!_patchesApplied)
+        {
+            new Harmony($"{ModId}.patches").PatchAll(assembly);
+            _patchesApplied = true;
+        }
 
         Logger.Info("HammerMod content initialized.");
     }

@@ -48,7 +48,7 @@ public sealed partial class CardContractTests
     public void CardRegistrationContainsNoDuplicateRuntimeTypes()
     {
         Assert.NotEmpty(RegisteredCardTypes);
-        Assert.Equal(78, AllRegisteredCardTypes.Length);
+        Assert.Equal(87, AllRegisteredCardTypes.Length);
         Assert.Equal(
             AllRegisteredCardTypes.Length,
             AllRegisteredCardTypes.Distinct().Count());
@@ -72,14 +72,14 @@ public sealed partial class CardContractTests
 
         Assert.Equal(4, cards.Count(static card => card.Rarity == CardRarity.Basic));
         Assert.Equal(19, cards.Count(static card => card.Rarity == CardRarity.Common));
-        Assert.Equal(34, cards.Count(static card => card.Rarity == CardRarity.Uncommon));
-        Assert.Equal(19, cards.Count(static card => card.Rarity == CardRarity.Rare));
+        Assert.Equal(36, cards.Count(static card => card.Rarity == CardRarity.Uncommon));
+        Assert.Equal(26, cards.Count(static card => card.Rarity == CardRarity.Rare));
         Assert.Equal(1, cards.Count(static card => card.Rarity == CardRarity.Ancient));
         Assert.Equal(1, cards.Count(static card => card.Rarity == CardRarity.Status));
 
-        Assert.Equal(31, cards.Count(static card => card.Type == CardType.Attack));
-        Assert.Equal(29, cards.Count(static card => card.Type == CardType.Skill));
-        Assert.Equal(17, cards.Count(static card => card.Type == CardType.Power));
+        Assert.Equal(34, cards.Count(static card => card.Type == CardType.Attack));
+        Assert.Equal(34, cards.Count(static card => card.Type == CardType.Skill));
+        Assert.Equal(18, cards.Count(static card => card.Type == CardType.Power));
         Assert.Equal(1, cards.Count(static card => card.Type == CardType.Status));
     }
 
@@ -166,11 +166,11 @@ public sealed partial class CardContractTests
         Assert.Equal(
             new[]
             {
-                typeof(ChargedGuard),
+                typeof(MightyChargeRoll),
                 typeof(ChargedUpswing),
                 typeof(EarthStrike),
                 typeof(ImpactCrater),
-                typeof(MightyChargeSlam),
+                typeof(MightyChargeBonk),
                 typeof(SilkbindSpinningBludgeon)
             }.OrderBy(static type => type.Name),
             releaseCards.OrderBy(static type => type.Name));
@@ -230,7 +230,7 @@ public sealed partial class CardContractTests
         foreach (var description in chineseDescriptions)
         {
             Assert.DoesNotContain("若", description, StringComparison.Ordinal);
-            Assert.DoesNotContain("[gold]临时力量[/gold]", description, StringComparison.Ordinal);
+            Assert.DoesNotContain("临时力量", description, StringComparison.Ordinal);
             Assert.DoesNotContain("（当前", description, StringComparison.Ordinal);
             Assert.DoesNotContain("目标", description, StringComparison.Ordinal);
             Assert.DoesNotContain("队友", description, StringComparison.Ordinal);
@@ -247,13 +247,41 @@ public sealed partial class CardContractTests
     }
 
     [Fact]
-    public void CardMechanicsUseOfficialKeywordMarkupAndHoverTipMetadata()
+    public void UserFacingDescriptionsAvoidTemporaryStrengthTerm()
+    {
+        foreach (var (language, forbiddenTerm) in new[]
+                 {
+                     ("eng", "temporary Strength"),
+                     ("zhs", "临时力量")
+                 })
+        {
+            foreach (var table in new[] { "cards", "relics", "potions", "powers" })
+            {
+                foreach (var (key, description) in ReadLocalization(language, table).Where(
+                             static entry => entry.Key.EndsWith(
+                                 ".description",
+                                 StringComparison.Ordinal)
+                                 || entry.Key.EndsWith(
+                                     ".smartDescription",
+                                     StringComparison.Ordinal)))
+                {
+                    Assert.DoesNotContain(
+                        forbiddenTerm,
+                        description,
+                        StringComparison.OrdinalIgnoreCase);
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void CardsRelicsAndPotionsUseOfficialKeywordMarkupAndCardHoverTipMetadata()
     {
         var plainEnglishKeyword = new Regex(
-            @"(?<!\[gold\])(?<!\{)\b(?:Release Charge|Draw Pile|Discard Pile|Get Back Up|Stunned|Stun|Charge|Regeneration|Vulnerable|Strength|Dexterity|Thorns|Weak|Block|Replay|Hand)\b(?!\[/gold\])",
+            @"(?<!\[gold\])(?<!\{)\b(?:Release Charge|Draw Pile|Discard Pile|Back on Your Feet|Stunned|Stun|Charge|Regeneration|Vulnerable|Frail|Strength|Dexterity|Thorns|Weak|Block|Replay|Hand)\b(?!\[/gold\])",
             RegexOptions.CultureInvariant);
         var plainChineseKeyword = new Regex(
-            @"(?<!\[gold\])(?:释放蓄力|抽牌堆|弃牌堆|重新起身|临时力量|击晕|晕眩|蓄力|力量|敏捷|虚弱|易伤|再生|荆棘|(?<!未)(?<!未被)格挡|手牌|重放)(?!\[/gold\])",
+            @"(?<!\[gold\])(?:释放蓄力|抽牌堆|弃牌堆|倒地起身|临时力量|击晕|晕眩|蓄力|力量|敏捷|虚弱|易伤|脆弱|再生|荆棘|(?<!未)(?<!未被)格挡|手牌|重放)(?!\[/gold\])",
             RegexOptions.CultureInvariant);
         var nestedGoldTag = new Regex(
             @"\[gold\](?:(?!\[/gold\]).)*\[gold\]",
@@ -262,26 +290,36 @@ public sealed partial class CardContractTests
             @"\{[A-Za-z0-9_]*\[gold\]",
             RegexOptions.CultureInvariant);
 
-        foreach (var (localization, plainKeyword) in new[]
+        foreach (var (language, plainKeyword) in new[]
                  {
-                     (EnglishLocalization.Value, plainEnglishKeyword),
-                     (ChineseLocalization.Value, plainChineseKeyword)
+                     ("eng", plainEnglishKeyword),
+                     ("zhs", plainChineseKeyword)
                  })
         {
-            foreach (var (key, description) in localization.Where(
-                         static entry => entry.Key.EndsWith(".description", StringComparison.Ordinal)
-                             || entry.Key.EndsWith(".smartDescription", StringComparison.Ordinal)))
+            foreach (var table in new[] { "cards", "relics", "potions" })
             {
-                Assert.Equal(
-                    Regex.Matches(description, @"\[gold\]").Count,
-                    Regex.Matches(description, @"\[/gold\]").Count);
-                Assert.False(nestedGoldTag.IsMatch(description), $"Nested gold tag in {key}.");
-                Assert.False(
-                    goldTagInDynamicVarName.IsMatch(description),
-                    $"Gold tag corrupts a dynamic variable in {key}.");
-                Assert.False(
-                    plainKeyword.IsMatch(description),
-                    $"Unmarked keyword in {key}: {plainKeyword.Match(description).Value}");
+                var localization = ReadLocalization(language, table);
+                foreach (var (key, description) in localization.Where(
+                             static entry => entry.Key.EndsWith(
+                                     ".description",
+                                     StringComparison.Ordinal)
+                                 || entry.Key.EndsWith(
+                                     ".smartDescription",
+                                     StringComparison.Ordinal)))
+                {
+                    Assert.Equal(
+                        Regex.Matches(description, @"\[gold\]").Count,
+                        Regex.Matches(description, @"\[/gold\]").Count);
+                    Assert.False(
+                        nestedGoldTag.IsMatch(description),
+                        $"Nested gold tag in {key}.");
+                    Assert.False(
+                        goldTagInDynamicVarName.IsMatch(description),
+                        $"Gold tag corrupts a dynamic variable in {key}.");
+                    Assert.False(
+                        plainKeyword.IsMatch(description),
+                        $"Unmarked keyword in {key}: {plainKeyword.Match(description).Value}");
+                }
             }
         }
 
@@ -309,10 +347,11 @@ public sealed partial class CardContractTests
             AssertMechanicForMarkup(description, "[gold]Dexterity[/gold]", mechanics, HammerCardMechanic.Dexterity, cardType);
             AssertMechanicForMarkup(description, "[gold]Weak[/gold]", mechanics, HammerCardMechanic.Weak, cardType);
             AssertMechanicForMarkup(description, "[gold]Vulnerable[/gold]", mechanics, HammerCardMechanic.Vulnerable, cardType);
+            AssertMechanicForMarkup(description, "[gold]Frail[/gold]", mechanics, HammerCardMechanic.Frail, cardType);
             AssertMechanicForMarkup(description, "[gold]Regeneration[/gold]", mechanics, HammerCardMechanic.Regeneration, cardType);
             AssertMechanicForMarkup(description, "[gold]Thorns[/gold]", mechanics, HammerCardMechanic.Thorns, cardType);
             AssertMechanicForMarkup(description, "[gold]Replay[/gold]", mechanics, HammerCardMechanic.Replay, cardType);
-            AssertMechanicForMarkup(description, "[gold]Get Back Up[/gold]", mechanics, HammerCardMechanic.GetBackUp, cardType);
+            AssertMechanicForMarkup(description, "[gold]Back on Your Feet[/gold]", mechanics, HammerCardMechanic.BackOnYourFeet, cardType);
 
             if (description.Contains("[gold]Block[/gold]", StringComparison.Ordinal))
             {
@@ -325,14 +364,39 @@ public sealed partial class CardContractTests
         foreach (var language in new[] { "eng", "zhs" })
         {
             var keywords = ReadLocalization(language, "card_keywords");
-            foreach (var keyword in new[] { "CHARGE", "CHARGE_RELEASE", "STUN" })
+            foreach (var keyword in new[] { "CHARGE", "CHARGE_RELEASE" })
             {
                 Assert.False(string.IsNullOrWhiteSpace(
                     keywords[$"HAMMER_MOD_KEYWORD_{keyword}.title"]));
                 Assert.False(string.IsNullOrWhiteSpace(
                     keywords[$"HAMMER_MOD_KEYWORD_{keyword}.description"]));
             }
+
+            Assert.DoesNotContain("HAMMER_MOD_KEYWORD_STUN.title", keywords.Keys);
+            Assert.DoesNotContain("HAMMER_MOD_KEYWORD_STUN.description", keywords.Keys);
         }
+
+        Assert.Equal(StaticHoverTip.Stun, HammerCardHoverTips.StunHoverTip);
+
+        Assert.Equal(
+            HammerCardMechanic.Stun,
+            new DownedPursuitCharm().HoverTipMechanics);
+        Assert.Equal(
+            HammerCardMechanic.Stun,
+            new FlashBomb().HoverTipMechanics);
+        Assert.Equal(
+            HammerCardMechanic.Strength | HammerCardMechanic.Dexterity,
+            new SlidingBoostJewel().HoverTipMechanics);
+        Assert.Equal(
+            HammerCardMechanic.Strength
+            | HammerCardMechanic.Block,
+            new CounterstrikeCharm().HoverTipMechanics);
+        Assert.Equal(
+            HammerCardMechanic.Strength,
+            new MightSeed().HoverTipMechanics);
+        Assert.Equal(
+            HammerCardMechanic.Vulnerable,
+            new Pitfall().HoverTipMechanics);
     }
 
     [Fact]
@@ -345,7 +409,7 @@ public sealed partial class CardContractTests
             "HAMMER_MOD_CARD_FELYNE_KO_TECHNIQUE",
             "HAMMER_MOD_CARD_LAUNCH_TEAMMATE",
             "HAMMER_MOD_CARD_LEVERAGED_SWING",
-            "HAMMER_MOD_CARD_SHEATHE_AND_BREATHE",
+            "HAMMER_MOD_CARD_HAMMER_IAI",
             "HAMMER_MOD_CARD_VICTORY_CHARGE",
             "HAMMER_MOD_CARD_WIREBUG_CONTINUATION"
         };
@@ -378,8 +442,8 @@ public sealed partial class CardContractTests
     {
         AssertChargeTierUpgrade<EarthStrike>("DamageAt", [15, 20, 27, 36]);
         AssertChargeTierUpgrade<EarthStrike>("StunAt", [2, 3, 6, 8]);
-        AssertChargeTierUpgrade<MightyChargeSlam>("DamageAt", [20, 28, 38, 50]);
-        AssertChargeTierUpgrade<ChargedGuard>("BlockAt", [12, 18, 26, 32]);
+        AssertChargeTierUpgrade<MightyChargeBonk>("DamageAt", [20, 28, 38, 50]);
+        AssertChargeTierUpgrade<MightyChargeRoll>("BlockAt", [12, 18, 26, 32]);
         AssertChargeTierUpgrade<ChargedUpswing>("StunAt", [5, 9, 14, 20]);
         AssertChargeTierUpgrade<ImpactCrater>("DamageAt", [18, 22, 30, 40]);
         AssertChargeTierUpgrade<ImpactCrater>("StunAt", [5, 9, 14, 20]);
@@ -388,47 +452,146 @@ public sealed partial class CardContractTests
     [Fact]
     public void RedesignedCardsKeepTheirRequestedCostsValuesAndKeywords()
     {
+        Assert.Equal(
+            "Borrowed Momentum",
+            EnglishLocalization.Value["HAMMER_MOD_CARD_CHARGE_STEP.title"]);
+        Assert.Equal(
+            "Charge Step",
+            EnglishLocalization.Value["HAMMER_MOD_CARD_KEEPING_SWAY.title"]);
+        Assert.Equal(
+            "借力蓄势",
+            ChineseLocalization.Value["HAMMER_MOD_CARD_CHARGE_STEP.title"]);
+        Assert.Equal(
+            "蓄力垫步",
+            ChineseLocalization.Value["HAMMER_MOD_CARD_KEEPING_SWAY.title"]);
+
+        AssertCardValues<ChargedOverheadSmash>(1, ("NormalDamage", 9), ("ChargedDamage", 18));
+        AssertUpgradedCardValues<ChargedOverheadSmash>(1, ("NormalDamage", 12), ("ChargedDamage", 24));
+
         AssertCardValues<SwitchGripSwing>(1, ("Damage", 9), ("Cards", 1));
         AssertUpgradedCardValues<SwitchGripSwing>(1, ("Damage", 10), ("Cards", 2));
 
-        AssertCardValues<SweepingPreparation>(1, ("Damage", 6), ("Cards", 1));
-        AssertUpgradedCardValues<SweepingPreparation>(1, ("Damage", 9), ("Cards", 1));
+        AssertCardValues<SweepThePath>(1, ("Damage", 6), ("Cards", 1));
+        AssertUpgradedCardValues<SweepThePath>(1, ("Damage", 9), ("Cards", 1));
 
-        AssertCardValues<ChargedSideSmash>(1, ("NormalDamage", 6), ("ChargedDamage", 10));
-        AssertUpgradedCardValues<ChargedSideSmash>(1, ("NormalDamage", 8), ("ChargedDamage", 14));
+        AssertCardValues<ChargedSideSmash>(1, ("NormalDamage", 6), ("ChargedDamage", 12));
+        AssertUpgradedCardValues<ChargedSideSmash>(1, ("NormalDamage", 8), ("ChargedDamage", 16));
 
-        AssertCardValues<KeepingSway>(1, ("Block", 5), ("FullBlock", 13));
-        AssertUpgradedCardValues<KeepingSway>(1, ("Block", 8), ("FullBlock", 17));
+        AssertCardValues<KeepingSway>(1, ("Block", 5), ("FullBlock", 15));
+        AssertUpgradedCardValues<KeepingSway>(1, ("Block", 8), ("FullBlock", 18));
 
-        AssertCardValues<ChargedStand>(1, ("NormalBlock", 8), ("ChargedBlock", 14));
-        AssertUpgradedCardValues<ChargedStand>(1, ("NormalBlock", 11), ("ChargedBlock", 18));
+        AssertCardValues<BraceWithTheHammer>(1, ("NormalBlock", 8), ("ChargedBlock", 16));
+        AssertUpgradedCardValues<BraceWithTheHammer>(1, ("NormalBlock", 11), ("ChargedBlock", 22));
 
-        AssertCardValues<IronbugFollowUp>(0, ("Damage", 3), ("BaseHits", 2), ("Cards", 1));
-        AssertUpgradedCardValues<IronbugFollowUp>(0, ("Damage", 3), ("BaseHits", 2), ("Cards", 2));
+        AssertCardValues<EmergencyEvade>(1, ("Block", 13), ("ChargeLoss", 1));
+        AssertUpgradedCardValues<EmergencyEvade>(1, ("Block", 17), ("ChargeLoss", 1));
 
-        AssertCardValues<SlidingCombo>(0, ("NormalStrength", 2), ("ChargedStrength", 4));
-        AssertUpgradedCardValues<SlidingCombo>(0, ("NormalStrength", 4), ("ChargedStrength", 6));
+        AssertCardValues<WirebugSpin>(0, ("Damage", 3), ("BaseHits", 2), ("Cards", 1));
+        AssertUpgradedCardValues<WirebugSpin>(0, ("Damage", 3), ("BaseHits", 2), ("Cards", 2));
+
+        AssertCardValues<AffinitySliding>(0, ("NormalStrength", 2), ("ChargedStrength", 4));
+        AssertUpgradedCardValues<AffinitySliding>(0, ("NormalStrength", 4), ("ChargedStrength", 6));
 
         AssertCardValues<LegSweepHammer>(1, ("Damage", 6), ("WeakPower", 1));
         AssertUpgradedCardValues<LegSweepHammer>(1, ("Damage", 8), ("WeakPower", 2));
 
-        AssertCardValues<PoundingSmash>(2, ("Damage", 3), ("BaseHits", 4), ("StunPerHit", 2));
-        AssertUpgradedCardValues<PoundingSmash>(2, ("Damage", 3), ("BaseHits", 6), ("StunPerHit", 2));
+        AssertCardValues<ChargeStep>(1, ("Block", 8), ("Charge", 2));
+        AssertUpgradedCardValues<ChargeStep>(1, ("Block", 11), ("Charge", 2));
 
-        AssertCardValues<RisingDragonHammer>(2, ("Damage", 14), ("Stun", 8));
-        AssertUpgradedCardValues<RisingDragonHammer>(2, ("Damage", 18), ("Stun", 10));
+        AssertCardValues<BluntWeaponExpert>(
+            0,
+            ("Damage", 6),
+            ("Stun", 3),
+            ("Block", 5),
+            ("Charge", 1));
+        AssertUpgradedCardValues<BluntWeaponExpert>(
+            0,
+            ("Damage", 9),
+            ("Stun", 4),
+            ("Block", 8),
+            ("Charge", 2));
 
-        AssertCardValues<OffsetUpswing>(2, ("Damage", 8));
-        AssertUpgradedCardValues<OffsetUpswing>(2, ("Damage", 10));
+        AssertCardValues<ChargeAsYouStrike>(1, ("Damage", 12), ("Charge", 2));
+        AssertUpgradedCardValues<ChargeAsYouStrike>(1, ("Damage", 16), ("Charge", 2));
 
-        AssertCardValues<SpinningCharge>(0, ("BlockPerEnergy", 7), ("ExcessBlock", 3));
-        AssertUpgradedCardValues<SpinningCharge>(0, ("BlockPerEnergy", 9), ("ExcessBlock", 4));
+        AssertCardValues<StaminaDrainingHammer>(
+            1,
+            ("Damage", 4),
+            ("Stun", 10),
+            ("WeakPower", 1),
+            ("VulnerablePower", 1));
+        AssertUpgradedCardValues<StaminaDrainingHammer>(
+            1,
+            ("Damage", 6),
+            ("Stun", 15),
+            ("WeakPower", 2),
+            ("VulnerablePower", 2));
+
+        AssertCardValues<FindASlope>(0, ("Cards", 2));
+        AssertUpgradedCardValues<FindASlope>(0, ("Cards", 3));
+        Assert.Contains(CardKeyword.Exhaust, GetKeywords(new FindASlope()));
+        Assert.Contains(CardKeyword.Exhaust, GetKeywords(CreateUpgradedCard<FindASlope>()));
+
+        AssertCardValues<Wirefall>(0);
+        Assert.Contains(CardKeyword.Exhaust, GetKeywords(new Wirefall()));
+        Assert.DoesNotContain(CardKeyword.Exhaust, GetKeywords(CreateUpgradedCard<Wirefall>()));
+
+        AssertCardValues<Farcaster>(3);
+        Assert.Contains(CardKeyword.Exhaust, GetKeywords(new Farcaster()));
+        Assert.DoesNotContain(CardKeyword.Exhaust, GetKeywords(CreateUpgradedCard<Farcaster>()));
+
+        AssertCardValues<Coalescence>(3, ("MaxReduction", 5), ("StrengthPower", 1));
+        AssertUpgradedCardValues<Coalescence>(3, ("MaxReduction", 5), ("StrengthPower", 2));
+
+        AssertCardValues<FreeMeal>(2);
+        AssertUpgradedCardValues<FreeMeal>(1);
+        Assert.Contains(CardKeyword.Exhaust, GetKeywords(new FreeMeal()));
+        Assert.Contains(CardKeyword.Exhaust, GetKeywords(CreateUpgradedCard<FreeMeal>()));
+
+        AssertCardValues<LuckyVoucher>(2);
+        AssertUpgradedCardValues<LuckyVoucher>(1);
+
+        var bluntWeaponExpertDescription =
+            ChineseLocalization.Value["HAMMER_MOD_CARD_BLUNT_WEAPON_EXPERT.description"];
+        AssertOrderedText(
+            bluntWeaponExpertDescription,
+            "{Charge:diff()}",
+            "{Block:diff()}",
+            "{Damage:diff()}",
+            "{Stun:diff()}");
+
+        AssertOrderedText(
+            ChineseLocalization.Value["HAMMER_MOD_CARD_CHARGE_AS_YOU_STRIKE.description"],
+            "{Damage:diff()}",
+            "{IfUpgraded:show:");
+        AssertOrderedText(
+            ChineseLocalization.Value["HAMMER_MOD_CARD_STAMINA_DRAINING_HAMMER.description"],
+            "{Damage:diff()}",
+            "{Stun:diff()}",
+            "{WeakPower:diff()}",
+            "{VulnerablePower:diff()}");
+
+        AssertCardValues<DashJuice>(1, ("Block", 3));
+        AssertUpgradedCardValues<DashJuice>(1, ("Block", 4));
+        Assert.DoesNotContain(CardKeyword.Innate, GetKeywords(CreateUpgradedCard<DashJuice>()));
+
+        AssertCardValues<InvincibleWindFireWheel>(2, ("Damage", 3), ("BaseHits", 4), ("StunPerHit", 2));
+        AssertUpgradedCardValues<InvincibleWindFireWheel>(2, ("Damage", 3), ("BaseHits", 6), ("StunPerHit", 2));
+
+        AssertCardValues<MightyUpswing>(2, ("Damage", 14), ("Stun", 8));
+        AssertUpgradedCardValues<MightyUpswing>(2, ("Damage", 18), ("Stun", 10));
+
+        AssertCardValues<HammerForHammer>(2, ("Damage", 8));
+        AssertUpgradedCardValues<HammerForHammer>(2, ("Damage", 10));
+
+        AssertCardValues<SteadierWithEverySpin>(0, ("BlockPerEnergy", 7), ("ExcessBlock", 3));
+        AssertUpgradedCardValues<SteadierWithEverySpin>(0, ("BlockPerEnergy", 9), ("ExcessBlock", 4));
 
         AssertCardValues<TrueSpinningImpact>(0, ("Damage", 8), ("BonusHits", 0), ("StunPerEnergy", 2));
         AssertUpgradedCardValues<TrueSpinningImpact>(0, ("Damage", 8), ("BonusHits", 1), ("StunPerEnergy", 2));
 
-        AssertCardValues<FocusBlowEarthquake>(0, ("Damage", 3), ("Stun", 1), ("VulnerablePower", 2));
-        AssertUpgradedCardValues<FocusBlowEarthquake>(0, ("Damage", 4), ("Stun", 2), ("VulnerablePower", 2));
+        AssertCardValues<FocusBlowEarthquake>(0, ("Damage", 3), ("Stun", 1), ("VulnerablePower", 1));
+        AssertUpgradedCardValues<FocusBlowEarthquake>(0, ("Damage", 5), ("Stun", 2), ("VulnerablePower", 2));
 
         AssertCardValues<DeepBreath>(0, ("Energy", 1), ("AttackEnergy", 2));
         AssertUpgradedCardValues<DeepBreath>(0, ("Energy", 1), ("AttackEnergy", 3));
@@ -454,15 +617,24 @@ public sealed partial class CardContractTests
         Assert.Contains(CardKeyword.Exhaust, GetKeywords(upgradedVictoryCharge));
         Assert.Contains(CardKeyword.Retain, GetKeywords(upgradedVictoryCharge));
 
-        AssertCardValues<Overcharge>(2, ("Backlash", 1));
-        AssertUpgradedCardValues<Overcharge>(2, ("Backlash", 0));
+        AssertCardValues<Overcharge>(2);
+        AssertUpgradedCardValues<Overcharge>(2);
         Assert.Contains(CardKeyword.Exhaust, GetKeywords(new Overcharge()));
+        Assert.DoesNotContain(
+            CardKeyword.Exhaust,
+            GetKeywords(CreateUpgradedCard<Overcharge>()));
 
         AssertCardValues<Focus>(1, ("FullCards", 1));
         Assert.DoesNotContain(CardKeyword.Innate, GetKeywords(new Focus()));
         var upgradedFocus = CreateUpgradedCard<Focus>();
-        AssertCardValues(upgradedFocus, 1, [("FullCards", 1)]);
-        Assert.Contains(CardKeyword.Innate, GetKeywords(upgradedFocus));
+        AssertCardValues(upgradedFocus, 1, [("FullCards", 2)]);
+        Assert.DoesNotContain(CardKeyword.Innate, GetKeywords(upgradedFocus));
+
+        AssertCardValues<ChargeSwitchStrength>(1, ("StrengthPower", 0));
+        Assert.DoesNotContain(CardKeyword.Innate, GetKeywords(new ChargeSwitchStrength()));
+        var upgradedChargeSwitchStrength = CreateUpgradedCard<ChargeSwitchStrength>();
+        AssertCardValues(upgradedChargeSwitchStrength, 1, [("StrengthPower", 0)]);
+        Assert.Contains(CardKeyword.Innate, GetKeywords(upgradedChargeSwitchStrength));
 
         AssertCardValues<EndlessMomentum>(1, ("Energy", 1));
         AssertUpgradedCardValues<EndlessMomentum>(1, ("Energy", 2));
@@ -488,8 +660,8 @@ public sealed partial class CardContractTests
         Assert.Contains(CardKeyword.Exhaust, GetKeywords(upgradedRecoveryMedicine));
         Assert.Contains(CardKeyword.Retain, GetKeywords(upgradedRecoveryMedicine));
 
-        AssertCardValues<ChargeSwitchCourage>(3, ("StrengthPower", 3));
-        AssertUpgradedCardValues<ChargeSwitchCourage>(2, ("StrengthPower", 3));
+        AssertCardValues<HarderWithEverySmash>(3, ("StrengthPower", 3));
+        AssertUpgradedCardValues<HarderWithEverySmash>(2, ("StrengthPower", 3));
 
         AssertCardValues<BloodRite>(2, ("DamageStep", 10), ("Healing", 1));
         AssertUpgradedCardValues<BloodRite>(1, ("DamageStep", 10), ("Healing", 1));
@@ -502,6 +674,39 @@ public sealed partial class CardContractTests
         Assert.True(RecoveryMedicine.CanPlayWhenNoEnemyDealsAttackDamage([0, 0]));
         Assert.True(RecoveryMedicine.CanPlayWhenNoEnemyDealsAttackDamage([0, -1]));
         Assert.False(RecoveryMedicine.CanPlayWhenNoEnemyDealsAttackDamage([0, 1]));
+    }
+
+    [Theory]
+    [InlineData(-1, false)]
+    [InlineData(0, false)]
+    [InlineData(1, true)]
+    [InlineData(2, true)]
+    [InlineData(3, true)]
+    public void IaiRequiresAtLeastOneCharge(int charge, bool expected)
+    {
+        Assert.Equal(expected, HammerIai.HasRequiredCharge(charge));
+    }
+
+    [Theory]
+    [InlineData(0, 9, 12, 6, 8, 8, 11)]
+    [InlineData(1, 9, 12, 6, 8, 8, 11)]
+    [InlineData(2, 18, 24, 12, 16, 16, 22)]
+    [InlineData(3, 18, 24, 12, 16, 16, 22)]
+    public void ChargedThresholdCardsDoubleTheirBaseValueAtTwoCharge(
+        int charge,
+        int overhead,
+        int upgradedOverhead,
+        int side,
+        int upgradedSide,
+        int block,
+        int upgradedBlock)
+    {
+        Assert.Equal(overhead, ChargedOverheadSmash.ResolveDamage(charge, upgraded: false));
+        Assert.Equal(upgradedOverhead, ChargedOverheadSmash.ResolveDamage(charge, upgraded: true));
+        Assert.Equal(side, ChargedSideSmash.ResolveDamage(charge, upgraded: false));
+        Assert.Equal(upgradedSide, ChargedSideSmash.ResolveDamage(charge, upgraded: true));
+        Assert.Equal(block, BraceWithTheHammer.ResolveBlock(charge, upgraded: false));
+        Assert.Equal(upgradedBlock, BraceWithTheHammer.ResolveBlock(charge, upgraded: true));
     }
 
     [Fact]
@@ -523,10 +728,10 @@ public sealed partial class CardContractTests
         Assert.Equal(CardType.Attack, focusBlowEarthquake.Type);
         Assert.Equal(CardRarity.Uncommon, focusBlowEarthquake.Rarity);
 
-        var slidingCombo = new SlidingCombo();
-        Assert.Equal(CardType.Skill, slidingCombo.Type);
-        Assert.Equal(CardRarity.Uncommon, slidingCombo.Rarity);
-        Assert.Equal(TargetType.Self, slidingCombo.TargetType);
+        var affinitySliding = new AffinitySliding();
+        Assert.Equal(CardType.Skill, affinitySliding.Type);
+        Assert.Equal(CardRarity.Uncommon, affinitySliding.Rarity);
+        Assert.Equal(TargetType.Self, affinitySliding.TargetType);
 
         Assert.Equal(TargetType.Self, new UnloadingStance().TargetType);
 
@@ -549,9 +754,9 @@ public sealed partial class CardContractTests
             "LEG_SWEEP_HAMMER",
             "DEEP_BREATH",
             "UNLOADING_STANCE",
-            "WATER_STANCE",
+            "WEAVE_AND_BONK",
             "CHARGE_STEP",
-            "OFFSET_UPSWING",
+            "HAMMER_FOR_HAMMER",
             "BREAK_MOMENTUM",
             "WAKE_UP_HIT",
             "SWITCH_GRIP_SWING",
@@ -560,10 +765,10 @@ public sealed partial class CardContractTests
             "SHELL_BREAKER",
             "REPOSITION",
             "LAUNCH_TEAMMATE",
-            "IRONBUG_FOLLOW_UP",
-            "SLIDING_COMBO",
-            "SWEEPING_PREPARATION",
-            "POUNDING_SMASH",
+            "WIREBUG_SPIN",
+            "AFFINITY_SLIDING",
+            "SWEEP_THE_PATH",
+            "INVINCIBLE_WIND_FIRE_WHEEL",
             "TRUE_SPINNING_IMPACT",
             "WARM_UP_EXERCISE"
         };
@@ -574,12 +779,12 @@ public sealed partial class CardContractTests
                      ChineseLocalization.Value
                  })
         {
-            var offset = localization["HAMMER_MOD_CARD_OFFSET_UPSWING.description"];
+            var offset = localization["HAMMER_MOD_CARD_HAMMER_FOR_HAMMER.description"];
             Assert.Contains("{Damage:diff()}", offset, StringComparison.Ordinal);
             Assert.DoesNotContain("{BaseDamage", offset, StringComparison.Ordinal);
             Assert.DoesNotContain("{DamagePerAttack", offset, StringComparison.Ordinal);
 
-            var headHunter = localization["HAMMER_MOD_CARD_HEAD_HUNTER_SMASH.description"];
+            var headHunter = localization["HAMMER_MOD_CARD_SMASH_THAT_HEAD.description"];
             Assert.Contains("{Damage:diff()}", headHunter, StringComparison.Ordinal);
             Assert.Contains("{StunMultiplier:diff()}", headHunter, StringComparison.Ordinal);
             Assert.DoesNotContain("{PrimedDamage", headHunter, StringComparison.Ordinal);
@@ -587,9 +792,13 @@ public sealed partial class CardContractTests
             var tractor = localization["HAMMER_MOD_CARD_HAND_CRANKED_TRACTOR.description"];
             Assert.Contains("{Replay:diff()}", tractor, StringComparison.Ordinal);
 
-            Assert.Contains(
-                "{IfUpgraded:show:|",
+            Assert.DoesNotContain(
+                "Backlash",
                 localization["HAMMER_MOD_CARD_OVERCHARGE.description"],
+                StringComparison.Ordinal);
+            Assert.Contains(
+                "{IfUpgraded:show:",
+                localization["HAMMER_MOD_CARD_CHARGE_AS_YOU_STRIKE.description"],
                 StringComparison.Ordinal);
             Assert.Contains(
                 "{IfUpgraded:show:\n",
@@ -614,7 +823,7 @@ public sealed partial class CardContractTests
                 StringComparison.Ordinal);
             Assert.Contains(
                 "{Cards:diff()}",
-                localization["HAMMER_MOD_CARD_IRONBUG_FOLLOW_UP.description"],
+                localization["HAMMER_MOD_CARD_WIREBUG_SPIN.description"],
                 StringComparison.Ordinal);
 
             Assert.DoesNotContain("HAMMER_MOD_CARD_OVERCHARGE.backlashDescription", localization.Keys);
@@ -651,6 +860,10 @@ public sealed partial class CardContractTests
                 Assert.Contains("{StrengthPower:diff()}", relics[key], StringComparison.Ordinal);
                 Assert.DoesNotContain("{Strength}", relics[key], StringComparison.Ordinal);
             }
+            Assert.Contains(
+                "{DexterityPower:diff()}",
+                relics["HAMMER_MOD_RELIC_SLIDING_BOOST_JEWEL.description"],
+                StringComparison.Ordinal);
 
             var potions = ReadLocalization(language, "potions");
             Assert.Contains("{StrengthPower:diff()}",
@@ -668,8 +881,7 @@ public sealed partial class CardContractTests
             foreach (var key in new[]
                      {
                          "HAMMER_MOD_POWER_COUNTERSTRIKE_STRENGTH_POWER.description",
-                         "HAMMER_MOD_POWER_MIGHT_SEED_POWER.description",
-                         "HAMMER_MOD_POWER_SLIDING_BOOST_POWER.description"
+                         "HAMMER_MOD_POWER_MIGHT_SEED_POWER.description"
                      })
             {
                 Assert.False(string.IsNullOrWhiteSpace(powers[key]));
@@ -705,6 +917,17 @@ public sealed partial class CardContractTests
         Assert.True(
             mechanics.HasFlag(expectedMechanic),
             $"{cardType.Name} uses {markup} without its hover-tip metadata.");
+    }
+
+    private static void AssertOrderedText(string text, params string[] fragments)
+    {
+        var previousIndex = -1;
+        foreach (var fragment in fragments)
+        {
+            var index = text.IndexOf(fragment, StringComparison.Ordinal);
+            Assert.True(index > previousIndex, $"Expected '{fragment}' after index {previousIndex} in: {text}");
+            previousIndex = index;
+        }
     }
 
     private static object GetProperty(object instance, string propertyName)

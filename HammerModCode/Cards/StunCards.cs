@@ -15,7 +15,7 @@ using STS2RitsuLib.Scaffolding.Content;
 namespace HammerMod.Cards;
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class SideSmash : HammerCard
+public sealed class Upswing : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -23,7 +23,7 @@ public sealed class SideSmash : HammerCard
         new IntVar("Stun", 3)
     ];
 
-    public SideSmash()
+    public Upswing()
         : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
     {
     }
@@ -95,7 +95,7 @@ public sealed class ChargedUpswing : HammerCard, IChargeReleaseCard, ICombatPrev
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class RisingDragonHammer : HammerCard
+public sealed class MightyUpswing : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -103,7 +103,7 @@ public sealed class RisingDragonHammer : HammerCard
         new IntVar("Stun", 8)
     ];
 
-    public RisingDragonHammer()
+    public MightyUpswing()
         : base(2, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
     }
@@ -201,15 +201,11 @@ public sealed class EarthsplitterShock : HammerCard
 [RegisterCard(typeof(HammerModCardPool))]
 public sealed class FocusBlowEarthquake : HammerCard
 {
-    protected override bool ShouldGlowGoldInternal =>
-        AnyHittableEnemy(static enemy =>
-            HammerStun.GetCurrent(enemy) > 0 || enemy.IsStunned);
-
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new DamageVar(3, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
         new IntVar("Stun", 1),
-        new PowerVar<VulnerablePower>(2)
+        new PowerVar<VulnerablePower>(1)
     ];
 
     public FocusBlowEarthquake()
@@ -220,17 +216,12 @@ public sealed class FocusBlowEarthquake : HammerCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
-        var hadStun = HammerStun.GetCurrent(cardPlay.Target) > 0 || cardPlay.Target.IsStunned;
-
-        if (hadStun)
-        {
-            await PowerCmd.Apply<VulnerablePower>(
-                choiceContext,
-                cardPlay.Target,
-                DynamicVars.Vulnerable.BaseValue,
-                Owner.Creature,
-                this);
-        }
+        await PowerCmd.Apply<VulnerablePower>(
+            choiceContext,
+            cardPlay.Target,
+            DynamicVars.Vulnerable.BaseValue,
+            Owner.Creature,
+            this);
 
         await Attack(choiceContext, cardPlay.Target, DynamicVars.Damage.BaseValue);
         await HammerStun.Apply(
@@ -243,8 +234,9 @@ public sealed class FocusBlowEarthquake : HammerCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(1);
+        DynamicVars.Damage.UpgradeValueBy(2);
         DynamicVars["Stun"].UpgradeValueBy(1);
+        DynamicVars.Vulnerable.UpgradeValueBy(1);
     }
 }
 
@@ -369,7 +361,7 @@ public sealed class FlashHammer : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class DizzyFall : HammerCard
+public sealed class HeadOverHeels : HammerCard
 {
     protected override bool ShouldGlowGoldInternal =>
         AnyHittableEnemy(static enemy => HammerStun.GetCurrent(enemy) > 0);
@@ -379,7 +371,7 @@ public sealed class DizzyFall : HammerCard
         new IntVar("Multiplier", 1)
     ];
 
-    public DizzyFall()
+    public HeadOverHeels()
         : base(0, CardType.Skill, CardRarity.Uncommon, TargetType.AllEnemies)
     {
     }
@@ -499,7 +491,7 @@ public sealed class PileDriver : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class HeadHunterSmash : HammerCard
+public sealed class SmashThatHead : HammerCard
 {
     protected override bool ShouldGlowGoldInternal =>
         AnyHittableEnemy(static enemy => HammerStun.GetCurrent(enemy) > 0);
@@ -510,7 +502,7 @@ public sealed class HeadHunterSmash : HammerCard
         new IntVar("StunMultiplier", 1)
     ];
 
-    public HeadHunterSmash()
+    public SmashThatHead()
         : base(1, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
     }
@@ -631,5 +623,95 @@ public sealed class ImpactBurst : HammerCard
     protected override void OnUpgrade()
     {
         DynamicVars["StunPerHit"].UpgradeValueBy(1);
+    }
+}
+
+[RegisterCard(typeof(HammerModCardPool))]
+public sealed class BluntWeaponExpert : HammerCard
+{
+    public override bool GainsBlock => true;
+
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new DamageVar(6, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new IntVar("Stun", 3),
+        new BlockVar(5, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new IntVar("Charge", 1)
+    ];
+
+    public BluntWeaponExpert()
+        : base(0, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy)
+    {
+    }
+
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        ArgumentNullException.ThrowIfNull(cardPlay.Target);
+        await GainCharge(DynamicVars["Charge"].IntValue);
+        await GainBlock(DynamicVars.Block.BaseValue, cardPlay);
+        await Attack(choiceContext, cardPlay.Target, DynamicVars.Damage.BaseValue);
+        await HammerStun.Apply(
+            choiceContext,
+            this,
+            cardPlay.Target,
+            DynamicVars["Stun"].IntValue,
+            cardPlay);
+    }
+
+    protected override void OnUpgrade()
+    {
+        DynamicVars.Damage.UpgradeValueBy(3);
+        DynamicVars["Stun"].UpgradeValueBy(1);
+        DynamicVars.Block.UpgradeValueBy(3);
+        DynamicVars["Charge"].UpgradeValueBy(1);
+    }
+}
+
+[RegisterCard(typeof(HammerModCardPool))]
+public sealed class StaminaDrainingHammer : HammerCard
+{
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new DamageVar(4, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new IntVar("Stun", 10),
+        new PowerVar<WeakPower>(1),
+        new PowerVar<VulnerablePower>(1)
+    ];
+
+    public StaminaDrainingHammer()
+        : base(1, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy)
+    {
+    }
+
+    protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
+    {
+        ArgumentNullException.ThrowIfNull(cardPlay.Target);
+        await Attack(choiceContext, cardPlay.Target, DynamicVars.Damage.BaseValue);
+        await HammerStun.Apply(
+            choiceContext,
+            this,
+            cardPlay.Target,
+            DynamicVars["Stun"].IntValue,
+            cardPlay);
+        await PowerCmd.Apply<WeakPower>(
+            choiceContext,
+            cardPlay.Target,
+            DynamicVars.Weak.BaseValue,
+            Owner.Creature,
+            this);
+        await PowerCmd.Apply<VulnerablePower>(
+            choiceContext,
+            cardPlay.Target,
+            DynamicVars.Vulnerable.BaseValue,
+            Owner.Creature,
+            this);
+    }
+
+    protected override void OnUpgrade()
+    {
+        DynamicVars.Damage.UpgradeValueBy(2);
+        DynamicVars["Stun"].UpgradeValueBy(5);
+        DynamicVars.Weak.UpgradeValueBy(1);
+        DynamicVars.Vulnerable.UpgradeValueBy(1);
     }
 }

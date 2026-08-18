@@ -102,27 +102,40 @@ public sealed class HammerRules : HookedSingletonModel,
 
         if (!target.IsPlayer
             || player is null
-            || player.Character is not HammerModCharacter
-            || result.UnblockedDamage <= 0
-            || HammerResources.GetCharge(player) <= 0
-            || target.GetPower<AdamantSeedPower>() is not null
-            || player.GetRelic<RocksteadyMantle>() is not null
-                && dealer?.IsMonster == true
-                && props.HasFlag(ValueProp.Move))
+            || player.Character is not HammerModCharacter)
         {
             return;
         }
 
-        var chargeBeforeHit = HammerResources.GetCharge(player);
-        await SecondaryResourceCmd.Reset(
-            player,
-            HammerResources.Charge.Id,
-            source: this);
-
-        if (HammerResources.GetCharge(player) < chargeBeforeHit
+        if (result.UnblockedDamage > 0
             && player.GetRelic<CounterstrikeCharm>() is { } counterstrike)
         {
-            await counterstrike.ScheduleRecovery(choiceContext);
+            await counterstrike.TriggerCounterstrike(choiceContext);
         }
+
+        var chargeLoss = CalculateChargeLoss(result.UnblockedDamage);
+        if (dealer?.IsMonster != true
+            || !props.HasFlag(ValueProp.Move)
+            || chargeLoss <= 0
+            || HammerResources.GetCharge(player) <= 0
+            || target.GetPower<AdamantSeedPower>() is not null
+            || player.GetRelic<RocksteadyMantle>() is not null)
+        {
+            return;
+        }
+
+        await SecondaryResourceCmd.Lose(
+            player,
+            HammerResources.Charge.Id,
+            chargeLoss,
+            source: this);
+    }
+
+    internal static int CalculateChargeLoss(int unblockedDamage)
+    {
+        if (unblockedDamage < 5)
+            return 0;
+
+        return Math.Min(HammerResources.MaxCharge, unblockedDamage / 5);
     }
 }

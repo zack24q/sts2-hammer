@@ -116,9 +116,9 @@ public sealed class LaunchTeammate : HammerCard
             Owner.Creature,
             this);
 
-        var getBackUp = CombatState!.CreateCard<GetBackUp>(teammate);
+        var backOnYourFeet = CombatState!.CreateCard<BackOnYourFeet>(teammate);
         await CardPileCmd.AddGeneratedCardToCombat(
-            getBackUp,
+            backOnYourFeet,
             PileType.Hand,
             Owner,
             CardPilePosition.Bottom);
@@ -210,7 +210,7 @@ public sealed class HardshellPowder : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class GetBackUp : HammerCard
+public sealed class BackOnYourFeet : HammerCard
 {
     public override CardMultiplayerConstraint MultiplayerConstraint =>
         CardMultiplayerConstraint.MultiplayerOnly;
@@ -228,7 +228,7 @@ public sealed class GetBackUp : HammerCard
         new CardsVar("Cards", 1)
     ];
 
-    public GetBackUp()
+    public BackOnYourFeet()
         : base(1, CardType.Status, CardRarity.Status, TargetType.Self)
     {
     }

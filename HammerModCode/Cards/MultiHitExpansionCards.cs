@@ -15,7 +15,7 @@ using STS2RitsuLib.Scaffolding.Content;
 namespace HammerMod.Cards;
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class DoubleSideSwing : HammerCard, ICombatPreviewDescriptionCard
+public sealed class ContinuousSideSwing : HammerCard, ICombatPreviewDescriptionCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -29,7 +29,7 @@ public sealed class DoubleSideSwing : HammerCard, ICombatPreviewDescriptionCard
         new IntVar("BaseHits", 2)
     ];
 
-    public DoubleSideSwing()
+    public ContinuousSideSwing()
         : base(0, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
     {
     }
@@ -51,7 +51,7 @@ public sealed class DoubleSideSwing : HammerCard, ICombatPreviewDescriptionCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class IronbugFollowUp : HammerCard, ICombatPreviewDescriptionCard
+public sealed class WirebugSpin : HammerCard, ICombatPreviewDescriptionCard
 {
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
@@ -68,7 +68,7 @@ public sealed class IronbugFollowUp : HammerCard, ICombatPreviewDescriptionCard
         new CardsVar("Cards", 1)
     ];
 
-    public IronbugFollowUp()
+    public WirebugSpin()
         : base(0, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
     }
@@ -94,7 +94,7 @@ public sealed class IronbugFollowUp : HammerCard, ICombatPreviewDescriptionCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class SlidingCombo : HammerCard
+public sealed class AffinitySliding : HammerCard
 {
     protected override bool ShouldGlowGoldInternal => HasChargeAtLeast(2);
 
@@ -105,7 +105,7 @@ public sealed class SlidingCombo : HammerCard
         new IntVar("ChargedStrength", 4)
     ];
 
-    public SlidingCombo()
+    public AffinitySliding()
         : base(0, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
     {
     }
@@ -115,7 +115,7 @@ public sealed class SlidingCombo : HammerCard
         var strength = ChargeLevel >= DynamicVars["RequiredCharge"].IntValue
             ? DynamicVars["ChargedStrength"].IntValue
             : DynamicVars["NormalStrength"].IntValue;
-        await PowerCmd.Apply<SlidingComboStrengthPower>(
+        await PowerCmd.Apply<AffinitySlidingStrengthPower>(
             choiceContext,
             Owner.Creature,
             strength,
@@ -131,7 +131,7 @@ public sealed class SlidingCombo : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class SweepingPreparation : HammerCard
+public sealed class SweepThePath : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -139,7 +139,7 @@ public sealed class SweepingPreparation : HammerCard
         new CardsVar("Cards", 1)
     ];
 
-    public SweepingPreparation()
+    public SweepThePath()
         : base(1, CardType.Attack, CardRarity.Common, TargetType.AllEnemies)
     {
     }
@@ -160,7 +160,7 @@ public sealed class SweepingPreparation : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class PoundingSmash : HammerCard, ICombatPreviewDescriptionCard
+public sealed class InvincibleWindFireWheel : HammerCard, ICombatPreviewDescriptionCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -182,7 +182,7 @@ public sealed class PoundingSmash : HammerCard, ICombatPreviewDescriptionCard
         new IntVar("StunPerHit", 2)
     ];
 
-    public PoundingSmash()
+    public InvincibleWindFireWheel()
         : base(2, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
     }
@@ -367,21 +367,21 @@ public sealed class WeaknessExploit : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class ChargeSwitchCourage : HammerCard
+public sealed class HarderWithEverySmash : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new PowerVar<StrengthPower>(3)
     ];
 
-    public ChargeSwitchCourage()
+    public HarderWithEverySmash()
         : base(3, CardType.Power, CardRarity.Rare, TargetType.Self)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await PowerCmd.Apply<ChargeSwitchCouragePower>(
+        await PowerCmd.Apply<HarderWithEverySmashPower>(
             choiceContext,
             Owner.Creature,
             DynamicVars.Strength.BaseValue,
@@ -425,21 +425,21 @@ public sealed class Partbreaker : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class ComboBoost : HammerCard
+public sealed class OneMoreBonk : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new IntVar("ExtraHits", 3)
     ];
 
-    public ComboBoost()
+    public OneMoreBonk()
         : base(3, CardType.Power, CardRarity.Rare, TargetType.Self)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await PowerCmd.Apply<ComboBoostPower>(
+        await PowerCmd.Apply<OneMoreBonkPower>(
             choiceContext,
             Owner.Creature,
             DynamicVars["ExtraHits"].IntValue,

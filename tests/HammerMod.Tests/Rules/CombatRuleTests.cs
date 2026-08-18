@@ -1,12 +1,65 @@
 using HammerMod.Cards;
 using HammerMod.Gameplay;
 using HammerMod.Powers;
+using HammerMod.Relics;
 using MegaCrit.Sts2.Core.Entities.Powers;
 
 namespace HammerMod.Tests.Rules;
 
 public sealed class CombatRuleTests
 {
+    [Theory]
+    [InlineData(-1, 0)]
+    [InlineData(0, 0)]
+    [InlineData(4, 0)]
+    [InlineData(5, 1)]
+    [InlineData(6, 1)]
+    [InlineData(9, 1)]
+    [InlineData(10, 2)]
+    [InlineData(11, 2)]
+    [InlineData(14, 2)]
+    [InlineData(15, 3)]
+    [InlineData(16, 3)]
+    [InlineData(100, 3)]
+    public void AttackDamageReducesChargeAtInclusiveFiveDamageThresholds(
+        int unblockedDamage,
+        int expectedLoss)
+    {
+        Assert.Equal(expectedLoss, HammerRules.CalculateChargeLoss(unblockedDamage));
+    }
+
+    [Theory]
+    [InlineData(-1, 2, 0)]
+    [InlineData(0, 2, 0)]
+    [InlineData(1, 2, 0)]
+    [InlineData(2, 2, 0)]
+    [InlineData(3, 2, 1)]
+    [InlineData(10, 2, 8)]
+    [InlineData(10, -1, 10)]
+    public void RocksteadyMantleReducesEachHpLossLikeTungstenRod(
+        decimal amount,
+        int reduction,
+        decimal expected)
+    {
+        Assert.Equal(expected, RocksteadyMantle.ReduceHpLoss(amount, reduction));
+    }
+
+    [Theory]
+    [InlineData(-1, 3, 0)]
+    [InlineData(0, 3, 0)]
+    [InlineData(1, 3, 3)]
+    [InlineData(2, 3, 6)]
+    [InlineData(3, 3, 9)]
+    [InlineData(3, 4, 12)]
+    [InlineData(3, -1, 0)]
+    public void MasterfulPositioningUsesChargeAtTurnEnd(
+        int charge,
+        int blockPerCharge,
+        int expectedBlock)
+    {
+        Assert.Equal(expectedBlock, DashJuicePower.CalculateBlock(charge, blockPerCharge));
+    }
+
     [Fact]
     public void LiveCardValuesRequireAnActiveCombatCard()
     {
@@ -47,6 +100,8 @@ public sealed class CombatRuleTests
 
         Assert.Equal(threshold, power.DynamicVars["Threshold"].BaseValue);
         Assert.False(power.DynamicVars["Threshold"].WasJustUpgraded);
+        Assert.Contains("Amount", power.Description.Variables.Keys);
+        Assert.Contains("Threshold", power.Description.Variables.Keys);
     }
 
     [Theory]
@@ -55,7 +110,7 @@ public sealed class CombatRuleTests
     [InlineData(2, 0, 2)]
     [InlineData(2, 3, 5)]
     [InlineData(3, 5, 8)]
-    public void ComboBoostOnlyExtendsMultiHitAttacks(
+    public void OneMoreBonkOnlyExtendsMultiHitAttacks(
         int originalHits,
         int extraHits,
         int expected)
@@ -71,7 +126,7 @@ public sealed class CombatRuleTests
     [InlineData(true, 2, 2, 3, 5)]
     [InlineData(true, 2, 4, 3, 7)]
     [InlineData(true, 2, 2, -1, 2)]
-    public void ComboBoostUsesTheGlobalAttackHitHook(
+    public void OneMoreBonkUsesTheGlobalAttackHitHook(
         bool isOwnersAttackCard,
         int originalHits,
         int currentHits,
@@ -80,7 +135,7 @@ public sealed class CombatRuleTests
     {
         Assert.Equal(
             expected,
-            ComboBoostPower.CalculateHitCount(
+            OneMoreBonkPower.CalculateHitCount(
                 isOwnersAttackCard,
                 originalHits,
                 currentHits,
@@ -107,7 +162,7 @@ public sealed class CombatRuleTests
     [InlineData(2, 2, 7, 3, 17, 1)]
     [InlineData(3, 3, 9, 3, 36, 0)]
     [InlineData(3, 3, 9, 4, 39, 0)]
-    public void SpinningChargeResolvesBlockAndCharge(
+    public void SteadierWithEverySpinResolvesBlockAndCharge(
         int x,
         int currentCharge,
         int blockPerEnergy,
@@ -117,7 +172,7 @@ public sealed class CombatRuleTests
     {
         Assert.Equal(
             (expectedBlock, expectedCharge),
-            SpinningCharge.ResolveSpinningCharge(
+            SteadierWithEverySpin.ResolveSteadierWithEverySpin(
                 x,
                 currentCharge,
                 blockPerEnergy,
@@ -129,7 +184,7 @@ public sealed class CombatRuleTests
     [InlineData(3, 2, 3, 1, 2)]
     [InlineData(3, 3, 3, 0, 3)]
     [InlineData(-1, 0, 0, 0, 0)]
-    public void SpinningChargeTracksEachBlockGain(
+    public void SteadierWithEverySpinTracksEachBlockGain(
         int x,
         int currentCharge,
         int expectedEnergyGains,
@@ -138,7 +193,7 @@ public sealed class CombatRuleTests
     {
         Assert.Equal(
             (expectedEnergyGains, expectedCharge, expectedExcessGains),
-            SpinningCharge.ResolveSpinningChargeCounts(x, currentCharge, 3));
+            SteadierWithEverySpin.ResolveSteadierWithEverySpinCounts(x, currentCharge, 3));
     }
 
     [Theory]
@@ -171,9 +226,6 @@ public sealed class CombatRuleTests
     public void DelayedPowersUseTheirPromisedStackingScopes()
     {
         Assert.Equal(
-            PowerStackType.Counter,
-            new OverchargeBacklashPower().StackType);
-        Assert.Equal(
             PowerInstanceType.InstancedPerApplier,
             new AftershockPower().InstanceType);
     }
@@ -192,7 +244,7 @@ public sealed class CombatRuleTests
     {
         Assert.Equal(
             expected,
-            HeadHunterSmash.CalculateDamage(baseDamage, currentStun, stunMultiplier));
+            SmashThatHead.CalculateDamage(baseDamage, currentStun, stunMultiplier));
     }
 
     [Theory]
@@ -229,7 +281,29 @@ public sealed class CombatRuleTests
     {
         Assert.Equal(
             expected,
-            MarathonHammererPower.CalculateStrength(charge, stacks));
+            ChargeSwitchStrengthPower.CalculateStrength(charge, stacks));
+    }
+
+    [Theory]
+    [InlineData(35, 100, 35, true)]
+    [InlineData(34, 100, 35, true)]
+    [InlineData(36, 100, 35, false)]
+    [InlineData(7, 20, 35, true)]
+    [InlineData(8, 20, 35, false)]
+    [InlineData(1, 0, 35, false)]
+    [InlineData(1, 100, -1, false)]
+    public void FiregroundMightCharmUsesInclusiveHealthThreshold(
+        decimal currentHp,
+        decimal maxHp,
+        int thresholdPercent,
+        bool expected)
+    {
+        Assert.Equal(
+            expected,
+            SlidingBoostJewel.IsAtOrBelowThreshold(
+                currentHp,
+                maxHp,
+                thresholdPercent));
     }
 
     [Theory]

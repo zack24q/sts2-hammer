@@ -1,12 +1,12 @@
 {
   "HAMMER_MOD_POTION_DASH_JUICE_G.title": "强走药",
-  "HAMMER_MOD_POTION_DASH_JUICE_G.description": "获得[blue]{Charge}[/blue]级蓄力。",
+  "HAMMER_MOD_POTION_DASH_JUICE_G.description": "获得[blue]{Charge}[/blue]级[gold]蓄力[/gold]。",
   "HAMMER_MOD_POTION_FLASH_BOMB.title": "闪光弹",
-  "HAMMER_MOD_POTION_FLASH_BOMB.description": "所有敌人增加[blue]{Stun}[/blue]点晕眩值。",
+  "HAMMER_MOD_POTION_FLASH_BOMB.description": "所有敌人增加[blue]{Stun}[/blue]点[gold]晕眩[/gold]值。",
   "HAMMER_MOD_POTION_ADAMANT_SEED.title": "忍耐药丸",
-  "HAMMER_MOD_POTION_ADAMANT_SEED.description": "获得{Block}点格挡。",
+  "HAMMER_MOD_POTION_ADAMANT_SEED.description": "获得{Block}点[gold]格挡[/gold]。",
   "HAMMER_MOD_POTION_MIGHT_SEED.title": "怪力药丸",
-  "HAMMER_MOD_POTION_MIGHT_SEED.description": "本回合获得{StrengthPower:diff()}点临时力量。",
+  "HAMMER_MOD_POTION_MIGHT_SEED.description": "本回合获得{StrengthPower:diff()}点[gold]力量[/gold]。",
   "HAMMER_MOD_POTION_PITFALL.title": "落穴",
-  "HAMMER_MOD_POTION_PITFALL.description": "目标敌人本回合对你造成的伤害变为0。\n给予其{VulnerablePower:diff()}层易伤。"
+  "HAMMER_MOD_POTION_PITFALL.description": "目标敌人本回合对你造成的伤害变为0。\n给予其{VulnerablePower:diff()}层[gold]易伤[/gold]。"
 }

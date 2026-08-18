@@ -1,3 +1,4 @@
+using HammerMod.Cards;
 using HammerMod.Characters;
 using HammerMod.Gameplay;
 using HammerMod.Powers;
@@ -6,6 +7,7 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Potions;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
@@ -19,16 +21,23 @@ public abstract class HammerPotion : ModPotionTemplate
 {
     private string PlaceholderImagePath => $"{Entry.ResPath}/images/potions/{GetType().Name}.png";
 
+    internal virtual HammerCardMechanic HoverTipMechanics => HammerCardMechanic.None;
+
     public override PotionUsage Usage => PotionUsage.CombatOnly;
 
     public override PotionAssetProfile AssetProfile => new(
         ImagePath: PlaceholderImagePath,
         OutlinePath: PlaceholderImagePath);
+
+    protected override IEnumerable<IHoverTip> AdditionalHoverTips =>
+        HammerCardHoverTips.Create(HoverTipMechanics);
 }
 
 [RegisterPotion(typeof(HammerModPotionPool))]
 public sealed class DashJuiceG : HammerPotion
 {
+    internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Charge;
+
     public override PotionRarity Rarity => PotionRarity.Common;
     public override TargetType TargetType => TargetType.Self;
 
@@ -52,6 +61,8 @@ public sealed class DashJuiceG : HammerPotion
 [RegisterPotion(typeof(HammerModPotionPool))]
 public sealed class FlashBomb : HammerPotion
 {
+    internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Stun;
+
     public override PotionRarity Rarity => PotionRarity.Uncommon;
     public override TargetType TargetType => TargetType.AllEnemies;
 
@@ -83,6 +94,8 @@ public sealed class FlashBomb : HammerPotion
 [RegisterPotion(typeof(HammerModPotionPool))]
 public sealed class AdamantSeed : HammerPotion
 {
+    internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Block;
+
     public override PotionRarity Rarity => PotionRarity.Uncommon;
     public override TargetType TargetType => TargetType.Self;
 
@@ -107,6 +120,8 @@ public sealed class AdamantSeed : HammerPotion
 [RegisterPotion(typeof(HammerModPotionPool))]
 public sealed class MightSeed : HammerPotion
 {
+    internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Strength;
+
     public override PotionRarity Rarity => PotionRarity.Rare;
     public override TargetType TargetType => TargetType.Self;
 
@@ -132,6 +147,8 @@ public sealed class MightSeed : HammerPotion
 [RegisterPotion(typeof(HammerModPotionPool))]
 public sealed class Pitfall : HammerPotion
 {
+    internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Vulnerable;
+
     public override PotionRarity Rarity => PotionRarity.Rare;
     public override TargetType TargetType => TargetType.AnyEnemy;
 

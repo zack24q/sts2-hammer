@@ -17,14 +17,14 @@ using STS2RitsuLib.Interop.AutoRegistration;
 namespace HammerMod.Powers;
 
 [RegisterPower]
-public sealed class SlidingComboStrengthPower : TemporaryStrengthPower
+public sealed class AffinitySlidingStrengthPower : HammerTemporaryStrengthPower
 {
-    public override AbstractModel OriginModel => ModelDb.Card<SlidingCombo>();
+    public override AbstractModel OriginModel => ModelDb.Card<AffinitySliding>();
     protected override bool IsPositive => true;
 }
 
 [RegisterPower]
-public sealed class ChallengerStrengthPower : TemporaryStrengthPower
+public sealed class ChallengerStrengthPower : HammerTemporaryStrengthPower
 {
     public override AbstractModel OriginModel => ModelDb.Card<Challenger>();
     protected override bool IsPositive => true;
@@ -130,7 +130,7 @@ public sealed class WeaknessExploitPower : HammerAbilityPower
 }
 
 [RegisterPower]
-public sealed class ChargeSwitchCouragePower : HammerAbilityPower
+public sealed class HarderWithEverySmashPower : HammerAbilityPower
 {
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
@@ -237,7 +237,7 @@ public sealed class PartbreakerPower : HammerAbilityPower
 }
 
 [RegisterPower]
-public sealed class ComboBoostPower : HammerAbilityPower
+public sealed class OneMoreBonkPower : HammerAbilityPower
 {
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
@@ -266,44 +266,7 @@ public sealed class ComboBoostPower : HammerAbilityPower
 }
 
 [RegisterPower]
-public sealed class HandCrankedTractorPower : HammerAbilityPower
-{
-    public override PowerType Type => PowerType.Buff;
-    public override PowerStackType StackType => PowerStackType.Counter;
-
-    public override int ModifyCardPlayCount(
-        CardModel card,
-        Creature? target,
-        int currentPlayCount)
-    {
-        if (Amount <= 0
-            || card.Owner.Creature != Owner
-            || card is not IChargeReleaseCard)
-        {
-            return currentPlayCount;
-        }
-
-        return currentPlayCount + 1;
-    }
-
-    public override async Task AfterModifyingCardPlayCount(CardModel card)
-    {
-        Flash();
-        await PowerCmd.Decrement(this);
-    }
-
-    public override async Task AfterSideTurnEnd(
-        PlayerChoiceContext choiceContext,
-        CombatSide side,
-        IEnumerable<Creature> participants)
-    {
-        if (participants.Contains(Owner))
-            await PowerCmd.Remove(this);
-    }
-}
-
-[RegisterPower]
-public sealed class MarathonHammererPower : HammerAbilityPower, ISecondaryResourceHookListener
+public sealed class ChargeSwitchStrengthPower : HammerAbilityPower, ISecondaryResourceHookListener
 {
     private sealed class Data
     {

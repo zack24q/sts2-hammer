@@ -1,6 +1,6 @@
 # 大锤猎手全部卡牌中文描述
 
-> 来源：`HammerMod/localization/zhs/cards.json` 当前工作区版本。共78张卡牌；以下保留动态变量和官方条件语法，便于逐句精简。
+> 来源：`HammerMod/localization/zhs/cards.json` 当前工作区版本。共87张卡牌；以下保留动态变量和官方条件语法，便于逐句精简。
 
 ## 1. 纵挥
 
@@ -60,9 +60,9 @@
 如果当前至少拥有2级[gold]蓄力[/gold]，则改为{ChargedDamage:diff()}点伤害。
 ```
 
-## 7. 浑身蓄力本垒
+## 7. 浑身蓄力敲打
 
-- ID：`HAMMER_MOD_CARD_MIGHTY_CHARGE_SLAM`
+- ID：`HAMMER_MOD_CARD_MIGHTY_CHARGE_BONK`
 - 当前描述：
 
 ```text
@@ -80,9 +80,9 @@
 （造成{Damage:diff()}点伤害{Hits:diff()}次）|}
 ```
 
-## 9. 浑身蓄力防守
+## 9. 浑身蓄力翻滚
 
-- ID：`HAMMER_MOD_CARD_CHARGED_GUARD`
+- ID：`HAMMER_MOD_CARD_MIGHTY_CHARGE_ROLL`
 - 当前描述：
 
 ```text
@@ -99,7 +99,7 @@
 提升{Charge}级[gold]蓄力[/gold]并抽{Cards:diff()}张牌，如果当前[gold]蓄力[/gold]等级最大则改为抽{FullCards:diff()}张牌。
 ```
 
-## 11. 续力闪避
+## 11. 蓄力垫步
 
 - ID：`HAMMER_MOD_CARD_KEEPING_SWAY`
 - 当前描述：
@@ -108,9 +108,9 @@
 提升{Charge}级[gold]蓄力[/gold]并获得{Block:diff()}点[gold]格挡[/gold]，如果当前[gold]蓄力[/gold]等级最大则改为获得{FullBlock:diff()}点[gold]格挡[/gold]。
 ```
 
-## 12. 回旋蓄势
+## 12. 越转越稳
 
-- ID：`HAMMER_MOD_CARD_SPINNING_CHARGE`
+- ID：`HAMMER_MOD_CARD_STEADIER_WITH_EVERY_SPIN`
 - 当前描述：
 
 ```text
@@ -119,13 +119,13 @@
 （获得{ResolvedBlock:diff()}点[gold]格挡[/gold]，提升{ResolvedCharge}级[gold]蓄力[/gold]）|}
 ```
 
-## 13. 居合
+## 13. 收锤居合
 
-- ID：`HAMMER_MOD_CARD_SHEATHE_AND_BREATHE`
+- ID：`HAMMER_MOD_CARD_HAMMER_IAI`
 - 当前描述：
 
 ```text
-只有当[gold]蓄力[/gold]等级大于1级时才能打出。
+只有当[gold]蓄力[/gold]等级至少为1级时才能打出。
 失去所有[gold]蓄力[/gold]等级，每级[gold]蓄力[/gold]等级转化为{EnergyPerCharge:energyIcons()}。
 ```
 
@@ -146,11 +146,20 @@
 - 当前描述：
 
 ```text
-本回合内免费打出[gold]释放蓄力[/gold]的牌，且打出时不清空[gold]蓄力[/gold]等级。{IfUpgraded:show:|
-在你的下个回合开始时，获得{Backlash:diff()}层[gold]虚弱[/gold]和{Backlash:diff()}层[gold]易伤[/gold]。}
+本回合内免费打出[gold]释放蓄力[/gold]的牌，且打出时不清空[gold]蓄力[/gold]等级。
 ```
 
-## 16. 集中
+## 16. 边打边蓄
+
+- ID：`HAMMER_MOD_CARD_CHARGE_AS_YOU_STRIKE`
+- 当前描述：
+
+```text
+造成{Damage:diff()}点伤害。
+{IfUpgraded:show:将[gold]蓄力[/gold]提升至最大等级。|提升{Charge}级[gold]蓄力[/gold]。}
+```
+
+## 17. 集中
 
 - ID：`HAMMER_MOD_CARD_FOCUS`
 - 当前描述：
@@ -159,7 +168,7 @@
 在你的回合开始时，获得1级[gold]蓄力[/gold]，如果[gold]蓄力[/gold]已满，改为抽{FullCards:diff()}张牌。
 ```
 
-## 17. 余势不绝
+## 18. 余势不绝
 
 - ID：`HAMMER_MOD_CARD_ENDLESS_MOMENTUM`
 - 当前描述：
@@ -168,9 +177,9 @@
 每当你以3级以上[gold]蓄力[/gold]等级打出[gold]释放蓄力[/gold]的牌时，获得{Energy:energyIcons()}，抽1张牌。
 ```
 
-## 18. 蓄势坚守
+## 19. 架锤硬扛
 
-- ID：`HAMMER_MOD_CARD_CHARGED_STAND`
+- ID：`HAMMER_MOD_CARD_BRACE_WITH_THE_HAMMER`
 - 当前描述：
 
 ```text
@@ -178,19 +187,19 @@
 如果当前至少拥有2级[gold]蓄力[/gold]，则改为获得{ChargedBlock:diff()}点[gold]格挡[/gold]。
 ```
 
-## 19. 紧急回避
+## 20. 紧急回避
 
 - ID：`HAMMER_MOD_CARD_EMERGENCY_EVADE`
 - 当前描述：
 
 ```text
 获得{Block:diff()}点[gold]格挡[/gold]。
-失去当前所有[gold]蓄力[/gold]。
+失去{ChargeLoss}级[gold]蓄力[/gold]。
 ```
 
-## 20. 踏步横挥
+## 21. 见缝抡锤
 
-- ID：`HAMMER_MOD_CARD_STEP_SWEEP`
+- ID：`HAMMER_MOD_CARD_SWING_AT_EVERY_OPENING`
 - 当前描述：
 
 ```text
@@ -198,18 +207,18 @@
 如果敌人的意图不是攻击，则获得{Charge}级[gold]蓄力[/gold]。
 ```
 
-## 21. 高手立回
+## 22. 高手立回
 
 - ID：`HAMMER_MOD_CARD_DASH_JUICE`
 - 当前描述：
 
 ```text
-每当你提升[gold]蓄力[/gold]等级时，每提升1级，获得{Block:diff()}点[gold]格挡[/gold]。
+回合结束时，根据[gold]蓄力[/gold]等级，每级获得{Block:diff()}点[gold]格挡[/gold]。
 ```
 
-## 22. 撩击
+## 23. 升龙
 
-- ID：`HAMMER_MOD_CARD_SIDE_SMASH`
+- ID：`HAMMER_MOD_CARD_UPSWING`
 - 当前描述：
 
 ```text
@@ -217,7 +226,7 @@
 造成{Stun:diff()}点[gold]晕眩[/gold]。
 ```
 
-## 23. 浑身蓄力升龙
+## 24. 浑身蓄力升龙
 
 - ID：`HAMMER_MOD_CARD_CHARGED_UPSWING`
 - 当前描述：
@@ -228,9 +237,9 @@
 （造成{Damage:diff()}点伤害，造成{Stun:diff()}点[gold]晕眩[/gold]）|}
 ```
 
-## 24. 升龙锤
+## 25. 强升龙
 
-- ID：`HAMMER_MOD_CARD_RISING_DRAGON_HAMMER`
+- ID：`HAMMER_MOD_CARD_MIGHTY_UPSWING`
 - 当前描述：
 
 ```text
@@ -238,7 +247,7 @@
 造成{Stun:diff()}点[gold]晕眩[/gold]。
 ```
 
-## 25. 震地冲击
+## 26. 震地冲击
 
 - ID：`HAMMER_MOD_CARD_GROUND_SHOCK`
 - 当前描述：
@@ -248,7 +257,7 @@
 对所有敌人造成{Stun:diff()}点[gold]晕眩[/gold]。
 ```
 
-## 26. 山崩地裂
+## 27. 山崩地裂
 
 - ID：`HAMMER_MOD_CARD_EARTHSPLITTER_SHOCK`
 - 当前描述：
@@ -258,18 +267,18 @@
 对所有敌人造成{Stun:diff()}点[gold]晕眩[/gold]。
 ```
 
-## 27. 震天
+## 28. 震天
 
 - ID：`HAMMER_MOD_CARD_FOCUS_BLOW_EARTHQUAKE`
 - 当前描述：
 
 ```text
-如果敌人已有[gold]晕眩[/gold]值或已被[gold]击晕[/gold]，则给予{VulnerablePower:diff()}层[gold]易伤[/gold]。
+给予{VulnerablePower:diff()}层[gold]易伤[/gold]。
 造成{Damage:diff()}点伤害。
 造成{Stun:diff()}点[gold]晕眩[/gold]。
 ```
 
-## 28. 本垒打
+## 29. 本垒打
 
 - ID：`HAMMER_MOD_CARD_HOME_RUN_SWING`
 - 当前描述：
@@ -280,7 +289,7 @@
 （造成{Damage:diff()}点伤害）|}
 ```
 
-## 29. 捣年糕
+## 30. 捣年糕
 
 - ID：`HAMMER_MOD_CARD_BIG_BANG_COMBO`
 - 当前描述：
@@ -291,7 +300,7 @@
 （造成{Damage:diff()}点伤害{Hits:diff()}次）|}
 ```
 
-## 30. 闪光锤
+## 31. 闪光锤
 
 - ID：`HAMMER_MOD_CARD_FLASH_HAMMER`
 - 当前描述：
@@ -300,16 +309,16 @@
 对所有敌人造成{Stun:diff()}点[gold]晕眩[/gold]。
 ```
 
-## 31. 头晕跌倒
+## 32. 头重脚轻
 
-- ID：`HAMMER_MOD_CARD_DIZZY_FALL`
+- ID：`HAMMER_MOD_CARD_HEAD_OVER_HEELS`
 - 当前描述：
 
 ```text
 所有敌人失去等同于其当前[gold]晕眩[/gold]值{Multiplier:diff()}倍的生命。
 ```
 
-## 32. 震荡护身
+## 33. 震荡护身
 
 - ID：`HAMMER_MOD_CARD_CONCUSSION_GUARD`
 - 当前描述：
@@ -319,7 +328,7 @@
 （获得{Block:diff()}点[gold]格挡[/gold]）|}
 ```
 
-## 33. KO术
+## 34. KO术
 
 - ID：`HAMMER_MOD_CARD_FELYNE_KO_TECHNIQUE`
 - 当前描述：
@@ -329,7 +338,7 @@
 额外再造成{BonusStun:diff()}点[gold]晕眩[/gold]。|}
 ```
 
-## 34. 打桩高手
+## 35. 打桩高手
 
 - ID：`HAMMER_MOD_CARD_PILE_DRIVER`
 - 当前描述：
@@ -338,9 +347,9 @@
 攻击牌对有[gold]晕眩[/gold]值的敌人造成的伤害提高{StunBonusPercent:diff()}%，对被[gold]击晕[/gold]的敌人改为提高{KnockedOutBonusPercent:diff()}%。
 ```
 
-## 35. 追头重击
+## 36. 狠狠砸头
 
-- ID：`HAMMER_MOD_CARD_HEAD_HUNTER_SMASH`
+- ID：`HAMMER_MOD_CARD_SMASH_THAT_HEAD`
 - 当前描述：
 
 ```text
@@ -348,7 +357,7 @@
 该敌人每有1点[gold]晕眩[/gold]，就额外造成{StunMultiplier:diff()}点伤害。
 ```
 
-## 36. 后劲
+## 37. 后劲
 
 - ID：`HAMMER_MOD_CARD_AFTERSHOCK`
 - 当前描述：
@@ -358,7 +367,7 @@
 在你的下个回合开始时，该敌人受到{Stun:diff()}点[gold]晕眩[/gold]。
 ```
 
-## 37. 震荡共鸣
+## 38. 震荡共鸣
 
 - ID：`HAMMER_MOD_CARD_CONCUSSION_RESONANCE`
 - 当前描述：
@@ -367,7 +376,7 @@
 每当你给予敌人[gold]虚弱[/gold]或[gold]易伤[/gold]时，使其受到{Stun:diff()}点[gold]晕眩[/gold]。
 ```
 
-## 38. 冲击爆裂
+## 39. 冲击爆裂
 
 - ID：`HAMMER_MOD_CARD_IMPACT_BURST`
 - 当前描述：
@@ -376,7 +385,7 @@
 针对多段攻击，你的攻击牌可以额外造成等同于{StunPerHit:diff()}倍攻击段数的[gold]晕眩[/gold]。
 ```
 
-## 39. 迎面相杀
+## 40. 迎面相杀
 
 - ID：`HAMMER_MOD_CARD_FACE_OFF`
 - 当前描述：
@@ -387,7 +396,7 @@
 获得{StrengthPower:diff()}点[gold]力量[/gold]。
 ```
 
-## 40. 水面击
+## 41. 水面击
 
 - ID：`HAMMER_MOD_CARD_WATER_STRIKE`
 - 当前描述：
@@ -397,7 +406,7 @@
 如果敌人的意图是攻击，则获得{Block:diff()}点[gold]格挡[/gold]。
 ```
 
-## 41. 借力挥击
+## 42. 借力挥击
 
 - ID：`HAMMER_MOD_CARD_LEVERAGED_SWING`
 - 当前描述：
@@ -407,7 +416,7 @@
 如果敌人的意图是攻击，则获得{Energy:energyIcons()}。
 ```
 
-## 42. 预判走位
+## 43. 预判走位
 
 - ID：`HAMMER_MOD_CARD_PREDICTIVE_FOOTWORK`
 - 当前描述：
@@ -416,7 +425,7 @@
 如果敌人的意图是攻击，则给予{Power:diff()}层[gold]虚弱[/gold]，否则给予{Power:diff()}层[gold]易伤[/gold]。
 ```
 
-## 43. 扫腿重锤
+## 44. 扫腿重锤
 
 - ID：`HAMMER_MOD_CARD_LEG_SWEEP_HAMMER`
 - 当前描述：
@@ -426,7 +435,7 @@
 对意图为攻击的敌人给予{WeakPower:diff()}层[gold]虚弱[/gold]。
 ```
 
-## 44. 斗志激发
+## 45. 斗志激发
 
 - ID：`HAMMER_MOD_CARD_DEEP_BREATH`
 - 当前描述：
@@ -436,7 +445,7 @@
 如果敌人的意图是攻击，则改为获得{AttackEnergy:energyIcons()}。
 ```
 
-## 45. 灭气怒吼
+## 46. 灭气怒吼
 
 - ID：`HAMMER_MOD_CARD_UNLOADING_STANCE`
 - 当前描述：
@@ -446,9 +455,9 @@
 所有意图为攻击的敌人在本回合失去{StrengthLoss:diff()}点[gold]力量[/gold]。
 ```
 
-## 46. 水面架势
+## 47. 游走蹭刀
 
-- ID：`HAMMER_MOD_CARD_WATER_STANCE`
+- ID：`HAMMER_MOD_CARD_WEAVE_AND_BONK`
 - 当前描述：
 
 ```text
@@ -456,7 +465,7 @@
 直到你的下个回合开始，获得{Thorns:diff()}点[gold]荆棘[/gold]。
 ```
 
-## 47. 蓄力垫步
+## 48. 借力蓄势
 
 - ID：`HAMMER_MOD_CARD_CHARGE_STEP`
 - 当前描述：
@@ -466,9 +475,9 @@
 如果敌人的意图是攻击，则获得{Charge}级[gold]蓄力[/gold]。
 ```
 
-## 48. 以牙还牙
+## 49. 以锤还牙
 
-- ID：`HAMMER_MOD_CARD_OFFSET_UPSWING`
+- ID：`HAMMER_MOD_CARD_HAMMER_FOR_HAMMER`
 - 当前描述：
 
 ```text
@@ -476,7 +485,7 @@
 每段造成{Damage:diff()}点伤害。
 ```
 
-## 49. 破势锤击
+## 50. 破势锤击
 
 - ID：`HAMMER_MOD_CARD_BREAK_MOMENTUM`
 - 当前描述：
@@ -486,7 +495,7 @@
 如果敌人的[gold]力量[/gold]大于0，则使其失去{StrengthPower:diff()}点[gold]力量[/gold]。
 ```
 
-## 50. 相杀形态
+## 51. 相杀形态
 
 - ID：`HAMMER_MOD_CARD_COUNTER_FORM`
 - 当前描述：
@@ -495,7 +504,7 @@
 每当你对意图为攻击的敌人打出攻击牌时，获得{Block:diff()}点[gold]格挡[/gold]。
 ```
 
-## 51. 开眠
+## 52. 开眠
 
 - ID：`HAMMER_MOD_CARD_WAKE_UP_HIT`
 - 当前描述：
@@ -507,7 +516,7 @@
 （造成{Damage:diff()}点伤害）|}
 ```
 
-## 52. 破壳重击
+## 53. 破壳重击
 
 - ID：`HAMMER_MOD_CARD_SHELL_BREAKER`
 - 当前描述：
@@ -517,7 +526,7 @@
 造成{Damage:diff()}点伤害。
 ```
 
-## 53. 锤柄打击
+## 54. 锤柄打击
 
 - ID：`HAMMER_MOD_CARD_SWITCH_GRIP_SWING`
 - 当前描述：
@@ -527,7 +536,7 @@
 抽{Cards:diff()}张牌。
 ```
 
-## 54. 整备
+## 55. 整备
 
 - ID：`HAMMER_MOD_CARD_TOOL_SPECIALIST`
 - 当前描述：
@@ -538,7 +547,7 @@
 在你的下个回合开始时，抽{NextTurnCards}张牌。
 ```
 
-## 55. 快捷调合
+## 56. 快捷调合
 
 - ID：`HAMMER_MOD_CARD_QUICK_CRAFT`
 - 当前描述：
@@ -548,7 +557,7 @@
 将[gold]手牌[/gold]中的一张牌放到[gold]抽牌堆[/gold]顶部。
 ```
 
-## 56. 开场体操
+## 57. 开场体操
 
 - ID：`HAMMER_MOD_CARD_WARM_UP_EXERCISE`
 - 当前描述：
@@ -558,7 +567,7 @@
 获得{Stats:diff()}点[gold]敏捷[/gold]。
 ```
 
-## 57. 天地大冲撞
+## 58. 天地大冲撞
 
 - ID：`HAMMER_MOD_CARD_IMPACT_CRATER`
 - 当前描述：
@@ -569,7 +578,7 @@
 （造成{Damage:diff()}点伤害，造成{Stun:diff()}点[gold]晕眩[/gold]）|}
 ```
 
-## 58. 重整架势
+## 59. 重整架势
 
 - ID：`HAMMER_MOD_CARD_REPOSITION`
 - 当前描述：
@@ -579,7 +588,7 @@
 将[gold]弃牌堆[/gold]中的一张牌放到[gold]抽牌堆[/gold]顶部。
 ```
 
-## 59. 捞飞队友
+## 60. 捞飞队友
 
 - ID：`HAMMER_MOD_CARD_LAUNCH_TEAMMATE`
 - 当前描述：
@@ -588,10 +597,10 @@
 选择一名其他玩家。
 其获得{Block:diff()}点[gold]格挡[/gold]和{StrengthPower}点[gold]力量[/gold]。
 在其下个回合开始时，获得{Energy:energyIcons()}。
-将1张“[gold]重新起身[/gold]”加入其[gold]手牌[/gold]。
+将1张“[gold]倒地起身[/gold]”加入其[gold]手牌[/gold]。
 ```
 
-## 60. 鬼人粉尘
+## 61. 鬼人粉尘
 
 - ID：`HAMMER_MOD_CARD_DEMON_POWDER`
 - 当前描述：
@@ -600,7 +609,7 @@
 所有玩家获得{StrengthPower:diff()}点[gold]力量[/gold]。
 ```
 
-## 61. 硬化粉尘
+## 62. 硬化粉尘
 
 - ID：`HAMMER_MOD_CARD_HARDSHELL_POWDER`
 - 当前描述：
@@ -609,9 +618,9 @@
 所有玩家获得{DexterityPower:diff()}点[gold]敏捷[/gold]。
 ```
 
-## 62. 重新起身
+## 63. 倒地起身
 
-- ID：`HAMMER_MOD_CARD_GET_BACK_UP`
+- ID：`HAMMER_MOD_CARD_BACK_ON_YOUR_FEET`
 - 当前描述：
 
 ```text
@@ -619,9 +628,9 @@
 “谁捞的我？”
 ```
 
-## 63. 横挥二连
+## 64. 连续横挥
 
-- ID：`HAMMER_MOD_CARD_DOUBLE_SIDE_SWING`
+- ID：`HAMMER_MOD_CARD_CONTINUOUS_SIDE_SWING`
 - 当前描述：
 
 ```text
@@ -629,9 +638,9 @@
 （造成{Damage:diff()}点伤害{Hits:diff()}次）|}
 ```
 
-## 64. 铁虫追击
+## 65. 翔虫回旋
 
-- ID：`HAMMER_MOD_CARD_IRONBUG_FOLLOW_UP`
+- ID：`HAMMER_MOD_CARD_WIREBUG_SPIN`
 - 当前描述：
 
 ```text
@@ -640,9 +649,9 @@
 （造成{Damage:diff()}点伤害{Hits:diff()}次）|}
 ```
 
-## 65. 蓄势滑走
+## 66. 滑走强化
 
-- ID：`HAMMER_MOD_CARD_SLIDING_COMBO`
+- ID：`HAMMER_MOD_CARD_AFFINITY_SLIDING`
 - 当前描述：
 
 ```text
@@ -650,9 +659,9 @@
 如果当前至少拥有{RequiredCharge}级[gold]蓄力[/gold]，则改为在本回合获得{ChargedStrength:diff()}点[gold]力量[/gold]。
 ```
 
-## 66. 飞锤横扫
+## 67. 横扫开路
 
-- ID：`HAMMER_MOD_CARD_SWEEPING_PREPARATION`
+- ID：`HAMMER_MOD_CARD_SWEEP_THE_PATH`
 - 当前描述：
 
 ```text
@@ -660,9 +669,9 @@
 抽{Cards}张牌。
 ```
 
-## 67. 连环冲击
+## 68. 无敌风火轮
 
-- ID：`HAMMER_MOD_CARD_POUNDING_SMASH`
+- ID：`HAMMER_MOD_CARD_INVINCIBLE_WIND_FIRE_WHEEL`
 - 当前描述：
 
 ```text
@@ -671,7 +680,7 @@
 （造成{Damage:diff()}点伤害{Hits:diff()}次，造成{ResolvedStun:diff()}点[gold]晕眩[/gold]）|}
 ```
 
-## 68. 龙卷风摧毁停车场
+## 69. 龙卷风摧毁停车场
 
 - ID：`HAMMER_MOD_CARD_TRUE_SPINNING_IMPACT`
 - 当前描述：
@@ -682,7 +691,7 @@
 （造成{Damage:diff()}点伤害{Hits:diff()}次，造成{ResolvedStun:diff()}点[gold]晕眩[/gold]）|}
 ```
 
-## 69. 挑战者
+## 70. 挑战者
 
 - ID：`HAMMER_MOD_CARD_CHALLENGER`
 - 当前描述：
@@ -691,7 +700,7 @@
 在你的回合开始时，如果任意敌人的意图是攻击，则在本回合获得{StrengthPower:diff()}点[gold]力量[/gold]。
 ```
 
-## 70. 翔虫续力
+## 71. 翔虫续力
 
 - ID：`HAMMER_MOD_CARD_WIREBUG_CONTINUATION`
 - 当前描述：
@@ -700,7 +709,7 @@
 每当你打出一张耗能大于等于{RequiredEnergy:energyIcons()}的牌时，获得{Charge:diff()}级[gold]蓄力[/gold]。
 ```
 
-## 71. 弱点特效
+## 72. 弱点特效
 
 - ID：`HAMMER_MOD_CARD_WEAKNESS_EXPLOIT`
 - 当前描述：
@@ -709,16 +718,16 @@
 攻击牌对[gold]易伤[/gold]敌人造成的伤害提高{BonusPercent:diff()}%。
 ```
 
-## 72. 愈战愈勇
+## 73. 越砸越疼
 
-- ID：`HAMMER_MOD_CARD_CHARGE_SWITCH_COURAGE`
+- ID：`HAMMER_MOD_CARD_HARDER_WITH_EVERY_SMASH`
 - 当前描述：
 
 ```text
 每当你以3级以上[gold]蓄力[/gold]等级打出[gold]释放蓄力[/gold]的牌时，获得{StrengthPower}点[gold]力量[/gold]。
 ```
 
-## 73. 破坏王
+## 74. 破坏王
 
 - ID：`HAMMER_MOD_CARD_PARTBREAKER`
 - 当前描述：
@@ -727,16 +736,16 @@
 每有一次攻击造成未被格挡的伤害，就给予{VulnerablePower}层[gold]易伤[/gold]。
 ```
 
-## 74. 超连击
+## 75. 再来一锤
 
-- ID：`HAMMER_MOD_CARD_COMBO_BOOST`
+- ID：`HAMMER_MOD_CARD_ONE_MORE_BONK`
 - 当前描述：
 
 ```text
 多段攻击牌额外增加{ExtraHits:diff()}次攻击段数。
 ```
 
-## 75. 客制吸血
+## 76. 客制吸血
 
 - ID：`HAMMER_MOD_CARD_BLOOD_RITE`
 - 当前描述：
@@ -745,7 +754,7 @@
 每次攻击后，按每个敌人在这次攻击中失去的生命分别计算，每满10点回复1点生命。
 ```
 
-## 76. 手摇拖拉机
+## 77. 手摇拖拉机
 
 - ID：`HAMMER_MOD_CARD_HAND_CRANKED_TRACTOR`
 - 当前描述：
@@ -754,9 +763,9 @@
 你[gold]抽牌堆[/gold]中的一张随机[gold]释放蓄力[/gold]牌获得{Replay:diff()}层[gold]重放[/gold]。
 ```
 
-## 77. 马拉松锤手
+## 78. 蓄力变化·武
 
-- ID：`HAMMER_MOD_CARD_MARATHON_HAMMERER`
+- ID：`HAMMER_MOD_CARD_CHARGE_SWITCH_STRENGTH`
 - 当前描述：
 
 ```text
@@ -764,7 +773,7 @@
 （获得{StrengthPower}点[gold]力量[/gold]）|}
 ```
 
-## 78. 回复药
+## 79. 回复药
 
 - ID：`HAMMER_MOD_CARD_RECOVERY_MEDICINE`
 - 当前描述：
@@ -772,6 +781,87 @@
 ```text
 只有当每名敌人的意图都不是攻击或攻击伤害为0时才能打出。
 获得{RegenPower:diff()}点[gold]再生[/gold]。
+```
+
+## 80. 钝器能手
+
+- ID：`HAMMER_MOD_CARD_BLUNT_WEAPON_EXPERT`
+- 当前描述：
+
+```text
+提升{Charge:diff()}级[gold]蓄力[/gold]。
+获得{Block:diff()}点[gold]格挡[/gold]。
+造成{Damage:diff()}点伤害。
+造成{Stun:diff()}点[gold]晕眩[/gold]。
+```
+
+## 81. 灭气重锤
+
+- ID：`HAMMER_MOD_CARD_STAMINA_DRAINING_HAMMER`
+- 当前描述：
+
+```text
+造成{Damage:diff()}点伤害。
+造成{Stun:diff()}点[gold]晕眩[/gold]。
+给予{WeakPower:diff()}层[gold]虚弱[/gold]。
+给予{VulnerablePower:diff()}层[gold]易伤[/gold]。
+```
+
+## 82. 寻找斜坡
+
+- ID：`HAMMER_MOD_CARD_FIND_ASLOPE`
+- 当前描述：
+
+```text
+选择你的[gold]抽牌堆[/gold]中的{Cards:diff()}张牌，将其放到[gold]抽牌堆[/gold]顶部。
+```
+
+## 83. 翔虫受身
+
+- ID：`HAMMER_MOD_CARD_WIREFALL`
+- 当前描述：
+
+```text
+在下个敌方回合中，第一次受到未被格挡的攻击伤害后，后续所有攻击对你造成的伤害降低至0。
+```
+
+## 84. 回家玉
+
+- ID：`HAMMER_MOD_CARD_FARCASTER`
+- 当前描述：
+
+```text
+移除你的所有状态。
+结束你的回合。
+下个敌方回合中，你不会受到任何伤害，不会被添加状态，也不会被塞牌。
+```
+
+## 85. 转祸为福
+
+- ID：`HAMMER_MOD_CARD_COALESCENCE`
+- 当前描述：
+
+```text
+合计至多减少自身{MaxReduction}层[gold]虚弱[/gold]、[gold]易伤[/gold]与[gold]脆弱[/gold]。
+每减少1层，获得{StrengthPower:diff()}点[gold]力量[/gold]。
+```
+
+## 86. 满足感
+
+- ID：`HAMMER_MOD_CARD_FREE_MEAL`
+- 当前描述：
+
+```text
+你下一瓶使用的药水不会被消耗。
+```
+
+## 87. 激运票
+
+- ID：`HAMMER_MOD_CARD_LUCKY_VOUCHER`
+- 当前描述：
+
+```text
+战斗结束时，可以重掷1次卡牌奖励。
 ```
 
 # 卡面附加描述与选择提示
@@ -788,4 +878,10 @@
 
 ```text
 选择1张牌，将其放到抽牌堆顶部。
+```
+
+## HAMMER_MOD_CARD_FIND_ASLOPE.selectionPrompt
+
+```text
+选择要放到抽牌堆顶部的牌。
 ```

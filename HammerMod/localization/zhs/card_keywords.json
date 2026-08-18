@@ -1,8 +1,6 @@
 {
   "HAMMER_MOD_KEYWORD_CHARGE.title": "蓄力",
-  "HAMMER_MOD_KEYWORD_CHARGE.description": "蓄力会跨回合保留。受到未格挡伤害时通常会清空所有蓄力，但部分效果可以阻止。",
+  "HAMMER_MOD_KEYWORD_CHARGE.description": "蓄力会跨回合保留。受到较大攻击伤害时会减少蓄力层数，未格挡伤害每达到5点就降低1层蓄力等级。",
   "HAMMER_MOD_KEYWORD_CHARGE_RELEASE.title": "释放蓄力",
-  "HAMMER_MOD_KEYWORD_CHARGE_RELEASE.description": "这张牌完成全部释放后会清空蓄力等级，除非其他效果阻止。",
-  "HAMMER_MOD_KEYWORD_STUN.title": "晕眩",
-  "HAMMER_MOD_KEYWORD_STUN.description": "敌人的晕眩值达到当前阈值时会被击晕。每次击晕后，下次阈值翻倍。"
+  "HAMMER_MOD_KEYWORD_CHARGE_RELEASE.description": "这张牌完成全部释放后会清空蓄力等级，除非其他效果阻止。"
 }

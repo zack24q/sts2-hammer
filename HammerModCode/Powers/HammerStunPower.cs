@@ -1,6 +1,7 @@
 using HammerMod.Gameplay;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Powers;
+using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
 using STS2RitsuLib.Interop.AutoRegistration;
@@ -21,6 +22,17 @@ public sealed class HammerStunPower : ModPowerTemplate
     public override bool ShouldScaleInMultiplayer => false;
 
     public override PowerAssetProfile AssetProfile => HammerPowerAssets.Profile;
+
+    public override LocString Description
+    {
+        get
+        {
+            var description = base.Description;
+            description.Add("Amount", Amount);
+            description.Add(DynamicVars["Threshold"]);
+            return description;
+        }
+    }
 
     public override Task BeforeApplied(
         Creature target,

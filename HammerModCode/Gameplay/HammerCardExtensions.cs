@@ -12,7 +12,6 @@ internal static class HammerKeywords
 {
     internal static CardKeyword Charge { get; private set; }
     internal static CardKeyword ChargeRelease { get; private set; }
-    internal static CardKeyword Stun { get; private set; }
 
     internal static void Register()
     {
@@ -32,14 +31,6 @@ internal static class HammerKeywords
                 iconPath: string.Empty,
                 ModKeywordCardDescriptionPlacement.BeforeCardDescription,
                 includeInCardHoverTip: true)
-            .CardKeywordValue;
-
-        Stun = registry
-            .RegisterCardKeywordOwnedByLocNamespace(
-                "STUN",
-                iconPath: string.Empty,
-                ModKeywordCardDescriptionPlacement.None,
-                includeInCardHoverTip: false)
             .CardKeywordValue;
     }
 }

@@ -15,31 +15,31 @@ CARDS = [
     "EarthStrike",
     "ChargedOverheadSmash",
     "ChargedSideSmash",
-    "MightyChargeSlam",
+    "MightyChargeBonk",
     "SilkbindSpinningBludgeon",
-    "ChargedGuard",
+    "MightyChargeRoll",
     "ReadyToCharge",
     "KeepingSway",
-    "SpinningCharge",
+    "SteadierWithEverySpin",
     "Overcharge",
     "Focus",
     "EndlessMomentum",
-    "ChargedStand",
+    "BraceWithTheHammer",
     "EmergencyEvade",
-    "StepSweep",
+    "SwingAtEveryOpening",
     "DashJuice",
-    "SideSmash",
+    "Upswing",
     "ChargedUpswing",
     "GroundShock",
     "FocusBlowEarthquake",
     "HomeRunSwing",
     "BigBangCombo",
     "FlashHammer",
-    "DizzyFall",
+    "HeadOverHeels",
     "ConcussionGuard",
     "StunTechnique",
     "PileDriver",
-    "HeadHunterSmash",
+    "SmashThatHead",
     "Aftershock",
     "ConcussionResonance",
     "ImpactBurst",
@@ -48,9 +48,9 @@ CARDS = [
     "PredictiveFootwork",
     "DeepBreath",
     "UnloadingStance",
-    "WaterStance",
+    "WeaveAndBonk",
     "ChargeStep",
-    "OffsetUpswing",
+    "HammerForHammer",
     "BreakMomentum",
     "CounterForm",
     "WakeUpHit",
@@ -62,31 +62,40 @@ CARDS = [
     "LaunchTeammate",
     "DemonPowder",
     "HardshellPowder",
-    "GetBackUp",
-    "RisingDragonHammer",
+    "BackOnYourFeet",
+    "MightyUpswing",
     "LeveragedSwing",
-    "SheatheAndBreathe",
+    "HammerIai",
     "VictoryCharge",
     "SwitchGripSwing",
     "QuickCraft",
     "LegSweepHammer",
     "EarthsplitterShock",
-    "DoubleSideSwing",
-    "IronbugFollowUp",
-    "SlidingCombo",
-    "SweepingPreparation",
-    "PoundingSmash",
+    "ContinuousSideSwing",
+    "WirebugSpin",
+    "AffinitySliding",
+    "SweepThePath",
+    "InvincibleWindFireWheel",
     "TrueSpinningImpact",
     "Challenger",
     "WirebugContinuation",
     "WeaknessExploit",
-    "ChargeSwitchCourage",
+    "HarderWithEverySmash",
     "Partbreaker",
-    "ComboBoost",
+    "OneMoreBonk",
     "BloodRite",
     "HandCrankedTractor",
-    "MarathonHammerer",
+    "ChargeSwitchStrength",
     "RecoveryMedicine",
+    "BluntWeaponExpert",
+    "ChargeAsYouStrike",
+    "StaminaDrainingHammer",
+    "FindASlope",
+    "Wirefall",
+    "Farcaster",
+    "Coalescence",
+    "FreeMeal",
+    "LuckyVoucher",
 ]
 
 
@@ -115,7 +124,7 @@ def accent_for(number: int) -> str:
         return "#a7adb5"
     if number == 49:
         return "#b7a2d8"
-    if 63 <= number <= 68:
+    if 63 <= number <= 68 or number in {86, 87}:
         return "#d6ba4c"
     return "#5e9fd6"
 
@@ -172,8 +181,8 @@ def render(output_path: Path, number: int, font: ImageFont.FreeTypeFont) -> None
 
 
 def main() -> None:
-    if len(CARDS) != 78 or len(set(CARDS)) != len(CARDS):
-        raise ValueError("Card list must contain exactly 78 unique entries.")
+    if len(CARDS) != 87 or len(set(CARDS)) != len(CARDS):
+        raise ValueError("Card list must contain exactly 87 unique entries.")
 
     project_root = Path(__file__).resolve().parents[1]
     output_dir = project_root / "HammerMod" / "images" / "cards" / "placeholders"

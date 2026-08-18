@@ -5,7 +5,7 @@
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.cardsModifierDescription": "大锤卡牌现在会出现在奖励和商店中。",
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.cardsModifierTitle": "大锤卡牌",
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.defeatMessage": "这次蓄力失去了节奏。",
-  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.description": "通过积累蓄力造成更高伤害，但受到未格挡伤害会清空蓄力等级。可以积累晕眩来击晕敌人。善于根据敌人的意图灵活应对。",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.description": "通过积累蓄力造成更高伤害。受到较大攻击伤害时会减少蓄力层数，未格挡伤害每达到5点就降低1层蓄力等级。可以积累晕眩来击晕敌人。善于根据敌人的意图灵活应对。",
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.eventDeathPrevention": "大锤猎人重新站稳。",
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.flavor": "沉重的武器要求耐心，也奖励精准的时机。",
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.goldMonologue": "先把装备准备妥当。",

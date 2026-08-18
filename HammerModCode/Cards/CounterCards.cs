@@ -282,7 +282,7 @@ public sealed class UnloadingStance : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class WaterStance : HammerCard
+public sealed class WeaveAndBonk : HammerCard
 {
     public override bool GainsBlock => true;
 
@@ -292,7 +292,7 @@ public sealed class WaterStance : HammerCard
         new IntVar("Thorns", 3)
     ];
 
-    public WaterStance()
+    public WeaveAndBonk()
         : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
     {
     }
@@ -300,7 +300,7 @@ public sealed class WaterStance : HammerCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         await GainBlock(DynamicVars.Block.BaseValue, cardPlay);
-        await PowerCmd.Apply<WaterStancePower>(
+        await PowerCmd.Apply<WeaveAndBonkPower>(
             choiceContext,
             Owner.Creature,
             DynamicVars["Thorns"].BaseValue,
@@ -325,7 +325,7 @@ public sealed class ChargeStep : HammerCard
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new BlockVar(8, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
-        new IntVar("Charge", 1)
+        new IntVar("Charge", 2)
     ];
 
     public ChargeStep()
@@ -339,7 +339,7 @@ public sealed class ChargeStep : HammerCard
         var gainCharge = IntendsToAttack(cardPlay.Target);
         await GainBlock(DynamicVars.Block.BaseValue, cardPlay);
         if (gainCharge)
-            await GainCharge(1);
+            await GainCharge(DynamicVars["Charge"].IntValue);
     }
 
     protected override void OnUpgrade()
@@ -349,7 +349,7 @@ public sealed class ChargeStep : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class OffsetUpswing : HammerCard
+public sealed class HammerForHammer : HammerCard
 {
     protected override bool ShouldGlowGoldInternal => AnyHittableEnemyIntendsToAttack();
 
@@ -358,7 +358,7 @@ public sealed class OffsetUpswing : HammerCard
         new DamageVar(8, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move)
     ];
 
-    public OffsetUpswing()
+    public HammerForHammer()
         : base(2, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
     }

@@ -149,7 +149,7 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
             }
 
             if (releasedCharge >= 3
-                && Owner.Creature.GetPower<ChargeSwitchCouragePower>() is { } courage)
+                && Owner.Creature.GetPower<HarderWithEverySmashPower>() is { } courage)
             {
                 await courage.TriggerRelease(choiceContext, this);
             }
@@ -200,7 +200,7 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
     {
         return ResolveAttackHitCount(
             originalHitCount,
-            Owner.Creature.GetPowerAmount<ComboBoostPower>());
+            Owner.Creature.GetPowerAmount<OneMoreBonkPower>());
     }
 
     protected static int PreviewAttackHitCount(
@@ -212,7 +212,7 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
 
         return ResolveAttackHitCount(
             originalHitCount,
-            context.Player!.Creature.GetPowerAmount<ComboBoostPower>());
+            context.Player!.Creature.GetPowerAmount<OneMoreBonkPower>());
     }
 
     protected static int PreviewEnergyXValue(ComputedDynamicVarContext context)
