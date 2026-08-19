@@ -200,9 +200,9 @@ public sealed class CombatRuleTests
     [Theory]
     [InlineData(-1, 0, 0)]
     [InlineData(100, 1, 1)]
-    [InlineData(101, 2, 1)]
-    [InlineData(201, 3, 2)]
-    [InlineData(202, 4, 2)]
+    [InlineData(101, 1, 2)]
+    [InlineData(201, 2, 3)]
+    [InlineData(202, 2, 4)]
     public void EndlessMomentumTriggersOnEveryQualifyingRelease(
         int packedAmount,
         int expectedEnergy,
@@ -265,6 +265,22 @@ public sealed class CombatRuleTests
         Assert.Equal(
             expected,
             FelyneKoTechniquePower.CalculateStun(packedAmount, energySpent));
+    }
+
+    [Theory]
+    [InlineData(-1, 0, 0)]
+    [InlineData(100, 1, 0)]
+    [InlineData(101, 1, 1)]
+    [InlineData(201, 2, 1)]
+    [InlineData(202, 2, 2)]
+    public void KoTechniqueDescriptionUsesCurrentStackTotals(
+        int packedAmount,
+        int expectedEnergyMultiplier,
+        int expectedBonusStun)
+    {
+        Assert.Equal(
+            (expectedEnergyMultiplier, expectedBonusStun),
+            FelyneKoTechniquePower.CalculateBonuses(packedAmount));
     }
 
     [Theory]

@@ -1,6 +1,6 @@
 {
   "HAMMER_MOD_RELIC_HAMMER_TECHNIQUE_CHARM.title": "锤术护石",
-  "HAMMER_MOD_RELIC_HAMMER_TECHNIQUE_CHARM.description": "你的回合开始时，获得[blue]{Charge}[/blue]级[gold]蓄力[/gold]。",
+  "HAMMER_MOD_RELIC_HAMMER_TECHNIQUE_CHARM.description": "你的回合开始时，提升[blue]{Charge}[/blue]级[gold]蓄力[/gold]。",
   "HAMMER_MOD_RELIC_HAMMER_TECHNIQUE_CHARM.flavor": "将最基础的发力方法刻进身体，狩猎便已成功了一半。",
   "HAMMER_MOD_RELIC_MASTER_HAMMER_TECHNIQUE_CHARM.title": "锤术秘传护石",
   "HAMMER_MOD_RELIC_MASTER_HAMMER_TECHNIQUE_CHARM.description": "你的回合开始时，将[gold]蓄力[/gold]等级提升至最大等级。",

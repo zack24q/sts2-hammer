@@ -4,6 +4,7 @@ using MegaCrit.Sts2.Core.Nodes.Combat;
 using STS2RitsuLib.Interop.AutoRegistration;
 using STS2RitsuLib.Scaffolding.Characters;
 using STS2RitsuLib.Scaffolding.Godot;
+using STS2RitsuLib.Scaffolding.Visuals.Definition;
 
 namespace HammerMod.Characters;
 
@@ -20,6 +21,15 @@ public sealed class HammerModCharacter : ModCharacterTemplate<HammerModCardPool,
     private const string RestSiteScenePath = $"{SceneRoot}/HammerMod_rest_site.tscn";
     private const string CharacterSelectBgScenePath = $"{SceneRoot}/HammerMod_character_select_bg.tscn";
     private const string HammerAvatarPath = $"{Entry.ResPath}/images/powers/hammer_power.svg";
+    private const string CombatIdleTexturePath =
+        $"{Entry.ResPath}/images/characters/HammerMod_character_idle.png";
+    private const string CombatDefeatedTexturePath =
+        $"{Entry.ResPath}/images/characters/HammerMod_character_defeated.png";
+
+    private static readonly VisualCueSet CombatVisualCues = VisualCueSetBuilder.Create()
+        .Single("die", CombatDefeatedTexturePath)
+        .Single("revive", CombatIdleTexturePath)
+        .Build();
 
     public override Color NameColor => ThemeColor;
     public override Color EnergyLabelOutlineColor => ThemeOutlineColor;
@@ -50,6 +60,7 @@ public sealed class HammerModCharacter : ModCharacterTemplate<HammerModCardPool,
     public override bool RequiresEpochAndTimeline => false;
     public override float AttackAnimDelay => 0f;
     public override float CastAnimDelay => 0f;
+    public override VisualCueSet? VisualCues => CombatVisualCues;
 
     protected override NCreatureVisuals? TryCreateCreatureVisuals()
     {

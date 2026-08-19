@@ -696,8 +696,8 @@ public sealed partial class CardContractTests
         AssertCardValues<ChargeSwitchCourage>(1, ("Charge", 1));
         AssertUpgradedCardValues<ChargeSwitchCourage>(0, ("Charge", 1));
 
-        AssertCardValues<EndlessMomentum>(1, ("Energy", 1));
-        AssertUpgradedCardValues<EndlessMomentum>(1, ("Energy", 2));
+        AssertCardValues<EndlessMomentum>(1, ("Energy", 1), ("Cards", 1));
+        AssertUpgradedCardValues<EndlessMomentum>(1, ("Energy", 1), ("Cards", 2));
 
         AssertCardValues<WirebugContinuation>(2, ("RequiredEnergy", 2), ("Charge", 1));
         AssertUpgradedCardValues<WirebugContinuation>(2, ("RequiredEnergy", 2), ("Charge", 2));
@@ -869,6 +869,10 @@ public sealed partial class CardContractTests
                 localization["HAMMER_MOD_CARD_FELYNE_KO_TECHNIQUE.description"],
                 StringComparison.Ordinal);
             Assert.Contains(
+                "{Cards:diff()}",
+                localization["HAMMER_MOD_CARD_ENDLESS_MOMENTUM.description"],
+                StringComparison.Ordinal);
+            Assert.Contains(
                 "{StunPerHit:diff()}",
                 localization["HAMMER_MOD_CARD_IMPACT_BURST.description"],
                 StringComparison.Ordinal);
@@ -937,6 +941,22 @@ public sealed partial class CardContractTests
             Assert.Contains(
                 "{Threshold}",
                 powers["HAMMER_MOD_POWER_HAMMER_STUN_POWER.description"],
+                StringComparison.Ordinal);
+            var endlessMomentum =
+                powers["HAMMER_MOD_POWER_ENDLESS_MOMENTUM_POWER.description"];
+            Assert.Contains("{Energy:energyIcons()}", endlessMomentum, StringComparison.Ordinal);
+            Assert.Contains("{Cards}", endlessMomentum, StringComparison.Ordinal);
+            Assert.DoesNotContain("energyIcons(1)", endlessMomentum, StringComparison.Ordinal);
+            Assert.DoesNotContain("energyIcons(2)", endlessMomentum, StringComparison.Ordinal);
+
+            var koTechnique =
+                powers["HAMMER_MOD_POWER_FELYNE_KO_TECHNIQUE_POWER.description"];
+            Assert.Contains("{EnergyMultiplier}", koTechnique, StringComparison.Ordinal);
+            Assert.Contains("{BonusStun}", koTechnique, StringComparison.Ordinal);
+
+            Assert.Contains(
+                "{Amount}",
+                powers["HAMMER_MOD_POWER_CHARGE_SWITCH_STRENGTH_POWER.description"],
                 StringComparison.Ordinal);
             foreach (var key in new[]
                      {

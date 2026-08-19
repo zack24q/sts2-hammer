@@ -572,7 +572,8 @@ public sealed class EndlessMomentum : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new EnergyVar("Energy", 1)
+        new EnergyVar("Energy", 1),
+        new CardsVar("Cards", 1)
     ];
 
     public EndlessMomentum()
@@ -592,7 +593,7 @@ public sealed class EndlessMomentum : HammerCard
 
     protected override void OnUpgrade()
     {
-        DynamicVars["Energy"].UpgradeValueBy(1);
+        DynamicVars["Cards"].UpgradeValueBy(1);
     }
 }
 

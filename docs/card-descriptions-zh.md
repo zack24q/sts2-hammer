@@ -174,7 +174,7 @@
 - 当前描述：
 
 ```text
-每当你以3级以上[gold]蓄力[/gold]等级打出[gold]释放蓄力[/gold]的牌时，获得{Energy:energyIcons()}，抽1张牌。
+每当你以3级以上[gold]蓄力[/gold]等级打出[gold]释放蓄力[/gold]的牌时，获得{Energy:energyIcons()}，抽{Cards:diff()}张牌。
 ```
 
 ## 19. 架锤硬扛

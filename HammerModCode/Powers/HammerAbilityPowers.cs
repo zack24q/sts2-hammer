@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
+using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Models.Powers;
@@ -116,6 +117,18 @@ public sealed class EndlessMomentumPower : HammerAbilityPower
     public override PowerStackType StackType => PowerStackType.Counter;
     public override int DisplayAmount => Math.Max(1, Amount / 100);
 
+    public override LocString Description
+    {
+        get
+        {
+            var description = base.Description;
+            var (energy, cards) = CalculateRewards(Amount);
+            description.Add("Energy", energy);
+            description.Add("Cards", cards);
+            return description;
+        }
+    }
+
     public async Task TriggerRelease(
         PlayerChoiceContext choiceContext,
         CardModel source)
@@ -133,8 +146,8 @@ public sealed class EndlessMomentumPower : HammerAbilityPower
     {
         var safeAmount = Math.Max(0, packedAmount);
         var copies = safeAmount / 100;
-        var upgradedCopies = safeAmount % 100;
-        return (copies + upgradedCopies, copies);
+        var upgradedCopies = Math.Min(copies, safeAmount % 100);
+        return (copies, copies + upgradedCopies);
     }
 }
 
@@ -180,6 +193,18 @@ public sealed class FelyneKoTechniquePower : HammerAbilityPower
     public override PowerStackType StackType => PowerStackType.Counter;
     public override int DisplayAmount => Math.Max(1, Amount / 100);
 
+    public override LocString Description
+    {
+        get
+        {
+            var description = base.Description;
+            var (energyMultiplier, bonusStun) = CalculateBonuses(Amount);
+            description.Add("EnergyMultiplier", energyMultiplier);
+            description.Add("BonusStun", bonusStun);
+            return description;
+        }
+    }
+
     public override async Task AfterCardPlayed(
         PlayerChoiceContext choiceContext,
         CardPlay cardPlay)
@@ -212,9 +237,17 @@ public sealed class FelyneKoTechniquePower : HammerAbilityPower
 
     internal static int CalculateStun(int packedAmount, int energySpent)
     {
-        var copies = packedAmount / 100;
-        var bonusStun = packedAmount % 100;
-        return Math.Max(0, energySpent) * copies + bonusStun;
+        var (energyMultiplier, bonusStun) = CalculateBonuses(packedAmount);
+        return Math.Max(0, energySpent) * energyMultiplier + bonusStun;
+    }
+
+    internal static (int EnergyMultiplier, int BonusStun) CalculateBonuses(
+        int packedAmount)
+    {
+        var safeAmount = Math.Max(0, packedAmount);
+        var copies = safeAmount / 100;
+        var upgradedCopies = Math.Min(copies, safeAmount % 100);
+        return (copies, upgradedCopies);
     }
 }
 
