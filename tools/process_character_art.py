@@ -1,43 +1,40 @@
 #!/usr/bin/env python3
-"""Prepare the user-supplied Hammer Hunter portrait for the mod."""
+"""Prepare the pink bone-armored hunter portrait for character selection."""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
-import numpy as np
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image, ImageOps
 
 
-WORK_SIZE = (750, 1000)
-CROP_BOX = (50, 25, 650, 925)
-FLOOD_MARKER = (1, 2, 3)
+OUTPUT_SIZE = (600, 900)
+SOURCE_CROP_BOX = (690, 100, 1970, 2020)
 
 
-def extract_connected_white_background(source: Image.Image) -> Image.Image:
-    rgb = ImageOps.exif_transpose(source).convert("RGB")
-    rgb = rgb.resize(WORK_SIZE, Image.Resampling.LANCZOS)
+def create_selection_portrait(source: Image.Image) -> Image.Image:
+    portrait = ImageOps.exif_transpose(source).convert("RGBA")
+    if portrait.width < SOURCE_CROP_BOX[2] or portrait.height < SOURCE_CROP_BOX[3]:
+        raise ValueError(
+            f"Source portrait must be at least {SOURCE_CROP_BOX[2]}x"
+            f"{SOURCE_CROP_BOX[3]} pixels."
+        )
 
-    flood_map = rgb.copy()
-    ImageDraw.floodfill(flood_map, (0, 0), FLOOD_MARKER, thresh=32)
-
-    pixels = np.asarray(rgb)
-    flooded = np.asarray(flood_map)
-    alpha = np.where(np.all(flooded == FLOOD_MARKER, axis=2), 0, 255).astype(np.uint8)
-    rgba = np.dstack((pixels, alpha))
-    return Image.fromarray(rgba, "RGBA").crop(CROP_BOX)
+    portrait = portrait.crop(SOURCE_CROP_BOX)
+    return portrait.resize(OUTPUT_SIZE, Image.Resampling.LANCZOS)
 
 
 def create_locked_variant(portrait: Image.Image) -> Image.Image:
-    rgba = np.asarray(portrait).copy()
-    luminance = np.asarray(ImageOps.grayscale(portrait.convert("RGB")), dtype=np.float32)
-    detail = luminance / 255.0
-
-    rgba[..., 0] = 18 + (detail * 34).astype(np.uint8)
-    rgba[..., 1] = 14 + (detail * 27).astype(np.uint8)
-    rgba[..., 2] = 24 + (detail * 38).astype(np.uint8)
-    return Image.fromarray(rgba, "RGBA")
+    alpha = portrait.getchannel("A")
+    luminance = ImageOps.grayscale(portrait.convert("RGB"))
+    locked = ImageOps.colorize(
+        luminance,
+        black=(18, 14, 24),
+        white=(52, 41, 62),
+    ).convert("RGBA")
+    locked.putalpha(alpha)
+    return locked
 
 
 def main() -> None:
@@ -47,8 +44,9 @@ def main() -> None:
     parser.add_argument("locked_output", type=Path)
     args = parser.parse_args()
 
-    portrait = ImageOps.mirror(extract_connected_white_background(Image.open(args.source)))
-    locked = create_locked_variant(portrait)
+    with Image.open(args.source) as source:
+        portrait = create_selection_portrait(source)
+        locked = create_locked_variant(portrait)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     portrait.save(args.output, optimize=True)

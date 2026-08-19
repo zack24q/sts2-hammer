@@ -24,7 +24,9 @@ public sealed class CharacterVisualContractTests
     [Theory]
     [InlineData("HammerMod_character_idle.png")]
     [InlineData("HammerMod_character_defeated.png")]
-    public void CombatPortraitAssetsArePackaged(string fileName)
+    [InlineData("HammerMod_character_select.png")]
+    [InlineData("HammerMod_character_select_locked.png")]
+    public void CharacterPortraitAssetsArePackaged(string fileName)
     {
         Assert.True(File.Exists(Path.Combine(
             FindRepositoryRoot(),
