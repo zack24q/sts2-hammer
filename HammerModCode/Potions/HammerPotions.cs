@@ -136,12 +136,39 @@ public sealed class MightSeed : HammerPotion
         Creature? target)
     {
         ArgumentNullException.ThrowIfNull(target);
+        var strengthAmount = DynamicVars.Strength.BaseValue;
+        var strengthBefore = target.GetPowerAmount<StrengthPower>();
         await PowerCmd.Apply<MightSeedPower>(
             choiceContext,
             target,
-            DynamicVars.Strength.BaseValue,
+            strengthAmount,
             Owner.Creature,
             null);
+
+        // TemporaryStrengthPower normally applies Strength internally. Fill only
+        // a missing remainder so this potion stays correct if that hook is skipped.
+        var missingStrength = CalculateMissingStrength(
+            strengthAmount,
+            strengthBefore,
+            target.GetPowerAmount<StrengthPower>());
+        if (missingStrength > 0)
+        {
+            await PowerCmd.Apply<StrengthPower>(
+                choiceContext,
+                target,
+                missingStrength,
+                Owner.Creature,
+                null);
+        }
+    }
+
+    internal static decimal CalculateMissingStrength(
+        decimal expectedStrength,
+        int strengthBefore,
+        int strengthAfter)
+    {
+        var strengthGained = strengthAfter - strengthBefore;
+        return Math.Max(0m, expectedStrength - strengthGained);
     }
 }
 

@@ -90,7 +90,7 @@ public sealed class ShellBreaker : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class SwitchGripSwing : HammerCard
+public sealed class HammerHandleStrike : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -98,7 +98,7 @@ public sealed class SwitchGripSwing : HammerCard
         new CardsVar("Cards", 1)
     ];
 
-    public SwitchGripSwing()
+    public HammerHandleStrike()
         : base(1, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
     {
     }

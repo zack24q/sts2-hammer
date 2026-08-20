@@ -19,7 +19,9 @@ namespace HammerMod.Cards;
 public sealed class ChargedOverheadSmash : HammerCard
 {
     private const int BaseDamage = 9;
+    private const int BaseChargedDamage = 15;
     private const int UpgradedDamage = 12;
+    private const int UpgradedChargedDamage = 20;
 
     protected override bool ShouldGlowGoldInternal => HasChargeAtLeast(2);
 
@@ -30,7 +32,7 @@ public sealed class ChargedOverheadSmash : HammerCard
             static context => ResolveDamage(PreviewCharge(context), context.IsUpgraded),
             baseValue: BaseDamage),
         new IntVar("NormalDamage", BaseDamage),
-        new IntVar("ChargedDamage", BaseDamage * 2)
+        new IntVar("ChargedDamage", BaseChargedDamage)
     ];
 
     public ChargedOverheadSmash()
@@ -47,13 +49,15 @@ public sealed class ChargedOverheadSmash : HammerCard
     protected override void OnUpgrade()
     {
         DynamicVars["NormalDamage"].UpgradeValueBy(3);
-        DynamicVars["ChargedDamage"].UpgradeValueBy(6);
+        DynamicVars["ChargedDamage"].UpgradeValueBy(5);
     }
 
     internal static int ResolveDamage(int charge, bool upgraded)
     {
-        var damage = upgraded ? UpgradedDamage : BaseDamage;
-        return charge >= 2 ? damage * 2 : damage;
+        if (charge >= 2)
+            return upgraded ? UpgradedChargedDamage : BaseChargedDamage;
+
+        return upgraded ? UpgradedDamage : BaseDamage;
     }
 }
 
@@ -61,7 +65,9 @@ public sealed class ChargedOverheadSmash : HammerCard
 public sealed class ChargedSideSmash : HammerCard
 {
     private const int BaseDamage = 6;
+    private const int BaseChargedDamage = 10;
     private const int UpgradedDamage = 8;
+    private const int UpgradedChargedDamage = 13;
 
     protected override bool ShouldGlowGoldInternal => HasChargeAtLeast(2);
 
@@ -72,7 +78,7 @@ public sealed class ChargedSideSmash : HammerCard
             static context => ResolveDamage(PreviewCharge(context), context.IsUpgraded),
             baseValue: BaseDamage),
         new IntVar("NormalDamage", BaseDamage),
-        new IntVar("ChargedDamage", BaseDamage * 2)
+        new IntVar("ChargedDamage", BaseChargedDamage)
     ];
 
     public ChargedSideSmash()
@@ -88,13 +94,15 @@ public sealed class ChargedSideSmash : HammerCard
     protected override void OnUpgrade()
     {
         DynamicVars["NormalDamage"].UpgradeValueBy(2);
-        DynamicVars["ChargedDamage"].UpgradeValueBy(4);
+        DynamicVars["ChargedDamage"].UpgradeValueBy(3);
     }
 
     internal static int ResolveDamage(int charge, bool upgraded)
     {
-        var damage = upgraded ? UpgradedDamage : BaseDamage;
-        return charge >= 2 ? damage * 2 : damage;
+        if (charge >= 2)
+            return upgraded ? UpgradedChargedDamage : BaseChargedDamage;
+
+        return upgraded ? UpgradedDamage : BaseDamage;
     }
 }
 
@@ -138,7 +146,7 @@ public sealed class MightyChargeBonk : HammerCard, IChargeReleaseCard, ICombatPr
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class SilkbindSpinningBludgeon : HammerCard, IChargeReleaseCard, ICombatPreviewDescriptionCard
+public sealed class MightyChargeSpin : HammerCard, IChargeReleaseCard, ICombatPreviewDescriptionCard
 {
     protected override bool ShouldGlowGoldInternal => HasChargeAtLeast(1);
 
@@ -159,7 +167,7 @@ public sealed class SilkbindSpinningBludgeon : HammerCard, IChargeReleaseCard, I
         new IntVar("HitsAt3", 4)
     ];
 
-    public SilkbindSpinningBludgeon()
+    public MightyChargeSpin()
         : base(2, CardType.Attack, CardRarity.Uncommon, TargetType.AllEnemies)
     {
     }
@@ -254,7 +262,7 @@ public sealed class ReadyToCharge : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class KeepingSway : HammerCard
+public sealed class ChargeStep : HammerCard
 {
     protected override bool ShouldGlowGoldInternal => HasChargeAtLeast(3);
 
@@ -267,7 +275,7 @@ public sealed class KeepingSway : HammerCard
         new BlockVar("FullBlock", 15, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move)
     ];
 
-    public KeepingSway()
+    public ChargeStep()
         : base(1, CardType.Skill, CardRarity.Common, TargetType.Self)
     {
     }
@@ -443,7 +451,7 @@ public sealed class HammerIai : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class VictoryCharge : HammerCard
+public sealed class PressTheAdvantage : HammerCard
 {
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
@@ -458,7 +466,7 @@ public sealed class VictoryCharge : HammerCard
         new CardsVar("Cards", 2)
     ];
 
-    public VictoryCharge()
+    public PressTheAdvantage()
         : base(0, CardType.Skill, CardRarity.Rare, TargetType.Self)
     {
     }
@@ -573,7 +581,7 @@ public sealed class EndlessMomentum : HammerCard
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new EnergyVar("Energy", 1),
-        new CardsVar("Cards", 1)
+        new CardsVar("Cards", 2)
     ];
 
     public EndlessMomentum()
@@ -586,14 +594,14 @@ public sealed class EndlessMomentum : HammerCard
         await PowerCmd.Apply<EndlessMomentumPower>(
             choiceContext,
             Owner.Creature,
-            IsUpgraded ? 101 : 100,
+            1,
             Owner.Creature,
             this);
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars["Cards"].UpgradeValueBy(1);
+        EnergyCost.UpgradeBy(-1);
     }
 }
 
@@ -601,7 +609,9 @@ public sealed class EndlessMomentum : HammerCard
 public sealed class BraceWithTheHammer : HammerCard
 {
     private const int BaseBlock = 8;
+    private const int BaseChargedBlock = 13;
     private const int UpgradedBlock = 11;
+    private const int UpgradedChargedBlock = 17;
 
     protected override bool ShouldGlowGoldInternal => HasChargeAtLeast(2);
 
@@ -614,7 +624,7 @@ public sealed class BraceWithTheHammer : HammerCard
             static context => ResolveBlock(PreviewCharge(context), context.IsUpgraded),
             baseValue: BaseBlock),
         new IntVar("NormalBlock", BaseBlock),
-        new IntVar("ChargedBlock", BaseBlock * 2)
+        new IntVar("ChargedBlock", BaseChargedBlock)
     ];
 
     public BraceWithTheHammer()
@@ -630,13 +640,15 @@ public sealed class BraceWithTheHammer : HammerCard
     protected override void OnUpgrade()
     {
         DynamicVars["NormalBlock"].UpgradeValueBy(3);
-        DynamicVars["ChargedBlock"].UpgradeValueBy(6);
+        DynamicVars["ChargedBlock"].UpgradeValueBy(4);
     }
 
     internal static int ResolveBlock(int charge, bool upgraded)
     {
-        var block = upgraded ? UpgradedBlock : BaseBlock;
-        return charge >= 2 ? block * 2 : block;
+        if (charge >= 2)
+            return upgraded ? UpgradedChargedBlock : BaseChargedBlock;
+
+        return upgraded ? UpgradedBlock : BaseBlock;
     }
 }
 
@@ -705,14 +717,14 @@ public sealed class SwingAtEveryOpening : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class DashJuice : HammerCard
+public sealed class MasterfulPositioning : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new BlockVar(3, MegaCrit.Sts2.Core.ValueProps.ValueProp.Unpowered)
     ];
 
-    public DashJuice()
+    public MasterfulPositioning()
         : base(1, CardType.Power, CardRarity.Uncommon, TargetType.Self)
     {
     }

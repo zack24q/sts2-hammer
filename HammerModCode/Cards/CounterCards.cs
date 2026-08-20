@@ -208,17 +208,16 @@ public sealed class LegSweepHammer : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class DeepBreath : HammerCard
+public sealed class FightingSpirit : HammerCard
 {
     protected override bool ShouldGlowGoldInternal => AnyHittableEnemyIntendsToAttack();
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new EnergyVar("Energy", 1),
         new EnergyVar("AttackEnergy", 2)
     ];
 
-    public DeepBreath()
+    public FightingSpirit()
         : base(0, CardType.Skill, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
     }
@@ -226,11 +225,12 @@ public sealed class DeepBreath : HammerCard
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
-        await PlayerCmd.GainEnergy(
-            IntendsToAttack(cardPlay.Target)
-                ? DynamicVars["AttackEnergy"].IntValue
-                : DynamicVars["Energy"].IntValue,
-            Owner);
+        if (IntendsToAttack(cardPlay.Target))
+        {
+            await PlayerCmd.GainEnergy(
+                DynamicVars["AttackEnergy"].IntValue,
+                Owner);
+        }
     }
 
     protected override void OnUpgrade()
@@ -240,7 +240,7 @@ public sealed class DeepBreath : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class UnloadingStance : HammerCard
+public sealed class StaminaDrainingRoar : HammerCard
 {
     public override bool GainsBlock => true;
 
@@ -252,7 +252,7 @@ public sealed class UnloadingStance : HammerCard
         new IntVar("StrengthLoss", 3)
     ];
 
-    public UnloadingStance()
+    public StaminaDrainingRoar()
         : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
     {
     }
@@ -316,7 +316,7 @@ public sealed class WeaveAndBonk : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class ChargeStep : HammerCard
+public sealed class BorrowedMomentum : HammerCard
 {
     public override bool GainsBlock => true;
 
@@ -328,7 +328,7 @@ public sealed class ChargeStep : HammerCard
         new IntVar("Charge", 2)
     ];
 
-    public ChargeStep()
+    public BorrowedMomentum()
         : base(1, CardType.Skill, CardRarity.Common, TargetType.AnyEnemy)
     {
     }
@@ -349,7 +349,7 @@ public sealed class ChargeStep : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class HammerForHammer : HammerCard
+public sealed class HammerForAHammer : HammerCard
 {
     protected override bool ShouldGlowGoldInternal => AnyHittableEnemyIntendsToAttack();
 
@@ -358,7 +358,7 @@ public sealed class HammerForHammer : HammerCard
         new DamageVar(8, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move)
     ];
 
-    public HammerForHammer()
+    public HammerForAHammer()
         : base(2, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
     }

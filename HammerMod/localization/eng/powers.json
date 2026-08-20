@@ -8,7 +8,7 @@
   "HAMMER_MOD_POWER_FOCUS_POWER.title": "Focus",
   "HAMMER_MOD_POWER_FOCUS_POWER.description": "At the start of each turn, gain Charge, or draw if Charge is full.",
   "HAMMER_MOD_POWER_ENDLESS_MOMENTUM_POWER.title": "Endless Momentum",
-  "HAMMER_MOD_POWER_ENDLESS_MOMENTUM_POWER.description": "Whenever this triggers, gain {Energy:energyIcons()} and draw [blue]{Cards}[/blue] cards.",
+  "HAMMER_MOD_POWER_ENDLESS_MOMENTUM_POWER.description": "The first time each turn you finish releasing a card with at least 3 Charge, gain {Energy:energyIcons()} and draw [blue]{Cards}[/blue] cards.",
   "HAMMER_MOD_POWER_DASH_JUICE_POWER.title": "Masterful Positioning",
   "HAMMER_MOD_POWER_DASH_JUICE_POWER.description": "At the end of your turn, gain [blue]{Amount}[/blue] Block for each Charge.",
   "HAMMER_MOD_POWER_FELYNE_KO_TECHNIQUE_POWER.title": "KO Technique",

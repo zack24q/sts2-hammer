@@ -4,7 +4,9 @@
 sprite sheet for Hammer character relics and potions. Run
 `tools/process_relic_potion_icons.py` to remove chroma-green regions and build
 the 14 transparent 256x256 runtime PNGs in `images/relics` and
-`images/potions`.
+`images/potions`. The script crops each icon to its visible alpha bounds before
+fitting it to a 252x252 content area, matching the effective scale of official
+relic and potion icons without clipping the artwork.
 
 The source order is left to right, then top to bottom:
 

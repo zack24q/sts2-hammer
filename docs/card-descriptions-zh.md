@@ -72,7 +72,7 @@
 
 ## 8. 浑身蓄力回旋
 
-- ID：`HAMMER_MOD_CARD_SILKBIND_SPINNING_BLUDGEON`
+- ID：`HAMMER_MOD_CARD_MIGHTY_CHARGE_SPIN`
 - 当前描述：
 
 ```text
@@ -101,7 +101,7 @@
 
 ## 11. 蓄力垫步
 
-- ID：`HAMMER_MOD_CARD_KEEPING_SWAY`
+- ID：`HAMMER_MOD_CARD_CHARGE_STEP`
 - 当前描述：
 
 ```text
@@ -131,7 +131,7 @@
 
 ## 14. 乘胜追击
 
-- ID：`HAMMER_MOD_CARD_VICTORY_CHARGE`
+- ID：`HAMMER_MOD_CARD_PRESS_THE_ADVANTAGE`
 - 当前描述：
 
 ```text
@@ -174,7 +174,7 @@
 - 当前描述：
 
 ```text
-每当你以3级以上[gold]蓄力[/gold]等级打出[gold]释放蓄力[/gold]的牌时，获得{Energy:energyIcons()}，抽{Cards:diff()}张牌。
+每回合第一次以3级以上[gold]蓄力[/gold]等级打出[gold]释放蓄力[/gold]的牌时，获得{Energy:energyIcons()}，抽{Cards:diff()}张牌。
 ```
 
 ## 19. 架锤硬扛
@@ -209,7 +209,7 @@
 
 ## 22. 高手立回
 
-- ID：`HAMMER_MOD_CARD_DASH_JUICE`
+- ID：`HAMMER_MOD_CARD_MASTERFUL_POSITIONING`
 - 当前描述：
 
 ```text
@@ -228,7 +228,7 @@
 
 ## 24. 浑身蓄力升龙
 
-- ID：`HAMMER_MOD_CARD_CHARGED_UPSWING`
+- ID：`HAMMER_MOD_CARD_MIGHTY_CHARGE_UPPERCUT`
 - 当前描述：
 
 ```text
@@ -259,7 +259,7 @@
 
 ## 27. 山崩地裂
 
-- ID：`HAMMER_MOD_CARD_EARTHSPLITTER_SHOCK`
+- ID：`HAMMER_MOD_CARD_CATACLYSM`
 - 当前描述：
 
 ```text
@@ -330,12 +330,11 @@
 
 ## 34. KO术
 
-- ID：`HAMMER_MOD_CARD_FELYNE_KO_TECHNIQUE`
+- ID：`HAMMER_MOD_CARD_KO_TECHNIQUE`
 - 当前描述：
 
 ```text
-你的攻击牌每实际消耗1{energyPrefix:energyIcons(1)}，额外造成1点[gold]晕眩[/gold]。{IfUpgraded:show:
-额外再造成{BonusStun:diff()}点[gold]晕眩[/gold]。|}
+你的攻击牌额外造成等同于其{IfUpgraded:show:费用+1|费用}的[gold]晕眩[/gold]。
 ```
 
 ## 35. 打桩高手
@@ -437,17 +436,16 @@
 
 ## 45. 斗志激发
 
-- ID：`HAMMER_MOD_CARD_DEEP_BREATH`
+- ID：`HAMMER_MOD_CARD_FIGHTING_SPIRIT`
 - 当前描述：
 
 ```text
-获得{Energy:energyIcons()}。
-如果敌人的意图是攻击，则改为获得{AttackEnergy:energyIcons()}。
+如果敌人的意图是攻击，则获得{AttackEnergy:energyIcons()}。
 ```
 
 ## 46. 灭气怒吼
 
-- ID：`HAMMER_MOD_CARD_UNLOADING_STANCE`
+- ID：`HAMMER_MOD_CARD_STAMINA_DRAINING_ROAR`
 - 当前描述：
 
 ```text
@@ -467,7 +465,7 @@
 
 ## 48. 借力蓄势
 
-- ID：`HAMMER_MOD_CARD_CHARGE_STEP`
+- ID：`HAMMER_MOD_CARD_BORROWED_MOMENTUM`
 - 当前描述：
 
 ```text
@@ -477,7 +475,7 @@
 
 ## 49. 以锤还牙
 
-- ID：`HAMMER_MOD_CARD_HAMMER_FOR_HAMMER`
+- ID：`HAMMER_MOD_CARD_HAMMER_FOR_AHAMMER`
 - 当前描述：
 
 ```text
@@ -528,7 +526,7 @@
 
 ## 54. 锤柄打击
 
-- ID：`HAMMER_MOD_CARD_SWITCH_GRIP_SWING`
+- ID：`HAMMER_MOD_CARD_HAMMER_HANDLE_STRIKE`
 - 当前描述：
 
 ```text
@@ -630,7 +628,7 @@
 
 ## 64. 连续横挥
 
-- ID：`HAMMER_MOD_CARD_CONTINUOUS_SIDE_SWING`
+- ID：`HAMMER_MOD_CARD_CONTINUOUS_SIDE_SWINGS`
 - 当前描述：
 
 ```text
@@ -661,7 +659,7 @@
 
 ## 67. 横扫开路
 
-- ID：`HAMMER_MOD_CARD_SWEEP_THE_PATH`
+- ID：`HAMMER_MOD_CARD_SWEEP_APATH`
 - 当前描述：
 
 ```text
@@ -682,7 +680,7 @@
 
 ## 69. 龙卷风摧毁停车场
 
-- ID：`HAMMER_MOD_CARD_TRUE_SPINNING_IMPACT`
+- ID：`HAMMER_MOD_CARD_TORNADO_DESTROYS_THE_PARKING_LOT`
 - 当前描述：
 
 ```text
@@ -747,7 +745,7 @@
 
 ## 76. 客制吸血
 
-- ID：`HAMMER_MOD_CARD_BLOOD_RITE`
+- ID：`HAMMER_MOD_CARD_CUSTOM_LIFESTEAL`
 - 当前描述：
 
 ```text
@@ -783,16 +781,15 @@
 获得{RegenPower:diff()}点[gold]再生[/gold]。
 ```
 
-## 80. 钝器能手
+## 80. 砥石
 
-- ID：`HAMMER_MOD_CARD_BLUNT_WEAPON_EXPERT`
+- ID：`HAMMER_MOD_CARD_WHETSTONE`
 - 当前描述：
 
 ```text
+选择1张其他[gold]手牌[/gold]，将其[gold]消耗[/gold]。
+抽{Cards:diff()}张牌。
 提升{Charge:diff()}级[gold]蓄力[/gold]。
-获得{Block:diff()}点[gold]格挡[/gold]。
-造成{Damage:diff()}点伤害。
-造成{Stun:diff()}点[gold]晕眩[/gold]。
 ```
 
 ## 81. 灭气重锤

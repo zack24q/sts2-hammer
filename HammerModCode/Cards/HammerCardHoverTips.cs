@@ -71,18 +71,18 @@ internal static class HammerCardHoverTips
     {
         return card switch
         {
-            EarthStrike or ChargedUpswing or ImpactCrater =>
+            EarthStrike or MightyChargeUppercut or ImpactCrater =>
                 HammerCardMechanic.Charge | HammerCardMechanic.Stun,
-            BluntWeaponExpert => HammerCardMechanic.Charge | HammerCardMechanic.Stun,
+            Whetstone => HammerCardMechanic.Charge,
 
             ChargedOverheadSmash or ChargedSideSmash or MightyChargeBonk
-                or SilkbindSpinningBludgeon or MightyChargeRoll or ReadyToCharge
-                or KeepingSway or SteadierWithEverySpin or HammerIai or Focus
-                or BraceWithTheHammer or EmergencyEvade or SwingAtEveryOpening or ChargeStep
+                or MightyChargeSpin or MightyChargeRoll or ReadyToCharge
+                or ChargeStep or SteadierWithEverySpin or HammerIai or Focus
+                or BraceWithTheHammer or EmergencyEvade or SwingAtEveryOpening or BorrowedMomentum
                 or WirebugContinuation or ChargeAsYouStrike or ChargeSwitchCourage =>
                 HammerCardMechanic.Charge,
 
-            DashJuice => HammerCardMechanic.Charge | HammerCardMechanic.Block,
+            MasterfulPositioning => HammerCardMechanic.Charge | HammerCardMechanic.Block,
             AffinitySliding => HammerCardMechanic.Charge | HammerCardMechanic.Strength,
             ChargeSwitchStrength => HammerCardMechanic.Charge | HammerCardMechanic.Strength,
 
@@ -97,11 +97,11 @@ internal static class HammerCardHoverTips
                 | HammerCardMechanic.ChargeRelease
                 | HammerCardMechanic.Replay,
 
-            Upswing or MightyUpswing or GroundShock or EarthsplitterShock
-                or FlashHammer or HeadOverHeels or ConcussionGuard or FelyneKoTechnique
+            Upswing or MightyUpswing or GroundShock or Cataclysm
+                or FlashHammer or HeadOverHeels or ConcussionGuard or KoTechnique
                 or SmashThatHead or Aftershock or ImpactBurst or InvincibleWindFireWheel
-                or TrueSpinningImpact => HammerCardMechanic.Stun,
-            VictoryCharge or HomeRunSwing or BigBangCombo => HammerCardMechanic.Stunned,
+                or TornadoDestroysTheParkingLot => HammerCardMechanic.Stun,
+            PressTheAdvantage or HomeRunSwing or BigBangCombo => HammerCardMechanic.Stunned,
             PileDriver => HammerCardMechanic.Stun | HammerCardMechanic.Stunned,
             FocusBlowEarthquake => HammerCardMechanic.Stun
                 | HammerCardMechanic.Vulnerable,
@@ -112,7 +112,7 @@ internal static class HammerCardHoverTips
                 | HammerCardMechanic.Weak
                 | HammerCardMechanic.Vulnerable,
 
-            FaceOff or UnloadingStance or BreakMomentum or Challenger
+            FaceOff or StaminaDrainingRoar or BreakMomentum or Challenger
                 or DemonPowder => HammerCardMechanic.Strength,
             WarmUpExercise => HammerCardMechanic.Strength | HammerCardMechanic.Dexterity,
             LaunchTeammate => HammerCardMechanic.Strength | HammerCardMechanic.BackOnYourFeet,

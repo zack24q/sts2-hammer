@@ -4,7 +4,7 @@
   "pck_name": "HammerMod",
   "author": "zack",
   "description": "RitsuLib-based minimal playable demo for the Hammer character.",
-  "version": "0.1.77",
+  "version": "0.2.1",
   "has_pck": true,
   "has_dll": true,
   "affects_gameplay": true,

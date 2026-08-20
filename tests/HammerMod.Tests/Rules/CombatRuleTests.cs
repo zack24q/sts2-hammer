@@ -199,18 +199,29 @@ public sealed class CombatRuleTests
 
     [Theory]
     [InlineData(-1, 0, 0)]
-    [InlineData(100, 1, 1)]
-    [InlineData(101, 1, 2)]
-    [InlineData(201, 2, 3)]
-    [InlineData(202, 2, 4)]
-    public void EndlessMomentumTriggersOnEveryQualifyingRelease(
-        int packedAmount,
+    [InlineData(0, 0, 0)]
+    [InlineData(1, 1, 2)]
+    [InlineData(2, 2, 4)]
+    [InlineData(3, 3, 6)]
+    public void EndlessMomentumRewardsScaleWithPowerStacks(
+        int amount,
         int expectedEnergy,
         int expectedCards)
     {
         Assert.Equal(
             (expectedEnergy, expectedCards),
-            EndlessMomentumPower.CalculateRewards(packedAmount));
+            EndlessMomentumPower.CalculateRewards(amount));
+    }
+
+    [Fact]
+    public void EndlessMomentumOnlyStartsOneReleasePerRound()
+    {
+        var power = new EndlessMomentumPower();
+
+        Assert.False(power.TryStartReleaseForRound(-1));
+        Assert.True(power.TryStartReleaseForRound(1));
+        Assert.False(power.TryStartReleaseForRound(1));
+        Assert.True(power.TryStartReleaseForRound(2));
     }
 
     [Theory]

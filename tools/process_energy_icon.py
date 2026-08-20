@@ -6,13 +6,17 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageOps
+from PIL import Image, ImageChops, ImageEnhance, ImageOps
 
 
 CANVAS_SIZE = (256, 256)
 ORB_CONTENT_SIZE = (232, 232)
 TEXT_ICON_SIZE = (24, 24)
 GREEN_EXCESS_THRESHOLD = 28
+THEME_COLOR = (255, 170, 200)
+COLOR_SATURATION = 0.55
+THEME_BLEND = 0.18
+CARD_ICON_Y_OFFSET = 8
 
 
 def resize_rgba(image: Image.Image, size: tuple[int, int]) -> Image.Image:
@@ -58,6 +62,23 @@ def extract_crystal(source: Image.Image) -> Image.Image:
     return canvas
 
 
+def soften_to_theme(crystal: Image.Image) -> Image.Image:
+    """Reduce saturation and pull the gem toward the character's pale pink."""
+    alpha = crystal.getchannel("A")
+    rgb = crystal.convert("RGB")
+    softened = ImageEnhance.Color(rgb).enhance(COLOR_SATURATION)
+    tint = Image.new("RGB", crystal.size, THEME_COLOR)
+    themed = Image.blend(softened, tint, THEME_BLEND).convert("RGBA")
+    themed.putalpha(alpha)
+    return themed
+
+
+def shifted_copy(image: Image.Image, y_offset: int) -> Image.Image:
+    shifted = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    shifted.alpha_composite(image, (0, y_offset))
+    return shifted
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("source", type=Path)
@@ -65,16 +86,17 @@ def main() -> None:
     args = parser.parse_args()
 
     with Image.open(args.source) as source:
-        crystal = extract_crystal(source)
+        crystal = soften_to_theme(extract_crystal(source))
 
     text_icon = resize_rgba(crystal, TEXT_ICON_SIZE)
+    card_icon = shifted_copy(crystal, CARD_ICON_Y_OFFSET)
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     crystal.save(
         args.output_dir / "HammerMod_energy_orb_layer_1.png",
         optimize=True,
     )
-    crystal.save(args.output_dir / "energy_big.png", optimize=True)
+    card_icon.save(args.output_dir / "energy_big.png", optimize=True)
     text_icon.save(args.output_dir / "energy_text.png", optimize=True)
 
 

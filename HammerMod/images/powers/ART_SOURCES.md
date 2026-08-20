@@ -8,7 +8,12 @@ anchored by the source's neon background color, and create the 25 transparent
 removing the natural greens used by leaves, the Wirebug, or the Farcaster. The
 source artwork is not positioned on perfectly even 409.6-pixel rows, so the
 script detects the five artwork row and column centers before making square
-crops; mechanically dividing the canvas would mix parts of rows 4 and 5.
+crops; mechanically dividing the canvas would mix parts of rows 4 and 5. Each
+cleaned icon is then cropped to its visible alpha bounds and fitted to a
+248x248 content area, matching the effective scale of official power icons.
+Every registered power has an explicit runtime icon assignment. Short-lived
+item powers use their matching relic or potion icon, while closely related
+combat powers intentionally share the corresponding status icon.
 
 The source order is left to right, then top to bottom:
 

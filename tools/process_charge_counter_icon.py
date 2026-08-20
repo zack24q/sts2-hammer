@@ -12,8 +12,8 @@ from PIL import Image, ImageChops, ImageFilter, ImageOps
 CANVAS_SIZE = (256, 256)
 CONTENT_SIZE = (200, 208)
 GREEN_EXCESS_THRESHOLD = 28
-GLOW_EXPANSION_SIZE = 13
-GLOW_BLUR_RADIUS = 5
+GLOW_EXPANSION_SIZE = 21
+GLOW_BLUR_RADIUS = 7
 
 
 def resize_rgba(image: Image.Image, size: tuple[int, int]) -> Image.Image:

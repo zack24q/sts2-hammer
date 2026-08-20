@@ -15,7 +15,7 @@ using STS2RitsuLib.Scaffolding.Content;
 namespace HammerMod.Cards;
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class ContinuousSideSwing : HammerCard, ICombatPreviewDescriptionCard
+public sealed class ContinuousSideSwings : HammerCard, ICombatPreviewDescriptionCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -29,7 +29,7 @@ public sealed class ContinuousSideSwing : HammerCard, ICombatPreviewDescriptionC
         new IntVar("BaseHits", 2)
     ];
 
-    public ContinuousSideSwing()
+    public ContinuousSideSwings()
         : base(0, CardType.Attack, CardRarity.Common, TargetType.AnyEnemy)
     {
     }
@@ -131,7 +131,7 @@ public sealed class AffinitySliding : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class SweepThePath : HammerCard
+public sealed class SweepAPath : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -139,7 +139,7 @@ public sealed class SweepThePath : HammerCard
         new CardsVar("Cards", 1)
     ];
 
-    public SweepThePath()
+    public SweepAPath()
         : base(1, CardType.Attack, CardRarity.Common, TargetType.AllEnemies)
     {
     }
@@ -216,7 +216,7 @@ public sealed class InvincibleWindFireWheel : HammerCard, ICombatPreviewDescript
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class TrueSpinningImpact : HammerCard, ICombatPreviewDescriptionCard
+public sealed class TornadoDestroysTheParkingLot : HammerCard, ICombatPreviewDescriptionCard
 {
     protected override bool HasEnergyCostX => true;
 
@@ -236,7 +236,7 @@ public sealed class TrueSpinningImpact : HammerCard, ICombatPreviewDescriptionCa
         new IntVar("StunPerEnergy", 2)
     ];
 
-    public TrueSpinningImpact()
+    public TornadoDestroysTheParkingLot()
         : base(0, CardType.Attack, CardRarity.Rare, TargetType.AllEnemies)
     {
     }
@@ -454,7 +454,7 @@ public sealed class OneMoreBonk : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class BloodRite : HammerCard
+public sealed class CustomLifesteal : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -462,7 +462,7 @@ public sealed class BloodRite : HammerCard
         new IntVar("Healing", 1)
     ];
 
-    public BloodRite()
+    public CustomLifesteal()
         : base(2, CardType.Power, CardRarity.Rare, TargetType.Self)
     {
     }

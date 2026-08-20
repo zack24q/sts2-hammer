@@ -12,6 +12,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageOps
 
 GRID_SIZE = 5
 ICON_SIZE = (256, 256)
+VISIBLE_ICON_SIZE = (248, 248)
 GREEN_EXCESS_THRESHOLD = 28
 FOREGROUND_BAND_MIN_PIXELS = 10
 NEON_GREEN_MINIMUM = 235
@@ -133,6 +134,29 @@ def clear_residual_neon_green(icon: Image.Image) -> Image.Image:
     return result
 
 
+def fit_visible_icon(icon: Image.Image) -> Image.Image:
+    """Crop transparent cell padding and match the official power-icon scale."""
+    bounds = icon.getchannel("A").getbbox()
+    if bounds is None:
+        raise ValueError("A source cell contains no visible icon pixels.")
+
+    cropped = icon.crop(bounds)
+    scale = min(
+        VISIBLE_ICON_SIZE[0] / cropped.width,
+        VISIBLE_ICON_SIZE[1] / cropped.height,
+    )
+    fitted = resize_rgba(
+        cropped,
+        (round(cropped.width * scale), round(cropped.height * scale)),
+    )
+    canvas = Image.new("RGBA", ICON_SIZE, (0, 0, 0, 0))
+    canvas.alpha_composite(
+        fitted,
+        ((ICON_SIZE[0] - fitted.width) // 2, (ICON_SIZE[1] - fitted.height) // 2),
+    )
+    return clear_residual_neon_green(canvas)
+
+
 def remove_green_screen(cell: Image.Image) -> Image.Image:
     """Remove green regions anchored by the source's neon chroma color."""
     source_rgb = cell.convert("RGB")
@@ -194,7 +218,7 @@ def remove_green_screen(cell: Image.Image) -> Image.Image:
 
     icon = source_rgb.convert("RGBA")
     icon.putalpha(alpha)
-    return clear_residual_neon_green(resize_rgba(icon, ICON_SIZE))
+    return fit_visible_icon(clear_residual_neon_green(icon))
 
 
 def recolor_cool_pixels_red(icon: Image.Image) -> Image.Image:
@@ -285,6 +309,15 @@ def validate_icons(icons: list[Image.Image]) -> None:
             raise ValueError(
                 f"{file_name} has non-transparent pixels touching an edge; "
                 "the source crop may include adjacent artwork."
+            )
+        visible_size = (
+            alpha_bounds[2] - alpha_bounds[0],
+            alpha_bounds[3] - alpha_bounds[1],
+        )
+        if max(visible_size) != max(VISIBLE_ICON_SIZE):
+            raise ValueError(
+                f"{file_name} has visible size {visible_size}, expected one "
+                f"dimension to be {max(VISIBLE_ICON_SIZE)} pixels."
             )
         opaque_neon_pixels = sum(
             1

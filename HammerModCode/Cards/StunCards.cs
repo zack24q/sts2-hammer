@@ -1,6 +1,7 @@
 using HammerMod.Characters;
 using HammerMod.Gameplay;
 using HammerMod.Powers;
+using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
@@ -48,7 +49,7 @@ public sealed class Upswing : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class ChargedUpswing : HammerCard, IChargeReleaseCard, ICombatPreviewDescriptionCard
+public sealed class MightyChargeUppercut : HammerCard, IChargeReleaseCard, ICombatPreviewDescriptionCard
 {
     private static readonly int[] BaseStun = [4, 7, 11, 16];
     private static readonly int[] UpgradedStun = [5, 9, 14, 20];
@@ -63,7 +64,7 @@ public sealed class ChargedUpswing : HammerCard, IChargeReleaseCard, ICombatPrev
         .. ChargeTierVars("StunAt", BaseStun)
     ];
 
-    public ChargedUpswing()
+    public MightyChargeUppercut()
         : base(2, CardType.Attack, CardRarity.Uncommon, TargetType.AnyEnemy)
     {
     }
@@ -163,7 +164,7 @@ public sealed class GroundShock : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class EarthsplitterShock : HammerCard
+public sealed class Cataclysm : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -171,7 +172,7 @@ public sealed class EarthsplitterShock : HammerCard
         new IntVar("Stun", 10)
     ];
 
-    public EarthsplitterShock()
+    public Cataclysm()
         : base(3, CardType.Attack, CardRarity.Rare, TargetType.AllEnemies)
     {
     }
@@ -429,17 +430,14 @@ public sealed class ConcussionGuard : HammerCard, ICombatPreviewDescriptionCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class FelyneKoTechnique : HammerCard
+public sealed class KoTechnique : HammerCard
 {
-    public override CardAssetProfile AssetProfile => new(
-        PortraitPath: $"{Entry.ResPath}/images/cards/placeholders/StunTechnique.png");
-
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new IntVar("BonusStun", 0)
     ];
 
-    public FelyneKoTechnique()
+    public KoTechnique()
         : base(1, CardType.Power, CardRarity.Uncommon, TargetType.Self)
     {
     }
@@ -627,43 +625,58 @@ public sealed class ImpactBurst : HammerCard
 }
 
 [RegisterCard(typeof(HammerModCardPool))]
-public sealed class BluntWeaponExpert : HammerCard
+public sealed class Whetstone : HammerCard
 {
-    public override bool GainsBlock => true;
+    protected override bool IsPlayable =>
+        CombatState is not null
+        && Owner.PlayerCombatState?.Hand.Cards.Any(
+            card => !ReferenceEquals(card, this)) == true;
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(6, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
-        new IntVar("Stun", 3),
-        new BlockVar(5, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
+        new CardsVar("Cards", 2),
         new IntVar("Charge", 1)
     ];
 
-    public BluntWeaponExpert()
-        : base(0, CardType.Attack, CardRarity.Rare, TargetType.AnyEnemy)
+    public Whetstone()
+        : base(1, CardType.Skill, CardRarity.Rare, TargetType.Self)
     {
     }
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        ArgumentNullException.ThrowIfNull(cardPlay.Target);
-        await GainCharge(DynamicVars["Charge"].IntValue);
-        await GainBlock(DynamicVars.Block.BaseValue, cardPlay);
-        await Attack(choiceContext, cardPlay.Target, DynamicVars.Damage.BaseValue);
-        await HammerStun.Apply(
+        var hand = Owner.PlayerCombatState!.Hand;
+        if (!hand.Cards.Any(card => !ReferenceEquals(card, this)))
+            return;
+
+        var prefs = new CardSelectorPrefs(
+            CardSelectorPrefs.ExhaustSelectionPrompt,
+            1,
+            1)
+        {
+            Cancelable = false
+        };
+        var selected = (await CardSelectCmd.FromHand(
             choiceContext,
-            this,
-            cardPlay.Target,
-            DynamicVars["Stun"].IntValue,
-            cardPlay);
+            Owner,
+            prefs,
+            card => !ReferenceEquals(card, this),
+            this)).FirstOrDefault();
+        if (selected is null)
+            return;
+
+        await CardCmd.Exhaust(
+            choiceContext,
+            selected,
+            causedByEthereal: false,
+            skipVisuals: false);
+        await CardPileCmd.Draw(choiceContext, DynamicVars["Cards"].IntValue, Owner);
+        await GainCharge(DynamicVars["Charge"].IntValue);
     }
 
     protected override void OnUpgrade()
     {
-        DynamicVars.Damage.UpgradeValueBy(3);
-        DynamicVars["Stun"].UpgradeValueBy(1);
-        DynamicVars.Block.UpgradeValueBy(3);
-        DynamicVars["Charge"].UpgradeValueBy(1);
+        EnergyCost.UpgradeBy(-1);
     }
 }
 
@@ -673,7 +686,7 @@ public sealed class StaminaDrainingHammer : HammerCard
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
         new DamageVar(4, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
-        new IntVar("Stun", 10),
+        new IntVar("Stun", 7),
         new PowerVar<WeakPower>(1),
         new PowerVar<VulnerablePower>(1)
     ];
@@ -687,6 +700,9 @@ public sealed class StaminaDrainingHammer : HammerCard
     {
         ArgumentNullException.ThrowIfNull(cardPlay.Target);
         await Attack(choiceContext, cardPlay.Target, DynamicVars.Damage.BaseValue);
+        if (!cardPlay.Target.IsAlive)
+            return;
+
         await HammerStun.Apply(
             choiceContext,
             this,
@@ -710,7 +726,7 @@ public sealed class StaminaDrainingHammer : HammerCard
     protected override void OnUpgrade()
     {
         DynamicVars.Damage.UpgradeValueBy(2);
-        DynamicVars["Stun"].UpgradeValueBy(5);
+        DynamicVars["Stun"].UpgradeValueBy(3);
         DynamicVars.Weak.UpgradeValueBy(1);
         DynamicVars.Vulnerable.UpgradeValueBy(1);
     }

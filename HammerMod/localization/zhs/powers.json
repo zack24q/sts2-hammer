@@ -8,7 +8,7 @@
   "HAMMER_MOD_POWER_FOCUS_POWER.title": "集中",
   "HAMMER_MOD_POWER_FOCUS_POWER.description": "在你的回合开始时获得蓄力，已满时改为抽牌。",
   "HAMMER_MOD_POWER_ENDLESS_MOMENTUM_POWER.title": "余势不绝",
-  "HAMMER_MOD_POWER_ENDLESS_MOMENTUM_POWER.description": "每次触发时，获得{Energy:energyIcons()}，并抽[blue]{Cards}[/blue]张牌。",
+  "HAMMER_MOD_POWER_ENDLESS_MOMENTUM_POWER.description": "每回合第一次以3级以上蓄力完成释放时，获得{Energy:energyIcons()}，并抽[blue]{Cards}[/blue]张牌。",
   "HAMMER_MOD_POWER_DASH_JUICE_POWER.title": "高手立回",
   "HAMMER_MOD_POWER_DASH_JUICE_POWER.description": "回合结束时，根据蓄力等级，每级获得[blue]{Amount}[/blue]点格挡。",
   "HAMMER_MOD_POWER_FELYNE_KO_TECHNIQUE_POWER.title": "KO术",

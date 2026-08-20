@@ -114,9 +114,11 @@ public sealed class FocusPower : HammerAbilityPower
 [RegisterPower]
 public sealed class EndlessMomentumPower : HammerAbilityPower
 {
+    private int _lastTriggeredRound = -1;
+
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
-    public override int DisplayAmount => Math.Max(1, Amount / 100);
+    public override int DisplayAmount => Math.Max(1, Amount);
 
     public override LocString Description
     {
@@ -135,7 +137,9 @@ public sealed class EndlessMomentumPower : HammerAbilityPower
         CardModel source)
     {
         var (energy, cards) = CalculateRewards(Amount);
-        if (energy <= 0 || cards <= 0)
+        if (energy <= 0
+            || cards <= 0
+            || !TryStartReleaseForRound(CombatState.RoundNumber))
             return;
 
         Flash();
@@ -143,12 +147,19 @@ public sealed class EndlessMomentumPower : HammerAbilityPower
         await CardPileCmd.Draw(choiceContext, cards, Owner.Player!);
     }
 
-    internal static (int Energy, int Cards) CalculateRewards(int packedAmount)
+    internal bool TryStartReleaseForRound(int round)
     {
-        var safeAmount = Math.Max(0, packedAmount);
-        var copies = safeAmount / 100;
-        var upgradedCopies = Math.Min(copies, safeAmount % 100);
-        return (copies, copies + upgradedCopies);
+        if (round < 0 || _lastTriggeredRound == round)
+            return false;
+
+        _lastTriggeredRound = round;
+        return true;
+    }
+
+    internal static (int Energy, int Cards) CalculateRewards(int amount)
+    {
+        var stacks = Math.Max(0, amount);
+        return (stacks, stacks * 2);
     }
 }
 
@@ -496,6 +507,6 @@ public sealed class AftershockPower : HammerAbilityPower
 [RegisterPower]
 public sealed class UnloadingStancePower : HammerTemporaryStrengthPower
 {
-    public override AbstractModel OriginModel => ModelDb.Card<UnloadingStance>();
+    public override AbstractModel OriginModel => ModelDb.Card<StaminaDrainingRoar>();
     protected override bool IsPositive => false;
 }
