@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Texture2D" path="res://HammerMod/images/characters/HammerMod_character_select.png" id="1_character"]
+[ext_resource type="Texture2D" path="res://HammerMod/images/characters/HammerMod_character_idle.png" id="1_character"]
 
 [node name="HammerModCharacterRestSite" type="Node2D"]
 

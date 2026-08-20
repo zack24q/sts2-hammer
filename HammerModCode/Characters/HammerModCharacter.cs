@@ -21,8 +21,14 @@ public sealed class HammerModCharacter : ModCharacterTemplate<HammerModCardPool,
     private const string RestSiteScenePath = $"{SceneRoot}/HammerMod_rest_site.tscn";
     private const string CharacterSelectBgScenePath = $"{SceneRoot}/HammerMod_character_select_bg.tscn";
     private const string HammerAvatarPath = $"{Entry.ResPath}/images/powers/hammer_power.svg";
+    private const string CharacterIconTexturePath =
+        $"{Entry.ResPath}/images/characters/HammerMod_character_icon.png";
+    private const string CharacterIconOutlineTexturePath =
+        $"{Entry.ResPath}/images/characters/HammerMod_character_icon_outline.png";
+    private const string MapMarkerTexturePath =
+        $"{Entry.ResPath}/images/characters/HammerMod_map_marker.png";
     private const string CombatIdleTexturePath =
-        $"{Entry.ResPath}/images/characters/HammerMod_character_idle.png";
+        $"{Entry.ResPath}/images/characters/HammerMod_character_combat_idle.png";
     private const string CombatDefeatedTexturePath =
         $"{Entry.ResPath}/images/characters/HammerMod_character_defeated.png";
 
@@ -47,12 +53,12 @@ public sealed class HammerModCharacter : ModCharacterTemplate<HammerModCardPool,
             MerchantAnimPath: MerchantScenePath,
             RestSiteAnimPath: RestSiteScenePath),
         Ui: new CharacterUiAssetSet(
-            IconTexturePath: HammerAvatarPath,
-            IconOutlineTexturePath: HammerAvatarPath,
+            IconTexturePath: CharacterIconTexturePath,
+            IconOutlineTexturePath: CharacterIconOutlineTexturePath,
             CharacterSelectBgPath: CharacterSelectBgScenePath,
             CharacterSelectIconPath: HammerAvatarPath,
             CharacterSelectLockedIconPath: HammerAvatarPath,
-            MapMarkerPath: HammerAvatarPath));
+            MapMarkerPath: MapMarkerTexturePath));
 
     public override string? PlaceholderCharacterId => "ironclad";
     public override string? CustomCastSfx => "event:/sfx/characters/ironclad/ironclad_cast";

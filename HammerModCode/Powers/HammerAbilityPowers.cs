@@ -21,7 +21,8 @@ namespace HammerMod.Powers;
 
 public abstract class HammerAbilityPower : ModPowerTemplate
 {
-    public override PowerAssetProfile AssetProfile => HammerPowerAssets.Profile;
+    public override PowerAssetProfile AssetProfile =>
+        HammerPowerAssets.ProfileFor(GetType());
 }
 
 [RegisterPower]

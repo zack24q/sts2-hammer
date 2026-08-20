@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="Texture2D" path="res://HammerMod/images/characters/HammerMod_character_select.png" id="1_character"]
-[ext_resource type="Texture2D" path="res://HammerMod/images/powers/hammer_power.svg" id="2_icon"]
+[ext_resource type="Texture2D" path="res://HammerMod/images/characters/HammerMod_character_select_background.png" id="1_background"]
+[ext_resource type="Texture2D" path="res://HammerMod/images/characters/HammerMod_character_idle.png" id="2_character"]
 
 [node name="HammerModCharacterSelectBg" type="Control"]
 layout_mode = 3
@@ -32,14 +32,25 @@ offset_bottom = 478.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ColorRect" type="ColorRect" parent="Background"]
+[node name="Backdrop" type="TextureRect" parent="Background"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.20, 0.04, 0.10, 1)
+texture = ExtResource("1_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Overlay" type="ColorRect" parent="Background"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.025, 0.035, 0.07, 0.16)
 
 [node name="Character" type="TextureRect" parent="Background"]
 layout_mode = 1
@@ -48,23 +59,12 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -620.0
-offset_top = -360.0
-offset_right = -92.0
-offset_bottom = 420.0
+offset_left = -940.0
+offset_top = -420.0
+offset_right = -40.0
+offset_bottom = 480.0
 grow_horizontal = 0
 grow_vertical = 2
-texture = ExtResource("1_character")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Icon" type="TextureRect" parent="Background"]
-layout_mode = 1
-anchors_preset = 0
-offset_left = 120.0
-offset_top = 120.0
-offset_right = 288.0
-offset_bottom = 288.0
-texture = ExtResource("2_icon")
+texture = ExtResource("2_character")
 expand_mode = 1
 stretch_mode = 5

@@ -8,7 +8,8 @@ public abstract class HammerTemporaryStrengthPower :
     TemporaryStrengthPower,
     IModPowerAssetOverrides
 {
-    public PowerAssetProfile AssetProfile => HammerPowerAssets.Profile;
+    public PowerAssetProfile AssetProfile =>
+        HammerPowerAssets.ProfileFor(GetType());
     public string? CustomIconPath => AssetProfile.IconPath;
     public string? CustomBigIconPath => AssetProfile.BigIconPath;
 }

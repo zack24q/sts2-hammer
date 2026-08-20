@@ -7,7 +7,8 @@ namespace HammerMod.Powers;
 [RegisterPower]
 public sealed class HammerStunResistancePower : ModPowerTemplate
 {
-    public override PowerAssetProfile AssetProfile => HammerPowerAssets.Profile;
+    public override PowerAssetProfile AssetProfile =>
+        HammerPowerAssets.ProfileFor(GetType());
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
     public override bool ShouldPlayVfx => false;

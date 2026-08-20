@@ -72,11 +72,6 @@ public sealed class MasterHammerTechniqueCharm : HammerRelic
 
     public override RelicRarity Rarity => RelicRarity.Starter;
 
-    public override RelicAssetProfile AssetProfile => new(
-        IconPath: $"{Entry.ResPath}/images/relics/MasterHammerTechniqueCharm.svg",
-        IconOutlinePath: $"{Entry.ResPath}/images/relics/MasterHammerTechniqueCharm.svg",
-        BigIconPath: $"{Entry.ResPath}/images/relics/MasterHammerTechniqueCharm.svg");
-
     public override async Task AfterPlayerTurnStartEarly(
         PlayerChoiceContext choiceContext,
         Player player)
@@ -100,11 +95,6 @@ public sealed class FrostcraftCharm : HammerRelic
     private bool _isCharged;
 
     public override RelicRarity Rarity => RelicRarity.Uncommon;
-
-    public override RelicAssetProfile AssetProfile => new(
-        IconPath: $"{Entry.ResPath}/images/relics/KoCharm.png",
-        IconOutlinePath: $"{Entry.ResPath}/images/relics/KoCharm.png",
-        BigIconPath: $"{Entry.ResPath}/images/relics/KoCharm.png");
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -368,11 +358,6 @@ public sealed class EvasionMantle : HammerRelic
     internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Strength;
 
     public override RelicRarity Rarity => RelicRarity.Shop;
-
-    public override RelicAssetProfile AssetProfile => new(
-        IconPath: $"{Entry.ResPath}/images/relics/AdrenalineCharm.png",
-        IconOutlinePath: $"{Entry.ResPath}/images/relics/AdrenalineCharm.png",
-        BigIconPath: $"{Entry.ResPath}/images/relics/AdrenalineCharm.png");
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [

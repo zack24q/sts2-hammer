@@ -6,8 +6,38 @@ namespace HammerMod.Tests.Powers;
 
 public sealed class PowerAssetContractTests
 {
-    private const string SharedIconPath =
-        $"{Entry.ResPath}/images/powers/hammer_power.svg";
+    private const string DefaultIconFileName = "hammer_power.svg";
+
+    private static readonly IReadOnlyDictionary<Type, string>
+        AssignedIconFileNames = new Dictionary<Type, string>
+        {
+            [typeof(HammerStunPower)] = "HammerStun.png",
+            [typeof(AftershockPower)] = "Aftershock.png",
+            [typeof(FocusPower)] = "Focus.png",
+            [typeof(EndlessMomentumPower)] = "EndlessMomentum.png",
+            [typeof(DashJuicePower)] = "DashJuice.png",
+            [typeof(FelyneKoTechniquePower)] = "FelyneKoTechnique.png",
+            [typeof(PileDriverPower)] = "PileDriver.png",
+            [typeof(ConcussionResonancePower)] = "ConcussionResonance.png",
+            [typeof(ImpactBurstPower)] = "ImpactBurst.png",
+            [typeof(CounterFormPower)] = "CounterForm.png",
+            [typeof(ChallengerPower)] = "Challenger.png",
+            [typeof(ChallengerStrengthPower)] = "Challenger.png",
+            [typeof(WirebugContinuationPower)] = "WirebugContinuation.png",
+            [typeof(WeaknessExploitPower)] = "WeaknessExploit.png",
+            [typeof(HarderWithEverySmashPower)] = "HarderWithEverySmash.png",
+            [typeof(PartbreakerPower)] = "Partbreaker.png",
+            [typeof(OneMoreBonkPower)] = "OneMoreBonk.png",
+            [typeof(BloodRitePower)] = "BloodRite.png",
+            [typeof(ChargeSwitchStrengthPower)] = "ChargeSwitchStrength.png",
+            [typeof(LuckyVoucherPower)] = "LuckyVoucher.png",
+            [typeof(OverchargePower)] = "Overcharge.png",
+            [typeof(FaceOffPower)] = "FaceOff.png",
+            [typeof(WirefallPower)] = "Wirefall.png",
+            [typeof(FarcasterPower)] = "Farcaster.png",
+            [typeof(FreeMealPower)] = "FreeMeal.png",
+            [typeof(ChargeSwitchCouragePower)] = "ChargeSwitchCourage.png",
+        };
 
     private static readonly Type[] ConcretePowerTypes = typeof(HammerAbilityPower).Assembly
         .GetTypes()
@@ -23,26 +53,43 @@ public sealed class PowerAssetContractTests
         .ToArray();
 
     [Fact]
-    public void EveryRegisteredPowerUsesThePackagedSharedIcon()
+    public void EveryRegisteredPowerUsesItsPackagedAssignedIcon()
     {
         Assert.Equal(33, RegisteredPowerTypes.Length);
         Assert.Equal(ConcretePowerTypes, RegisteredPowerTypes);
-        Assert.True(File.Exists(Path.Combine(
-            FindRepositoryRoot(),
-            "HammerMod",
-            "images",
-            "powers",
-            "hammer_power.svg")));
+        Assert.Equal(26, AssignedIconFileNames.Count);
+        Assert.Equal(25, AssignedIconFileNames.Values.Distinct().Count());
+        Assert.Equal(
+            AssignedIconFileNames[typeof(ChallengerPower)],
+            AssignedIconFileNames[typeof(ChallengerStrengthPower)]);
+        Assert.NotEqual(
+            AssignedIconFileNames[typeof(ChargeSwitchStrengthPower)],
+            AssignedIconFileNames[typeof(ChargeSwitchCouragePower)]);
+
+        var repositoryRoot = FindRepositoryRoot();
 
         foreach (var powerType in RegisteredPowerTypes)
         {
+            var fileName = AssignedIconFileNames.GetValueOrDefault(
+                powerType,
+                DefaultIconFileName);
+            var expectedPath = $"{Entry.ResPath}/images/powers/{fileName}";
+            Assert.True(
+                File.Exists(Path.Combine(
+                    repositoryRoot,
+                    "HammerMod",
+                    "images",
+                    "powers",
+                    fileName)),
+                $"{powerType.Name} expects missing icon {fileName}.");
+
             var power = Assert.IsAssignableFrom<PowerModel>(
                 Activator.CreateInstance(powerType));
             var assetOverrides = Assert.IsAssignableFrom<IModPowerAssetOverrides>(power);
-            Assert.Equal(SharedIconPath, assetOverrides.AssetProfile.IconPath);
-            Assert.Equal(SharedIconPath, assetOverrides.AssetProfile.BigIconPath);
-            Assert.Equal(SharedIconPath, assetOverrides.CustomIconPath);
-            Assert.Equal(SharedIconPath, assetOverrides.CustomBigIconPath);
+            Assert.Equal(expectedPath, assetOverrides.AssetProfile.IconPath);
+            Assert.Equal(expectedPath, assetOverrides.AssetProfile.BigIconPath);
+            Assert.Equal(expectedPath, assetOverrides.CustomIconPath);
+            Assert.Equal(expectedPath, assetOverrides.CustomBigIconPath);
         }
     }
 

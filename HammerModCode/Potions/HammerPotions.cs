@@ -19,15 +19,16 @@ namespace HammerMod.Potions;
 
 public abstract class HammerPotion : ModPotionTemplate
 {
-    private string PlaceholderImagePath => $"{Entry.ResPath}/images/potions/{GetType().Name}.png";
+    private string AssetImagePath =>
+        $"{Entry.ResPath}/images/potions/{GetType().Name}.png";
 
     internal virtual HammerCardMechanic HoverTipMechanics => HammerCardMechanic.None;
 
     public override PotionUsage Usage => PotionUsage.CombatOnly;
 
     public override PotionAssetProfile AssetProfile => new(
-        ImagePath: PlaceholderImagePath,
-        OutlinePath: PlaceholderImagePath);
+        ImagePath: AssetImagePath,
+        OutlinePath: AssetImagePath);
 
     protected override IEnumerable<IHoverTip> AdditionalHoverTips =>
         HammerCardHoverTips.Create(HoverTipMechanics);
@@ -151,10 +152,6 @@ public sealed class Pitfall : HammerPotion
 
     public override PotionRarity Rarity => PotionRarity.Rare;
     public override TargetType TargetType => TargetType.AnyEnemy;
-
-    public override PotionAssetProfile AssetProfile => new(
-        ImagePath: $"{Entry.ResPath}/images/potions/FlashBomb.png",
-        OutlinePath: $"{Entry.ResPath}/images/potions/FlashBomb.png");
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [

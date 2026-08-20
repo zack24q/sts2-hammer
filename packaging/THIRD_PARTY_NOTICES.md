@@ -1,14 +1,25 @@
 # Third-Party Notices
 
-## Cartoon Dwarf Warrior
+## Hammer Hunter Character Artwork
 
-The Hammer Hunter placeholder character art is adapted from "Cartoon Dwarf
-Warrior" by tzunghaor:
+The non-combat standing, combat-ready, and defeated Hammer Hunter portraits are
+derived from green-screen artwork supplied by the user. No redistribution
+license or original source was provided. The processed images are included for
+local testing only until their distribution rights are confirmed.
 
-https://www.clipsafari.com/clips/o158563-cartoon-dwarf-warrior
+## Character-Select Dragon Artwork
 
-The source artwork is dedicated to the public domain under CC0 1.0. No
-attribution is required; the source is recorded here for provenance.
+The character-select background is derived from artwork supplied by the user.
+No redistribution license or original source was provided. The processed image
+is included for local testing only until its distribution rights are confirmed.
+
+## User-Supplied Interface And Item Artwork
+
+The top-panel portrait, energy crystal, charge-counter hammer, status icons,
+relic icons, and potion icons are derived from artwork supplied by the user. No
+redistribution license or original source was provided. The processed images
+are included for local testing only until their distribution rights are
+confirmed.
 
 ## STS2-RitsuLib
 
