@@ -15,11 +15,12 @@ is included for local testing only until its distribution rights are confirmed.
 
 ## User-Supplied Interface And Item Artwork
 
-The top-panel portrait, energy crystal, charge-counter hammer, status icons,
-relic icons, and potion icons are derived from artwork supplied by the user. No
-redistribution license or original source was provided. The processed images
-are included for local testing only until their distribution rights are
-confirmed.
+The top-panel portrait, energy gemstone, charge-counter hammer, status icons,
+relic icons, and potion icons are derived from artwork supplied by the user.
+Some assets include direct download links in their source notes, but no
+redistribution license or original authorship provenance was provided. The
+processed images are included for local testing only until their distribution
+rights are confirmed.
 
 ## STS2-RitsuLib
 

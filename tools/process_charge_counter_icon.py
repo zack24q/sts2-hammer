@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-"""Build the transparent HammerMod charge icon from a green-screen source."""
+"""Build the HammerMod charge icon and its tintable edge glow."""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageOps
+from PIL import Image, ImageChops, ImageFilter, ImageOps
 
 
 CANVAS_SIZE = (256, 256)
-CONTENT_SIZE = (240, 240)
+CONTENT_SIZE = (200, 208)
 GREEN_EXCESS_THRESHOLD = 28
+GLOW_EXPANSION_SIZE = 13
+GLOW_BLUR_RADIUS = 5
 
 
 def resize_rgba(image: Image.Image, size: tuple[int, int]) -> Image.Image:
@@ -56,17 +58,33 @@ def extract_hammer(source: Image.Image) -> Image.Image:
     return canvas
 
 
+def create_edge_glow(hammer: Image.Image) -> Image.Image:
+    """Create a white silhouette glow that can be tinted by the combat UI."""
+    alpha = hammer.getchannel("A")
+    expanded = alpha.filter(ImageFilter.MaxFilter(GLOW_EXPANSION_SIZE))
+    softened = expanded.filter(ImageFilter.GaussianBlur(GLOW_BLUR_RADIUS))
+    glow_alpha = ImageChops.lighter(softened, alpha)
+    glow = Image.new("RGBA", CANVAS_SIZE, (255, 255, 255, 0))
+    glow.putalpha(glow_alpha)
+    return glow
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--glow-output", type=Path)
     args = parser.parse_args()
 
     with Image.open(args.source) as source:
         hammer = extract_hammer(source)
+    glow = create_edge_glow(hammer)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     hammer.save(args.output, optimize=True)
+    glow_output = args.glow_output or args.output.with_name("charge_counter_glow.png")
+    glow_output.parent.mkdir(parents=True, exist_ok=True)
+    glow.save(glow_output, optimize=True)
 
 
 if __name__ == "__main__":

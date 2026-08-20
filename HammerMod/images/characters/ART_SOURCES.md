@@ -35,20 +35,34 @@ shoulders portrait used by the top character panel. The deterministic
 the transparent 88x88 `HammerMod_character_icon.png` plus the expanded white
 silhouette required by `HammerMod_character_icon_outline.png`.
 
-`sources/HammerMod_energy_icon_source.png` is the user-supplied pink crystal
-used for the character's energy theme. `tools/process_energy_icon.py` removes
-the green screen and generates the static 256x256 combat-counter crystal, a
-separate centered hammer spinner, the 256x256 large energy icon, and the 24x24
-inline-text energy icon. The spinner occupies the native `RotationLayers`
-container so it uses the same runtime rotation behavior as the Ironclad.
+`sources/HammerMod_energy_icon_source.png` is the user-supplied pink heart
+gemstone used for the character's energy theme. `tools/process_energy_icon.py`
+removes the green screen and generates the static 256x256 combat-counter
+gemstone, the 256x256 large energy icon, and the 24x24 inline-text energy icon.
+The scene retains the native `RotationLayers` container required by the energy
+counter contract, but the retired hammer spinner and unused legacy energy
+layers are removed from the exported resources.
 
-`sources/HammerMod_charge_counter_source.png` is the user-supplied pink
-bone-hammer artwork used for the charge-level display. The deterministic
+The current energy source was downloaded from
+`https://mdn.alipayobjects.com/huamei_vswgvo/afts/img/A*zfmrT5gfIBcAAAAAgCAAAAgAesV6AQ/original`
+and has SHA-256
+`c79e174dd9bcd3b3fa8bf76f4152c535f5aca63bfe1bd156565a12b65c9d223e`.
+
+`sources/HammerMod_charge_counter_source.png` is the user-supplied monochrome
+hammer artwork used for the charge-level display. The deterministic
 `tools/process_charge_counter_icon.py` script removes the green screen and fits
-the complete hammer into the transparent 256x256 `charge_counter.png`. In
-combat, the counter copies the Regent star counter's 128x128 base size, 0.8
-scale, and `(-36, 40)` offset relative to the energy HUD so it overlaps the
-energy icon's lower-left corner.
+the complete hammer into the transparent 256x256 `charge_counter.png`; it also
+generates `charge_counter_glow.png`, a white outer-edge glow that the combat UI
+tints red, orange, or white for charge levels 1, 2, or 3. Level 0 hides the glow,
+while levels 1, 2, and 3 scale it to 1.00x, 1.03x, and 1.06x around the hammer's
+fixed center. The numeric charge amount is positioned below the hammer. The
+counter keeps the Regent-style 128x128 base size, 0.8 scale, and `(-36, 40)`
+offset relative to the energy HUD.
+
+The current charge-counter source was downloaded from
+`https://mdn.alipayobjects.com/huamei_vswgvo/afts/img/A*Xk1rT4cDxokAAAAAgCAAAAgAesV6AQ/original`
+and has SHA-256
+`5db62ac94f254414d5ea27a364fd3a46dc88d84aca757b54f609cba542f695b4`.
 
 The legacy selection PNGs, retired character-select SVGs, and dwarf character
 PNGs are development artifacts and are no longer referenced by runtime idle

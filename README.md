@@ -43,7 +43,7 @@ HammerMod/      Godot 场景、运行时图片和中英文本地化
 
 - `ModTypeDiscoveryHub.RegisterModAssembly` 发现带注册注解的内容。
 - `ModCharacterTemplate` 和 additive starter attributes 组装角色及初始内容。
-- `SecondaryResourceDefinition`、`SecondaryResourceCmd` 和自定义的辉星式单数字计数器管理蓄力。
+- `SecondaryResourceDefinition`、`SecondaryResourceCmd` 和自定义的大锤计数器管理蓄力；数字位于图标下方，1/2/3级分别显示逐级扩大的红、橙、白色边缘光。
 - `HookedSingletonModel` 监听受伤与战后奖励结果；`满足感`仅在官方药水移除入口使用一个前置 Harmony 补丁保留下一瓶药水，其余药水流程保持原样。
 - `CreatureCmd.Stun` 复用游戏原生击晕；相关卡牌悬停说明统一使用 `StaticHoverTip.Stun` 及其原生图标，不再注册独立的 `STUN` 关键字。
 
@@ -99,7 +99,7 @@ SlayTheSpire2.app/Contents/MacOS/mods/
 ## 本轮验收
 
 1. 角色选择中能看到并选择`大锤猎人`。
-2. 进入战斗后，能量球左下方的蓄力 UI 显示 1；蓄力变化时数字在 0 至 3 之间同步刷新。
+2. 进入战斗后，心形宝石能量图标左下方的蓄力 UI 显示 1；数字位于大锤下方，0级无光，1/2/3级分别显示逐级扩大的红、橙、白色边缘光。
 3. `蓄力`使数值最多增加到 3，且升级后费用为 0。
 4. `大地一击`随蓄力实时改变显示与伤害，结算后蓄力归零。
 5. 敌人攻击造成的未格挡伤害达到5/10/15点时，分别失去1/2/3级蓄力；低于5点时保留蓄力。

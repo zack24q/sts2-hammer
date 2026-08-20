@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-"""Build the HammerMod energy icons from a green-screen crystal source."""
+"""Build the HammerMod energy icons from a green-screen gemstone source."""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw, ImageOps
+from PIL import Image, ImageChops, ImageOps
 
 
 CANVAS_SIZE = (256, 256)
 ORB_CONTENT_SIZE = (232, 232)
 TEXT_ICON_SIZE = (24, 24)
 GREEN_EXCESS_THRESHOLD = 28
-SPINNER_RENDER_SCALE = 4
 
 
 def resize_rgba(image: Image.Image, size: tuple[int, int]) -> Image.Image:
@@ -59,61 +58,6 @@ def extract_crystal(source: Image.Image) -> Image.Image:
     return canvas
 
 
-def create_hammer_spinner() -> Image.Image:
-    scale = SPINNER_RENDER_SCALE
-    canvas_size = tuple(dimension * scale for dimension in CANVAS_SIZE)
-    spinner = Image.new("RGBA", canvas_size, (0, 0, 0, 0))
-    draw = ImageDraw.Draw(spinner)
-
-    def point(x: int, y: int) -> tuple[int, int]:
-        return x * scale, y * scale
-
-    outline = (53, 21, 34, 255)
-    head = (126, 49, 80, 238)
-    handle = (208, 54, 127, 238)
-    highlight = (255, 230, 241, 220)
-    outline_width = 7 * scale
-
-    handle_points = [
-        point(116, 108),
-        point(140, 108),
-        point(140, 177),
-        point(128, 191),
-        point(116, 177),
-    ]
-    draw.polygon(
-        handle_points,
-        fill=handle,
-        outline=outline,
-        width=outline_width,
-    )
-    draw.rounded_rectangle(
-        (*point(66, 82), *point(190, 119)),
-        radius=10 * scale,
-        fill=head,
-        outline=outline,
-        width=outline_width,
-    )
-    draw.line(
-        (*point(78, 91), *point(177, 91)),
-        fill=highlight,
-        width=4 * scale,
-    )
-    for y_position in (128, 141, 154, 167):
-        draw.line(
-            (*point(121, y_position), *point(135, y_position)),
-            fill=highlight,
-            width=3 * scale,
-        )
-
-    spinner = spinner.rotate(
-        -38,
-        resample=Image.Resampling.BICUBIC,
-        center=point(128, 128),
-    )
-    return resize_rgba(spinner, CANVAS_SIZE)
-
-
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("source", type=Path)
@@ -123,16 +67,11 @@ def main() -> None:
     with Image.open(args.source) as source:
         crystal = extract_crystal(source)
 
-    spinner = create_hammer_spinner()
     text_icon = resize_rgba(crystal, TEXT_ICON_SIZE)
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     crystal.save(
         args.output_dir / "HammerMod_energy_orb_layer_1.png",
-        optimize=True,
-    )
-    spinner.save(
-        args.output_dir / "HammerMod_energy_orb_layer_2.png",
         optimize=True,
     )
     crystal.save(args.output_dir / "energy_big.png", optimize=True)

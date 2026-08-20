@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Texture2D" path="res://HammerMod/images/characters/HammerMod_energy_orb_layer_1.png" id="1_layer1"]
-[ext_resource type="Texture2D" path="res://HammerMod/images/characters/HammerMod_energy_orb_layer_2.png" id="2_layer2"]
 
 [node name="TemplateEnergyCounter" type="Control"]
 layout_mode = 3
@@ -46,19 +45,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-
-[node name="Layer2" type="TextureRect" parent="Layers/RotationLayers"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-pivot_offset = Vector2(64, 64)
-mouse_filter = 2
-texture = ExtResource("2_layer2")
-expand_mode = 1
-stretch_mode = 5
 
 [node name="EnergyVfxFront" type="Node2D" parent="."]
 unique_name_in_owner = true
