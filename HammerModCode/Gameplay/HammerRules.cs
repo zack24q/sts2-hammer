@@ -19,6 +19,8 @@ namespace HammerMod.Gameplay;
 public sealed class HammerRules : HookedSingletonModel,
     ISecondaryResourceHookListener
 {
+    internal const int ChargeLossDamageStep = 3;
+
     private ICombatState? _trackedCombat;
     private readonly HashSet<Creature> _playersWhoAttackedThisTurn = [];
 
@@ -133,9 +135,11 @@ public sealed class HammerRules : HookedSingletonModel,
 
     internal static int CalculateChargeLoss(int unblockedDamage)
     {
-        if (unblockedDamage < 5)
+        if (unblockedDamage < ChargeLossDamageStep)
             return 0;
 
-        return Math.Min(HammerResources.MaxCharge, unblockedDamage / 5);
+        return Math.Min(
+            HammerResources.MaxCharge,
+            unblockedDamage / ChargeLossDamageStep);
     }
 }

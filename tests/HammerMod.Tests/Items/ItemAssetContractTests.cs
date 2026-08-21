@@ -29,6 +29,12 @@ public sealed class ItemAssetContractTests
     ];
 
     [Fact]
+    public void StarterRelicRefinementGainsTwoChargePerTurn()
+    {
+        Assert.Equal(2, MasterHammerTechniqueCharm.ChargePerTurn);
+    }
+
+    [Fact]
     public void EveryHammerRelicUsesItsPackagedClassNamedPng()
     {
         Assert.Equal(9, RelicTypes.Length);

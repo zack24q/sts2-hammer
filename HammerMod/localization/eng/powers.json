@@ -16,7 +16,7 @@
   "HAMMER_MOD_POWER_PILE_DRIVER_POWER.title": "Pile Driver",
   "HAMMER_MOD_POWER_PILE_DRIVER_POWER.description": "Each stack makes Attacks deal 50% more damage to enemies with Stun, or 100% more damage if they are Stunned.",
   "HAMMER_MOD_POWER_CONCUSSION_RESONANCE_POWER.title": "Concussion Resonance",
-  "HAMMER_MOD_POWER_CONCUSSION_RESONANCE_POWER.description": "Applying Weak or Vulnerable adds [blue]{Amount}[/blue] Stun.",
+  "HAMMER_MOD_POWER_CONCUSSION_RESONANCE_POWER.description": "At the start of each turn, lose [blue]{ChargeLoss}[/blue] Charge and gain {Energy:energyIcons()}.",
   "HAMMER_MOD_POWER_IMPACT_BURST_POWER.title": "Impact Burst",
   "HAMMER_MOD_POWER_IMPACT_BURST_POWER.description": "After a multi-hit Attack, inflict additional Stun equal to its hits times [blue]{Amount}[/blue].",
   "HAMMER_MOD_POWER_FACE_OFF_POWER.title": "Face Off",
@@ -53,7 +53,7 @@
   "HAMMER_MOD_POWER_BLOOD_RITE_POWER.title": "Custom Lifesteal",
   "HAMMER_MOD_POWER_BLOOD_RITE_POWER.description": "After each Attack, calculate each enemy separately and heal HP equal to the total HP it lost from that Attack divided by 10, rounded down.",
   "HAMMER_MOD_POWER_CHARGE_SWITCH_STRENGTH_POWER.title": "Charge Switch: Strength",
-  "HAMMER_MOD_POWER_CHARGE_SWITCH_STRENGTH_POWER.description": "Gain Strength equal to your current Charge times [blue]{Amount}[/blue].",
+  "HAMMER_MOD_POWER_CHARGE_SWITCH_STRENGTH_POWER.description": "Gain Strength equal to (your current Charge plus 1) times [blue]{Amount}[/blue].",
   "HAMMER_MOD_POWER_WIREFALL_POWER.title": "Wirefall",
   "HAMMER_MOD_POWER_WIREFALL_POWER.description": "During the enemy turn, after the first Attack deals unblocked damage to you, all later Attacks deal 0 damage to you. At the start of your turn, lose 1 stack.",
   "HAMMER_MOD_POWER_FARCASTER_POWER.title": "Farcaster",
@@ -63,5 +63,7 @@
   "HAMMER_MOD_POWER_LUCKY_VOUCHER_POWER.title": "Lucky Voucher",
   "HAMMER_MOD_POWER_LUCKY_VOUCHER_POWER.description": "At the end of combat, you may reroll the card reward once.",
   "HAMMER_MOD_POWER_CHARGE_SWITCH_COURAGE_POWER.title": "Charge Switch: Courage",
-  "HAMMER_MOD_POWER_CHARGE_SWITCH_COURAGE_POWER.description": "This turn, whenever you play an Attack, gain [blue]{Amount}[/blue] Charge."
+  "HAMMER_MOD_POWER_CHARGE_SWITCH_COURAGE_POWER.description": "This turn, whenever you play an Attack, gain [blue]{Amount}[/blue] Charge.",
+  "HAMMER_MOD_POWER_VALOR_STYLE_POWER.title": "Valor Style",
+  "HAMMER_MOD_POWER_VALOR_STYLE_POWER.description": "Releasing Charge only loses 1 Charge."
 }

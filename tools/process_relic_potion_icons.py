@@ -16,6 +16,10 @@ VISIBLE_ICON_SIZE = (252, 252)
 GREEN_EXCESS_THRESHOLD = 28
 CHROMA_SEED_EXCESS_THRESHOLD = 110
 SKIPPED_SOURCE_INDICES = frozenset({9, 15})
+SOURCE_CELL_INSETS = {
+    7: (0, 16, 0, 0),
+    8: (0, 0, 0, 16),
+}
 
 ITEM_ICONS = (
     (0, "relics/HammerTechniqueCharm.png", "Hammer Technique Charm"),
@@ -56,6 +60,14 @@ def split_cell(source: Image.Image, index: int) -> Image.Image:
     top = round(row * source.height / GRID_SIZE)
     right = round((column + 1) * source.width / GRID_SIZE)
     bottom = round((row + 1) * source.height / GRID_SIZE)
+    inset_left, inset_top, inset_right, inset_bottom = SOURCE_CELL_INSETS.get(
+        index,
+        (0, 0, 0, 0),
+    )
+    left += inset_left
+    top += inset_top
+    right -= inset_right
+    bottom -= inset_bottom
     return source.crop((left, top, right, bottom))
 
 

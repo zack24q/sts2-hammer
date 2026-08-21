@@ -12,17 +12,17 @@ public sealed class CombatRuleTests
     [Theory]
     [InlineData(-1, 0)]
     [InlineData(0, 0)]
-    [InlineData(4, 0)]
+    [InlineData(2, 0)]
+    [InlineData(3, 1)]
+    [InlineData(4, 1)]
     [InlineData(5, 1)]
-    [InlineData(6, 1)]
-    [InlineData(9, 1)]
-    [InlineData(10, 2)]
-    [InlineData(11, 2)]
-    [InlineData(14, 2)]
-    [InlineData(15, 3)]
-    [InlineData(16, 3)]
+    [InlineData(6, 2)]
+    [InlineData(7, 2)]
+    [InlineData(8, 2)]
+    [InlineData(9, 3)]
+    [InlineData(10, 3)]
     [InlineData(100, 3)]
-    public void AttackDamageReducesChargeAtInclusiveFiveDamageThresholds(
+    public void AttackDamageReducesChargeAtInclusiveThreeDamageThresholds(
         int unblockedDamage,
         int expectedLoss)
     {
@@ -225,13 +225,18 @@ public sealed class CombatRuleTests
     }
 
     [Theory]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    public void OverchargeControlsWhetherReleaseClearsCharge(
+    [InlineData(false, false, (int)ChargeReleaseMode.Clear)]
+    [InlineData(false, true, (int)ChargeReleaseMode.LoseOne)]
+    [InlineData(true, false, (int)ChargeReleaseMode.Preserve)]
+    [InlineData(true, true, (int)ChargeReleaseMode.Preserve)]
+    public void ReleasePowersResolveInPriorityOrder(
         bool overchargeActive,
-        bool expected)
+        bool valorStyleActive,
+        int expected)
     {
-        Assert.Equal(expected, HammerCard.ShouldClearCharge(overchargeActive));
+        Assert.Equal(
+            expected,
+            (int)HammerCard.ResolveChargeReleaseMode(overchargeActive, valorStyleActive));
     }
 
     [Fact]
@@ -297,11 +302,11 @@ public sealed class CombatRuleTests
     [Theory]
     [InlineData(-1, 1, 0)]
     [InlineData(3, -1, 0)]
-    [InlineData(0, 1, 0)]
-    [InlineData(1, 1, 1)]
-    [InlineData(2, 1, 2)]
-    [InlineData(3, 1, 3)]
-    [InlineData(3, 2, 6)]
+    [InlineData(0, 1, 1)]
+    [InlineData(1, 1, 2)]
+    [InlineData(2, 1, 3)]
+    [InlineData(3, 1, 4)]
+    [InlineData(3, 2, 8)]
     public void MarathonStrengthTracksChargeAndStacks(
         int charge,
         int stacks,

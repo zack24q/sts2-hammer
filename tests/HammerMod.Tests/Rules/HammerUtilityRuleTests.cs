@@ -8,12 +8,12 @@ namespace HammerMod.Tests.Rules;
 public sealed class HammerUtilityRuleTests
 {
     [Theory]
-    [InlineData(3, 4, 5, 5, 3, 2, 0)]
+    [InlineData(3, 4, 5, 5, 3, 4, 5)]
     [InlineData(0, 2, 2, 5, 0, 2, 2)]
-    [InlineData(8, 2, 1, 5, 5, 0, 0)]
-    [InlineData(-1, 2, 4, 5, 0, 2, 3)]
+    [InlineData(8, 2, 1, 5, 5, 2, 1)]
+    [InlineData(-1, 2, 7, 5, 0, 2, 5)]
     [InlineData(2, 2, 2, 0, 0, 0, 0)]
-    public void CoalescenceReducesAtMostTheSharedCap(
+    public void CoalescenceReducesEachStatusUpToItsOwnCap(
         int weak,
         int vulnerable,
         int frail,
@@ -36,6 +36,36 @@ public sealed class HammerUtilityRuleTests
         var power = new FreeMealPower();
         Assert.Equal(PowerType.Buff, power.Type);
         Assert.Equal(PowerStackType.Single, power.StackType);
+    }
+
+    [Fact]
+    public async Task FreeMealRestoresPotionOnlyAfterItsUseFinishes()
+    {
+        var useCompletion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var restored = false;
+
+        var wrappedUse = FreeMealPotionUsePatch.CompleteUseThenRestore(
+            useCompletion.Task,
+            () => restored = true);
+
+        Assert.False(restored);
+        useCompletion.SetResult();
+        await wrappedUse;
+        Assert.True(restored);
+    }
+
+    [Fact]
+    public async Task FreeMealRestoresPotionWhenItsUseFails()
+    {
+        var restored = false;
+        var failedUse = Task.FromException(new InvalidOperationException("Potion use failed."));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            FreeMealPotionUsePatch.CompleteUseThenRestore(
+                failedUse,
+                () => restored = true));
+
+        Assert.True(restored);
     }
 
     [Theory]

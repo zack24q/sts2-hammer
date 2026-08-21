@@ -31,6 +31,13 @@ public interface ITargetPreviewDescriptionCard
 {
 }
 
+internal enum ChargeReleaseMode
+{
+    Clear,
+    LoseOne,
+    Preserve
+}
+
 public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
 {
     private readonly ChargeReleaseSnapshot _releaseChargeSnapshot = new();
@@ -133,12 +140,23 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
             if (!_releaseChargeSnapshot.ShouldRelease(cardPlay.IsLastInSeries))
                 return;
 
-            if (ShouldClearCharge(
-                    Owner.Creature.GetPower<OverchargePower>() is not null))
+            var releaseMode = ResolveChargeReleaseMode(
+                Owner.Creature.GetPower<OverchargePower>() is not null,
+                Owner.Creature.GetPower<ValorStylePower>() is not null);
+            if (releaseMode == ChargeReleaseMode.Clear)
             {
                 await SecondaryResourceCmd.Reset(
                     Owner,
                     HammerResources.Charge.Id,
+                    source: this);
+            }
+            else if (releaseMode == ChargeReleaseMode.LoseOne
+                     && releasedCharge > 0)
+            {
+                await SecondaryResourceCmd.Lose(
+                    Owner,
+                    HammerResources.Charge.Id,
+                    1,
                     source: this);
             }
 
@@ -242,9 +260,16 @@ public abstract class HammerCard : ModCardTemplate, ICardDescriptionContributor
         return isCardInCombat && combatInProgress;
     }
 
-    internal static bool ShouldClearCharge(bool overchargeActive)
+    internal static ChargeReleaseMode ResolveChargeReleaseMode(
+        bool overchargeActive,
+        bool valorStyleActive)
     {
-        return !overchargeActive;
+        if (overchargeActive)
+            return ChargeReleaseMode.Preserve;
+
+        return valorStyleActive
+            ? ChargeReleaseMode.LoseOne
+            : ChargeReleaseMode.Clear;
     }
 
     internal static int ResolveAttackHitCount(int originalHitCount, int extraHitCount)

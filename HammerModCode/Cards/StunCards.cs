@@ -571,7 +571,8 @@ public sealed class ConcussionResonance : HammerCard
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new IntVar("Stun", 3)
+        new IntVar("ChargeLoss", 2),
+        new EnergyVar("Energy", 1)
     ];
 
     public ConcussionResonance()
@@ -584,14 +585,19 @@ public sealed class ConcussionResonance : HammerCard
         await PowerCmd.Apply<ConcussionResonancePower>(
             choiceContext,
             Owner.Creature,
-            DynamicVars["Stun"].BaseValue,
+            ResolvePowerAmount(IsUpgraded),
             Owner.Creature,
             this);
     }
 
+    internal static int ResolvePowerAmount(bool upgraded)
+    {
+        return upgraded ? 101 : 100;
+    }
+
     protected override void OnUpgrade()
     {
-        DynamicVars["Stun"].UpgradeValueBy(1);
+        DynamicVars["ChargeLoss"].UpgradeValueBy(-1);
     }
 }
 

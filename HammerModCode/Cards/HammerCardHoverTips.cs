@@ -86,7 +86,7 @@ internal static class HammerCardHoverTips
             AffinitySliding => HammerCardMechanic.Charge | HammerCardMechanic.Strength,
             ChargeSwitchStrength => HammerCardMechanic.Charge | HammerCardMechanic.Strength,
 
-            Overcharge => HammerCardMechanic.Charge
+            Overcharge or ValorStyle => HammerCardMechanic.Charge
                 | HammerCardMechanic.ChargeRelease,
             EndlessMomentum => HammerCardMechanic.Charge
                 | HammerCardMechanic.ChargeRelease,
@@ -108,9 +108,7 @@ internal static class HammerCardHoverTips
             StaminaDrainingHammer => HammerCardMechanic.Stun
                 | HammerCardMechanic.Weak
                 | HammerCardMechanic.Vulnerable,
-            ConcussionResonance => HammerCardMechanic.Stun
-                | HammerCardMechanic.Weak
-                | HammerCardMechanic.Vulnerable,
+            ConcussionResonance => HammerCardMechanic.Charge,
 
             FaceOff or StaminaDrainingRoar or BreakMomentum or Challenger
                 or DemonPowder => HammerCardMechanic.Strength,
@@ -120,7 +118,7 @@ internal static class HammerCardHoverTips
             PredictiveFootwork => HammerCardMechanic.Weak | HammerCardMechanic.Vulnerable,
             LegSweepHammer => HammerCardMechanic.Weak,
             WeaknessExploit or Partbreaker => HammerCardMechanic.Vulnerable,
-            RecoveryMedicine => HammerCardMechanic.Regeneration,
+            RecoveryMedicine => HammerCardMechanic.Vulnerable | HammerCardMechanic.Regeneration,
             Coalescence => HammerCardMechanic.Weak
                 | HammerCardMechanic.Vulnerable
                 | HammerCardMechanic.Frail

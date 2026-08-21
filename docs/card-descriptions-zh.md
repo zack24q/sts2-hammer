@@ -1,6 +1,6 @@
 # 大锤猎手全部卡牌中文描述
 
-> 来源：`HammerMod/localization/zhs/cards.json` 当前工作区版本。共88张卡牌；以下保留动态变量和官方条件语法，便于逐句精简。
+> 来源：`HammerMod/localization/zhs/cards.json` 当前工作区版本。共89张卡牌；以下保留动态变量和官方条件语法，便于逐句精简。
 
 ## 1. 纵挥
 
@@ -194,7 +194,7 @@
 
 ```text
 获得{Block:diff()}点[gold]格挡[/gold]。
-失去{ChargeLoss}级[gold]蓄力[/gold]。
+失去所有[gold]蓄力[/gold]等级。
 ```
 
 ## 21. 见缝抡锤
@@ -366,13 +366,13 @@
 在你的下个回合开始时，该敌人受到{Stun:diff()}点[gold]晕眩[/gold]。
 ```
 
-## 38. 震荡共鸣
+## 38. 精神抖擞
 
 - ID：`HAMMER_MOD_CARD_CONCUSSION_RESONANCE`
 - 当前描述：
 
 ```text
-每当你给予敌人[gold]虚弱[/gold]或[gold]易伤[/gold]时，使其受到{Stun:diff()}点[gold]晕眩[/gold]。
+在每个回合开始时，失去{ChargeLoss:diff()}级[gold]蓄力[/gold]，获得{Energy:energyIcons()}。
 ```
 
 ## 39. 冲击爆裂
@@ -475,7 +475,7 @@
 
 ## 49. 以锤还牙
 
-- ID：`HAMMER_MOD_CARD_HAMMER_FOR_AHAMMER`
+- ID：`HAMMER_MOD_CARD_HAMMER_FOR_A_HAMMER`
 - 当前描述：
 
 ```text
@@ -595,7 +595,7 @@
 选择一名其他玩家。
 其获得{Block:diff()}点[gold]格挡[/gold]和{StrengthPower}点[gold]力量[/gold]。
 在其下个回合开始时，获得{Energy:energyIcons()}。
-将1张“[gold]倒地起身[/gold]”加入其[gold]手牌[/gold]。
+将1张“[gold]谁捞的我[/gold]”加入其[gold]手牌[/gold]。
 ```
 
 ## 61. 鬼人粉尘
@@ -616,14 +616,13 @@
 所有玩家获得{DexterityPower:diff()}点[gold]敏捷[/gold]。
 ```
 
-## 63. 倒地起身
+## 63. 谁捞的我
 
 - ID：`HAMMER_MOD_CARD_BACK_ON_YOUR_FEET`
 - 当前描述：
 
 ```text
 抽{Cards}张牌。
-“谁捞的我？”
 ```
 
 ## 64. 连续横挥
@@ -659,7 +658,7 @@
 
 ## 67. 横扫开路
 
-- ID：`HAMMER_MOD_CARD_SWEEP_APATH`
+- ID：`HAMMER_MOD_CARD_SWEEP_A_PATH`
 - 当前描述：
 
 ```text
@@ -716,7 +715,7 @@
 攻击牌对[gold]易伤[/gold]敌人造成的伤害提高{BonusPercent:diff()}%。
 ```
 
-## 73. 越砸越疼
+## 73. 力大砖飞
 
 - ID：`HAMMER_MOD_CARD_HARDER_WITH_EVERY_SMASH`
 - 当前描述：
@@ -767,7 +766,7 @@
 - 当前描述：
 
 ```text
-根据当前[gold]蓄力[/gold]等级，获得同等数值的[gold]力量[/gold]。{InCombat:
+获得当前[gold]蓄力[/gold]等级+1点[gold]力量[/gold]。{InCombat:
 （获得{StrengthPower}点[gold]力量[/gold]）|}
 ```
 
@@ -777,7 +776,7 @@
 - 当前描述：
 
 ```text
-只有当每名敌人的意图都不是攻击或攻击伤害为0时才能打出。
+给予自己{VulnerablePower:diff()}层[gold]易伤[/gold]。
 获得{RegenPower:diff()}点[gold]再生[/gold]。
 ```
 
@@ -806,7 +805,7 @@
 
 ## 82. 寻找斜坡
 
-- ID：`HAMMER_MOD_CARD_FIND_ASLOPE`
+- ID：`HAMMER_MOD_CARD_FIND_A_SLOPE`
 - 当前描述：
 
 ```text
@@ -839,7 +838,7 @@
 - 当前描述：
 
 ```text
-合计至多减少自身{MaxReduction}层[gold]虚弱[/gold]、[gold]易伤[/gold]与[gold]脆弱[/gold]。
+分别减少自身至多{MaxReduction}层[gold]虚弱[/gold]、[gold]易伤[/gold]与[gold]脆弱[/gold]。
 每减少1层，获得{StrengthPower:diff()}点[gold]力量[/gold]。
 ```
 
@@ -858,7 +857,7 @@
 - 当前描述：
 
 ```text
-战斗结束时，可以重掷1次卡牌奖励。
+战斗结束时，可以重掷卡牌奖励。
 ```
 
 ## 88. 蓄力变化·勇
@@ -868,6 +867,16 @@
 
 ```text
 本回合内，每打出一张攻击牌，提升{Charge:diff()}级[gold]蓄力[/gold]。
+```
+
+## 89. 勇气风格
+
+- ID：`HAMMER_MOD_CARD_VALOR_STYLE`
+- 当前描述：
+
+```text
+将[gold]蓄力[/gold]提升至最大等级。
+此后，[gold]释放蓄力[/gold]时改为只失去1级[gold]蓄力[/gold]。
 ```
 
 # 卡面附加描述与选择提示
@@ -886,7 +895,7 @@
 选择1张牌，将其放到抽牌堆顶部。
 ```
 
-## HAMMER_MOD_CARD_FIND_ASLOPE.selectionPrompt
+## HAMMER_MOD_CARD_FIND_A_SLOPE.selectionPrompt
 
 ```text
 选择要放到抽牌堆顶部的牌。

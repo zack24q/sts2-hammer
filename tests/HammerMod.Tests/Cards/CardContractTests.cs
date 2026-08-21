@@ -49,7 +49,7 @@ public sealed partial class CardContractTests
     public void CardRegistrationContainsNoDuplicateRuntimeTypes()
     {
         Assert.NotEmpty(RegisteredCardTypes);
-        Assert.Equal(88, AllRegisteredCardTypes.Length);
+        Assert.Equal(89, AllRegisteredCardTypes.Length);
         Assert.Equal(
             AllRegisteredCardTypes.Length,
             AllRegisteredCardTypes.Distinct().Count());
@@ -69,7 +69,7 @@ public sealed partial class CardContractTests
     {
         foreach (var cardType in AllRegisteredCardTypes)
         {
-            var prefix = $"HAMMER_MOD_CARD_{ToUpperSnakeCase(cardType.Name)}";
+            var prefix = GetCardLocalizationPrefix(cardType);
             var title = EnglishLocalization.Value[$"{prefix}.title"];
             var normalizedTitle = Regex.Replace(
                 title,
@@ -119,12 +119,12 @@ public sealed partial class CardContractTests
         Assert.Equal(20, cards.Count(static card => card.Rarity == CardRarity.Common));
         Assert.Equal(36, cards.Count(static card => card.Rarity == CardRarity.Uncommon));
         Assert.Equal(26, cards.Count(static card => card.Rarity == CardRarity.Rare));
-        Assert.Equal(1, cards.Count(static card => card.Rarity == CardRarity.Ancient));
+        Assert.Equal(2, cards.Count(static card => card.Rarity == CardRarity.Ancient));
         Assert.Equal(1, cards.Count(static card => card.Rarity == CardRarity.Status));
 
         Assert.Equal(33, cards.Count(static card => card.Type == CardType.Attack));
         Assert.Equal(36, cards.Count(static card => card.Type == CardType.Skill));
-        Assert.Equal(18, cards.Count(static card => card.Type == CardType.Power));
+        Assert.Equal(19, cards.Count(static card => card.Type == CardType.Power));
         Assert.Equal(1, cards.Count(static card => card.Type == CardType.Status));
     }
 
@@ -144,7 +144,7 @@ public sealed partial class CardContractTests
 
         foreach (var cardType in AllRegisteredCardTypes)
         {
-            var prefix = $"HAMMER_MOD_CARD_{ToUpperSnakeCase(cardType.Name)}";
+            var prefix = GetCardLocalizationPrefix(cardType);
             var title = ChineseLocalization.Value[$"{prefix}.title"];
             var row = Assert.Single(rows, row => row.Title == title);
             var card = Assert.IsAssignableFrom<CardModel>(Activator.CreateInstance(cardType));
@@ -175,14 +175,14 @@ public sealed partial class CardContractTests
         var rows = ParseDesignCardRows(design[..relicSection])
             .ToDictionary(static row => row.Title, StringComparer.Ordinal);
 
-        Assert.StartsWith("获得13格挡，失去1级蓄力", rows["紧急回避"].BaseEffect);
+        Assert.StartsWith("获得13格挡，失去所有蓄力等级", rows["紧急回避"].BaseEffect);
         Assert.Contains("失去等同于", rows["头重脚轻"].BaseEffect, StringComparison.Ordinal);
         Assert.DoesNotContain("效果伤害", rows["头重脚轻"].BaseEffect, StringComparison.Ordinal);
         Assert.Contains("直到敌方回合结束", rows["迎面相杀"].BaseEffect, StringComparison.Ordinal);
         Assert.Contains("伤害降低至0", rows["迎面相杀"].BaseEffect, StringComparison.Ordinal);
         Assert.DoesNotContain("攻击伤害", rows["迎面相杀"].BaseEffect, StringComparison.Ordinal);
         Assert.Contains("直到你的下个回合开始", rows["游走蹭刀"].BaseEffect, StringComparison.Ordinal);
-        Assert.Contains("以3级以上蓄力等级打出", rows["越砸越疼"].BaseEffect, StringComparison.Ordinal);
+        Assert.Contains("以3级以上蓄力等级打出", rows["力大砖飞"].BaseEffect, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -232,7 +232,7 @@ public sealed partial class CardContractTests
     [MemberData(nameof(Cards))]
     public void RegisteredCardHasRequiredLocalization(Type cardType)
     {
-        var prefix = $"HAMMER_MOD_CARD_{ToUpperSnakeCase(cardType.Name)}";
+        var prefix = GetCardLocalizationPrefix(cardType);
         var requiredKeys = new[]
         {
             $"{prefix}.title",
@@ -302,6 +302,20 @@ public sealed partial class CardContractTests
                 typeof(MightyChargeSpin)
             }.OrderBy(static type => type.Name),
             releaseCards.OrderBy(static type => type.Name));
+    }
+
+    [Fact]
+    public void AncientRelicsUseSeparateHammerCards()
+    {
+        Assert.DoesNotContain(
+            typeof(ImpactCrater).GetCustomAttributesData(),
+            static attribute => attribute.AttributeType.Name == "RegisterDustyTomeCardAttribute");
+        Assert.Contains(
+            typeof(ValorStyle).GetCustomAttributesData(),
+            static attribute => attribute.AttributeType.Name == "RegisterDustyTomeCardAttribute");
+        Assert.Contains(
+            typeof(EarthStrike).GetCustomAttributesData(),
+            static attribute => attribute.AttributeType.Name == "RegisterArchaicToothTranscendenceAttribute");
     }
 
     [Fact]
@@ -409,7 +423,7 @@ public sealed partial class CardContractTests
             @"(?<!\[gold\])(?<!\{)\b(?:Release Charge|Draw Pile|Discard Pile|Back on Your Feet|Stunned|Stun|Charge|Regeneration|Vulnerable|Frail|Strength|Dexterity|Thorns|Weak|Block|Replay|Hand)\b(?!\[/gold\])",
             RegexOptions.CultureInvariant);
         var plainChineseKeyword = new Regex(
-            @"(?<!\[gold\])(?:释放蓄力|抽牌堆|弃牌堆|倒地起身|临时力量|击晕|晕眩|蓄力|力量|敏捷|虚弱|易伤|脆弱|再生|荆棘|(?<!未)(?<!未被)格挡|手牌|重放)(?!\[/gold\])",
+            @"(?<!\[gold\])(?:释放蓄力|抽牌堆|弃牌堆|谁捞的我|临时力量|击晕|晕眩|蓄力|力量|敏捷|虚弱|易伤|脆弱|再生|荆棘|(?<!未)(?<!未被)格挡|手牌|重放)(?!\[/gold\])",
             RegexOptions.CultureInvariant);
         var nestedGoldTag = new Regex(
             @"\[gold\](?:(?!\[/gold\]).)*\[gold\]",
@@ -453,7 +467,7 @@ public sealed partial class CardContractTests
 
         foreach (var cardType in AllRegisteredCardTypes)
         {
-            var prefix = $"HAMMER_MOD_CARD_{ToUpperSnakeCase(cardType.Name)}";
+            var prefix = GetCardLocalizationPrefix(cardType);
             var description = EnglishLocalization.Value[$"{prefix}.description"];
             var card = Assert.IsAssignableFrom<CardModel>(Activator.CreateInstance(cardType));
 
@@ -619,8 +633,8 @@ public sealed partial class CardContractTests
         AssertCardValues<BraceWithTheHammer>(1, ("NormalBlock", 8), ("ChargedBlock", 13));
         AssertUpgradedCardValues<BraceWithTheHammer>(1, ("NormalBlock", 11), ("ChargedBlock", 17));
 
-        AssertCardValues<EmergencyEvade>(1, ("Block", 13), ("ChargeLoss", 1));
-        AssertUpgradedCardValues<EmergencyEvade>(1, ("Block", 17), ("ChargeLoss", 1));
+        AssertCardValues<EmergencyEvade>(1, ("Block", 13));
+        AssertUpgradedCardValues<EmergencyEvade>(1, ("Block", 17));
 
         AssertCardValues<WirebugSpin>(0, ("Damage", 3), ("BaseHits", 2), ("Cards", 1));
         AssertUpgradedCardValues<WirebugSpin>(0, ("Damage", 3), ("BaseHits", 2), ("Cards", 2));
@@ -723,6 +737,9 @@ public sealed partial class CardContractTests
         AssertCardValues<ImpactBurst>(1, ("StunPerHit", 1));
         AssertUpgradedCardValues<ImpactBurst>(1, ("StunPerHit", 2));
 
+        AssertCardValues<ConcussionResonance>(1, ("ChargeLoss", 2), ("Energy", 1));
+        AssertUpgradedCardValues<ConcussionResonance>(1, ("ChargeLoss", 1), ("Energy", 1));
+
         AssertCardValues<Cataclysm>(3, ("Damage", 24), ("Stun", 10));
         AssertUpgradedCardValues<Cataclysm>(3, ("Damage", 32), ("Stun", 13));
 
@@ -748,16 +765,19 @@ public sealed partial class CardContractTests
             CardKeyword.Exhaust,
             GetKeywords(CreateUpgradedCard<Overcharge>()));
 
+        AssertCardValues<ValorStyle>(3);
+        AssertUpgradedCardValues<ValorStyle>(2);
+
         AssertCardValues<Focus>(1, ("FullCards", 1));
         Assert.DoesNotContain(CardKeyword.Innate, GetKeywords(new Focus()));
         var upgradedFocus = CreateUpgradedCard<Focus>();
         AssertCardValues(upgradedFocus, 1, [("FullCards", 2)]);
         Assert.DoesNotContain(CardKeyword.Innate, GetKeywords(upgradedFocus));
 
-        AssertCardValues<ChargeSwitchStrength>(1, ("StrengthPower", 0));
+        AssertCardValues<ChargeSwitchStrength>(1, ("StrengthPower", 1));
         Assert.DoesNotContain(CardKeyword.Innate, GetKeywords(new ChargeSwitchStrength()));
         var upgradedChargeSwitchStrength = CreateUpgradedCard<ChargeSwitchStrength>();
-        AssertCardValues(upgradedChargeSwitchStrength, 1, [("StrengthPower", 0)]);
+        AssertCardValues(upgradedChargeSwitchStrength, 1, [("StrengthPower", 1)]);
         Assert.Contains(CardKeyword.Innate, GetKeywords(upgradedChargeSwitchStrength));
 
         AssertCardValues<ChargeSwitchCourage>(1, ("Charge", 1));
@@ -779,28 +799,19 @@ public sealed partial class CardContractTests
             CardKeyword.Exhaust,
             GetKeywords(CreateUpgradedCard<HandCrankedTractor>()));
 
-        AssertCardValues<RecoveryMedicine>(1, ("RegenPower", 5));
-        AssertUpgradedCardValues<RecoveryMedicine>(1, ("RegenPower", 5));
+        AssertCardValues<RecoveryMedicine>(1, ("VulnerablePower", 1), ("RegenPower", 5));
+        AssertUpgradedCardValues<RecoveryMedicine>(1, ("VulnerablePower", 1), ("RegenPower", 7));
         Assert.Contains(CardKeyword.Exhaust, GetKeywords(new RecoveryMedicine()));
         Assert.DoesNotContain(CardKeyword.Retain, GetKeywords(new RecoveryMedicine()));
         var upgradedRecoveryMedicine = CreateUpgradedCard<RecoveryMedicine>();
         Assert.Contains(CardKeyword.Exhaust, GetKeywords(upgradedRecoveryMedicine));
-        Assert.Contains(CardKeyword.Retain, GetKeywords(upgradedRecoveryMedicine));
+        Assert.DoesNotContain(CardKeyword.Retain, GetKeywords(upgradedRecoveryMedicine));
 
         AssertCardValues<HarderWithEverySmash>(3, ("StrengthPower", 3));
         AssertUpgradedCardValues<HarderWithEverySmash>(2, ("StrengthPower", 3));
 
         AssertCardValues<CustomLifesteal>(2, ("DamageStep", 10), ("Healing", 1));
         AssertUpgradedCardValues<CustomLifesteal>(1, ("DamageStep", 10), ("Healing", 1));
-    }
-
-    [Fact]
-    public void RecoveryMedicineAllowsOnlyNonAttacksAndZeroDamageAttacks()
-    {
-        Assert.True(RecoveryMedicine.CanPlayWhenNoEnemyDealsAttackDamage([]));
-        Assert.True(RecoveryMedicine.CanPlayWhenNoEnemyDealsAttackDamage([0, 0]));
-        Assert.True(RecoveryMedicine.CanPlayWhenNoEnemyDealsAttackDamage([0, -1]));
-        Assert.False(RecoveryMedicine.CanPlayWhenNoEnemyDealsAttackDamage([0, 1]));
     }
 
     [Theory]
@@ -884,6 +895,14 @@ public sealed partial class CardContractTests
     [Fact]
     public void RedesignedDescriptionsUseCurrentDynamicVariables()
     {
+        const string luckyVoucherDescription = "战斗结束时，可以重掷卡牌奖励。";
+        Assert.Equal(
+            luckyVoucherDescription,
+            ChineseLocalization.Value["HAMMER_MOD_CARD_LUCKY_VOUCHER.description"]);
+        Assert.Equal(
+            luckyVoucherDescription,
+            ReadLocalization("zhs", "powers")["HAMMER_MOD_POWER_LUCKY_VOUCHER_POWER.description"]);
+
         Assert.Contains(
             "{IfUpgraded:show:cost + 1|cost}",
             EnglishLocalization.Value["HAMMER_MOD_CARD_KO_TECHNIQUE.description"],
@@ -906,7 +925,7 @@ public sealed partial class CardContractTests
             "STAMINA_DRAINING_ROAR",
             "WEAVE_AND_BONK",
             "BORROWED_MOMENTUM",
-            "HAMMER_FOR_AHAMMER",
+            "HAMMER_FOR_A_HAMMER",
             "BREAK_MOMENTUM",
             "WAKE_UP_HIT",
             "HAMMER_HANDLE_STRIKE",
@@ -917,19 +936,19 @@ public sealed partial class CardContractTests
             "LAUNCH_TEAMMATE",
             "WIREBUG_SPIN",
             "AFFINITY_SLIDING",
-            "SWEEP_APATH",
+            "SWEEP_A_PATH",
             "INVINCIBLE_WIND_FIRE_WHEEL",
             "TORNADO_DESTROYS_THE_PARKING_LOT",
             "WARM_UP_EXERCISE"
         };
 
-        foreach (var localization in new[]
+        foreach (var (language, localization) in new[]
                  {
-                     EnglishLocalization.Value,
-                     ChineseLocalization.Value
+                     ("eng", EnglishLocalization.Value),
+                     ("zhs", ChineseLocalization.Value)
                  })
         {
-            var offset = localization["HAMMER_MOD_CARD_HAMMER_FOR_AHAMMER.description"];
+            var offset = localization["HAMMER_MOD_CARD_HAMMER_FOR_A_HAMMER.description"];
             Assert.Contains("{Damage:diff()}", offset, StringComparison.Ordinal);
             Assert.DoesNotContain("{BaseDamage", offset, StringComparison.Ordinal);
             Assert.DoesNotContain("{DamagePerAttack", offset, StringComparison.Ordinal);
@@ -982,8 +1001,16 @@ public sealed partial class CardContractTests
             Assert.DoesNotContain("HAMMER_MOD_CARD_TORNADO_DESTROYS_THE_PARKING_LOT.upgradeDescription", localization.Keys);
 
             var recoveryMedicine = localization["HAMMER_MOD_CARD_RECOVERY_MEDICINE.description"];
+            Assert.Contains("{VulnerablePower:diff()}", recoveryMedicine, StringComparison.Ordinal);
             Assert.Contains("{RegenPower:diff()}", recoveryMedicine, StringComparison.Ordinal);
             Assert.Contains('\n', recoveryMedicine);
+
+            Assert.Equal(
+                language == "eng" ? "Back on Your Feet" : "谁捞的我",
+                localization["HAMMER_MOD_CARD_BACK_ON_YOUR_FEET.title"]);
+            Assert.DoesNotContain(
+                '\n',
+                localization["HAMMER_MOD_CARD_BACK_ON_YOUR_FEET.description"]);
 
             foreach (var card in multilineCards)
             {
@@ -1378,7 +1405,7 @@ public sealed partial class CardContractTests
     {
         foreach (var cardType in cardTypes)
         {
-            var prefix = $"HAMMER_MOD_CARD_{ToUpperSnakeCase(cardType.Name)}";
+            var prefix = GetCardLocalizationPrefix(cardType);
             var description = localization[$"{prefix}.description"];
             var smartDescription = localization[$"{prefix}.smartDescription"];
 
@@ -1420,9 +1447,10 @@ public sealed partial class CardContractTests
             $"Could not find HammerMod.csproj above {AppContext.BaseDirectory}.");
     }
 
-    private static string ToUpperSnakeCase(string value)
+    private static string GetCardLocalizationPrefix(Type cardType)
     {
-        return WordBoundaryRegex().Replace(value, "$1_$2").ToUpperInvariant();
+        var card = Assert.IsAssignableFrom<CardModel>(Activator.CreateInstance(cardType));
+        return $"HAMMER_MOD_CARD_{card.Id.Entry}";
     }
 
     private sealed record DesignCardRow(
@@ -1431,6 +1459,4 @@ public sealed partial class CardContractTests
         string BaseEffect,
         string UpgradeEffect);
 
-    [GeneratedRegex("([a-z0-9])([A-Z])", RegexOptions.CultureInvariant)]
-    private static partial Regex WordBoundaryRegex();
 }

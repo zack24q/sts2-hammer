@@ -1,5 +1,7 @@
 using HammerMod.Characters;
 using HammerMod.Gameplay;
+using HammerMod.Powers;
+using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
@@ -9,7 +11,6 @@ using STS2RitsuLib.Interop.AutoRegistration;
 namespace HammerMod.Cards;
 
 [RegisterCard(typeof(HammerModCardPool))]
-[RegisterDustyTomeCard(typeof(HammerModCharacter))]
 public sealed class ImpactCrater : HammerCard, IChargeReleaseCard, ICombatPreviewDescriptionCard
 {
     private static readonly int[] BaseDamage = [14, 18, 24, 32];
@@ -73,5 +74,33 @@ public sealed class ImpactCrater : HammerCard, IChargeReleaseCard, ICombatPrevie
     private static int ResolveStun(int charge, bool upgraded)
     {
         return (upgraded ? UpgradedStun : BaseStun)[Math.Clamp(charge, 0, 3)];
+    }
+}
+
+[RegisterCard(typeof(HammerModCardPool))]
+[RegisterDustyTomeCard(typeof(HammerModCharacter))]
+public sealed class ValorStyle : HammerCard
+{
+    public ValorStyle()
+        : base(3, CardType.Power, CardRarity.Ancient, TargetType.Self)
+    {
+    }
+
+    protected override async Task OnPlay(
+        PlayerChoiceContext choiceContext,
+        CardPlay cardPlay)
+    {
+        await GainCharge(HammerResources.MaxCharge);
+        await PowerCmd.Apply<ValorStylePower>(
+            choiceContext,
+            Owner.Creature,
+            1,
+            Owner.Creature,
+            this);
+    }
+
+    protected override void OnUpgrade()
+    {
+        EnergyCost.UpgradeBy(-1);
     }
 }

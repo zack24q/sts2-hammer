@@ -68,18 +68,16 @@ public sealed class Coalescence : HammerCard
         int frail,
         int maxReduction)
     {
-        var remaining = Math.Max(0, maxReduction);
-        var weakReduction = TakeReduction(weak, ref remaining);
-        var vulnerableReduction = TakeReduction(vulnerable, ref remaining);
-        var frailReduction = TakeReduction(frail, ref remaining);
-        return (weakReduction, vulnerableReduction, frailReduction);
+        var cap = Math.Max(0, maxReduction);
+        return (
+            TakeReduction(weak, cap),
+            TakeReduction(vulnerable, cap),
+            TakeReduction(frail, cap));
     }
 
-    private static int TakeReduction(int amount, ref int remaining)
+    private static int TakeReduction(int amount, int cap)
     {
-        var reduction = Math.Min(Math.Max(0, amount), remaining);
-        remaining -= reduction;
-        return reduction;
+        return Math.Min(Math.Max(0, amount), cap);
     }
 
     private async Task<int> ReducePower(

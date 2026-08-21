@@ -370,7 +370,10 @@ public sealed class ChargeSwitchStrengthPower : HammerAbilityPower, ISecondaryRe
 
     internal static int CalculateStrength(int charge, int stacks)
     {
-        return Math.Max(0, charge) * Math.Max(0, stacks);
+        if (charge < 0 || stacks <= 0)
+            return 0;
+
+        return (charge + 1) * stacks;
     }
 }
 

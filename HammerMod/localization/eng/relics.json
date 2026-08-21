@@ -3,7 +3,7 @@
   "HAMMER_MOD_RELIC_HAMMER_TECHNIQUE_CHARM.description": "At the start of your turn, gain [blue]{Charge}[/blue] [gold]Charge[/gold].",
   "HAMMER_MOD_RELIC_HAMMER_TECHNIQUE_CHARM.flavor": "Once the basic motion is part of the body, the hunt is already half won.",
   "HAMMER_MOD_RELIC_MASTER_HAMMER_TECHNIQUE_CHARM.title": "Master Hammer Technique Charm",
-  "HAMMER_MOD_RELIC_MASTER_HAMMER_TECHNIQUE_CHARM.description": "At the start of your turn, raise [gold]Charge[/gold] to its maximum.",
+  "HAMMER_MOD_RELIC_MASTER_HAMMER_TECHNIQUE_CHARM.description": "At the start of your turn, gain [blue]{Charge}[/blue] [gold]Charge[/gold].",
   "HAMMER_MOD_RELIC_MASTER_HAMMER_TECHNIQUE_CHARM.flavor": "Breath, footwork, and hammer move as one; charging has become instinct.",
   "HAMMER_MOD_RELIC_FROSTCRAFT_CHARM.title": "Frostcraft Charm",
   "HAMMER_MOD_RELIC_FROSTCRAFT_CHARM.description": "If you play no Attacks this turn, your first Attack next turn deals [blue]{BonusPercent}[/blue]% more damage.",

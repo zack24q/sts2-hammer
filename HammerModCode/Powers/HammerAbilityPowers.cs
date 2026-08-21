@@ -61,6 +61,13 @@ public sealed class OverchargePower : HammerAbilityPower
 }
 
 [RegisterPower]
+public sealed class ValorStylePower : HammerAbilityPower
+{
+    public override PowerType Type => PowerType.Buff;
+    public override PowerStackType StackType => PowerStackType.Single;
+}
+
+[RegisterPower]
 public sealed class FocusPower : HammerAbilityPower
 {
     public override PowerType Type => PowerType.Buff;
@@ -299,29 +306,50 @@ public sealed class ConcussionResonancePower : HammerAbilityPower
 {
     public override PowerType Type => PowerType.Buff;
     public override PowerStackType StackType => PowerStackType.Counter;
+    public override int DisplayAmount => Math.Max(1, Amount / 100);
 
-    public override async Task AfterPowerAmountChanged(
-        PlayerChoiceContext choiceContext,
-        PowerModel power,
-        decimal amount,
-        Creature? applier,
-        CardModel? cardSource)
+    public override LocString Description
     {
-        if (amount <= 0
-            || applier != Owner
-            || power.Owner == Owner
-            || power is not (WeakPower or VulnerablePower))
+        get
         {
+            var description = base.Description;
+            var (chargeLoss, energy) = CalculateTurnEffect(Amount);
+            description.Add("ChargeLoss", chargeLoss);
+            description.Add("Energy", energy);
+            return description;
+        }
+    }
+
+    public override async Task AfterPlayerTurnStart(
+        PlayerChoiceContext choiceContext,
+        Player player)
+    {
+        if (player.Creature != Owner)
             return;
+
+        var (chargeLoss, energy) = CalculateTurnEffect(Amount);
+        if (chargeLoss > 0 && HammerResources.GetCharge(player) > 0)
+        {
+            await SecondaryResourceCmd.Lose(
+                player,
+                HammerResources.Charge.Id,
+                chargeLoss,
+                source: this);
         }
 
-        await HammerStun.Apply(
-            choiceContext,
-            Owner.Player!,
-            this,
-            power.Owner,
-            Amount,
-            cardSource);
+        if (energy > 0)
+        {
+            Flash();
+            await PlayerCmd.GainEnergy(energy, player);
+        }
+    }
+
+    internal static (int ChargeLoss, int Energy) CalculateTurnEffect(int packedAmount)
+    {
+        var safeAmount = Math.Max(0, packedAmount);
+        var copies = safeAmount / 100;
+        var upgradedCopies = Math.Min(copies, safeAmount % 100);
+        return (copies * 2 - upgradedCopies, copies);
     }
 }
 

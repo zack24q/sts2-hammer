@@ -2,11 +2,9 @@ using HammerMod.Characters;
 using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
-using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
-using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.Models.Powers;
 using STS2RitsuLib.Cards.DynamicVars;
 using STS2RitsuLib.Interop.AutoRegistration;
@@ -214,17 +212,9 @@ public sealed class RecoveryMedicine : HammerCard
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
+        new PowerVar<VulnerablePower>(1),
         new PowerVar<RegenPower>(5)
     ];
-
-    protected override bool ShouldGlowGoldInternal => IsPlayable;
-
-    protected override bool IsPlayable =>
-        CombatState is not null
-        && CanPlayWhenNoEnemyDealsAttackDamage(
-            CombatState.Enemies
-                .Where(static enemy => enemy.IsAlive)
-                .Select(GetIntendedAttackDamage));
 
     public RecoveryMedicine()
         : base(1, CardType.Skill, CardRarity.Uncommon, TargetType.Self)
@@ -233,6 +223,12 @@ public sealed class RecoveryMedicine : HammerCard
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
+        await PowerCmd.Apply<VulnerablePower>(
+            choiceContext,
+            Owner.Creature,
+            DynamicVars["VulnerablePower"].BaseValue,
+            Owner.Creature,
+            this);
         await PowerCmd.Apply<RegenPower>(
             choiceContext,
             Owner.Creature,
@@ -243,24 +239,7 @@ public sealed class RecoveryMedicine : HammerCard
 
     protected override void OnUpgrade()
     {
-        AddKeyword(CardKeyword.Retain);
-    }
-
-    private int GetIntendedAttackDamage(Creature enemy)
-    {
-        var targets = CombatState!.Players
-            .Where(static player => player.Creature.IsAlive)
-            .Select(static player => player.Creature)
-            .ToArray();
-        return enemy.Monster?.NextMove.Intents
-            .OfType<AttackIntent>()
-            .Sum(intent => intent.GetTotalDamage(targets, enemy)) ?? 0;
-    }
-
-    internal static bool CanPlayWhenNoEnemyDealsAttackDamage(
-        IEnumerable<int> enemyAttackDamage)
-    {
-        return !enemyAttackDamage.Any(static damage => damage > 0);
+        DynamicVars["RegenPower"].UpgradeValueBy(2);
     }
 }
 

@@ -3,7 +3,7 @@
   "HAMMER_MOD_RELIC_HAMMER_TECHNIQUE_CHARM.description": "你的回合开始时，提升[blue]{Charge}[/blue]级[gold]蓄力[/gold]。",
   "HAMMER_MOD_RELIC_HAMMER_TECHNIQUE_CHARM.flavor": "将最基础的发力方法刻进身体，狩猎便已成功了一半。",
   "HAMMER_MOD_RELIC_MASTER_HAMMER_TECHNIQUE_CHARM.title": "锤术秘传护石",
-  "HAMMER_MOD_RELIC_MASTER_HAMMER_TECHNIQUE_CHARM.description": "你的回合开始时，将[gold]蓄力[/gold]等级提升至最大等级。",
+  "HAMMER_MOD_RELIC_MASTER_HAMMER_TECHNIQUE_CHARM.description": "你的回合开始时，提升[blue]{Charge}[/blue]级[gold]蓄力[/gold]。",
   "HAMMER_MOD_RELIC_MASTER_HAMMER_TECHNIQUE_CHARM.flavor": "呼吸、步伐与锤势归于一体，蓄力已成为本能。",
   "HAMMER_MOD_RELIC_FROSTCRAFT_CHARM.title": "寒气练成护石",
   "HAMMER_MOD_RELIC_FROSTCRAFT_CHARM.description": "若你本回合没有打出攻击牌，下回合的第一张攻击牌造成的伤害提高[blue]{BonusPercent}[/blue]%。",

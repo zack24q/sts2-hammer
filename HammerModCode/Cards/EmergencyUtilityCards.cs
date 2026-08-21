@@ -15,7 +15,7 @@ namespace HammerMod.Cards;
 public sealed class FindASlope : HammerCard
 {
     private static readonly LocString SelectionPrompt =
-        new("cards", "HAMMER_MOD_CARD_FIND_ASLOPE.selectionPrompt");
+        new("cards", "HAMMER_MOD_CARD_FIND_A_SLOPE.selectionPrompt");
 
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 

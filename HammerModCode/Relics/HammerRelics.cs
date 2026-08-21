@@ -68,9 +68,16 @@ public sealed class HammerTechniqueCharm : HammerRelic
 [RegisterRelic(typeof(HammerModRelicPool))]
 public sealed class MasterHammerTechniqueCharm : HammerRelic
 {
+    internal const int ChargePerTurn = 2;
+
     internal override HammerCardMechanic HoverTipMechanics => HammerCardMechanic.Charge;
 
     public override RelicRarity Rarity => RelicRarity.Starter;
+
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new IntVar("Charge", ChargePerTurn)
+    ];
 
     public override async Task AfterPlayerTurnStartEarly(
         PlayerChoiceContext choiceContext,
@@ -83,7 +90,7 @@ public sealed class MasterHammerTechniqueCharm : HammerRelic
         await SecondaryResourceCmd.Gain(
             player,
             HammerResources.Charge.Id,
-            HammerResources.MaxCharge,
+            DynamicVars["Charge"].IntValue,
             source: this);
     }
 }

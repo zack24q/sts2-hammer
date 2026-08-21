@@ -659,8 +659,7 @@ public sealed class EmergencyEvade : HammerCard
 
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new BlockVar(13, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move),
-        new IntVar("ChargeLoss", 1)
+        new BlockVar(13, MegaCrit.Sts2.Core.ValueProps.ValueProp.Move)
     ];
 
     public EmergencyEvade()
@@ -670,10 +669,9 @@ public sealed class EmergencyEvade : HammerCard
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        await SecondaryResourceCmd.Lose(
+        await SecondaryResourceCmd.Reset(
             Owner,
             HammerResources.Charge.Id,
-            DynamicVars["ChargeLoss"].IntValue,
             source: this);
         await GainBlock(DynamicVars.Block.BaseValue, cardPlay);
     }
@@ -792,8 +790,10 @@ public sealed class ChargeSwitchStrength : HammerCard, ICombatPreviewDescription
     [
         ModCardVars.ComputedPower<MegaCrit.Sts2.Core.Models.Powers.StrengthPower>(
             "StrengthPower",
-            static context => PreviewCharge(context),
-            baseValue: 0)
+            static context => ChargeSwitchStrengthPower.CalculateStrength(
+                PreviewCharge(context),
+                stacks: 1),
+            baseValue: 1)
     ];
 
     public ChargeSwitchStrength()

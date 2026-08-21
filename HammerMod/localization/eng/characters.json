@@ -5,7 +5,7 @@
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.cardsModifierDescription": "Hammer cards can now appear in rewards and shops.",
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.cardsModifierTitle": "Hammer Cards",
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.defeatMessage": "The charge lost its rhythm.",
-  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.description": "Build Charge for stronger attacks. Large enemy attacks reduce Charge by 1 for every full 5 unblocked damage taken. Build Stun to knock enemies out and adapt to their intents.",
+  "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.description": "Build Charge for stronger attacks. Large enemy attacks reduce Charge by 1 for every full 3 unblocked damage taken. Build Stun to knock enemies out and adapt to their intents.",
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.eventDeathPrevention": "The Hammer Hunter regains their footing.",
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.flavor": "A heavy weapon rewards patience and precise timing.",
   "HAMMER_MOD_CHARACTER_HAMMER_MOD_CHARACTER.goldMonologue": "Prepare the gear first.",

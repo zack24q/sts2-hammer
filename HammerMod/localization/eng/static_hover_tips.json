@@ -1,4 +1,4 @@
 {
   "HAMMER_MOD_RESOURCE_CHARGE.title": "Charge",
-  "HAMMER_MOD_RESOURCE_CHARGE.description": "Current Charge: [blue]{Amount}[/blue]/[blue]{MaxAmount}[/blue]. Charge persists between turns. Taking a large amount of attack damage reduces Charge by 1 for every full 5 unblocked damage taken."
+  "HAMMER_MOD_RESOURCE_CHARGE.description": "Current Charge: [blue]{Amount}[/blue]/[blue]{MaxAmount}[/blue]. Charge persists between turns. Taking a large amount of attack damage reduces Charge by 1 for every full 3 unblocked damage taken."
 }

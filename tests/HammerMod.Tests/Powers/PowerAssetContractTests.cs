@@ -33,6 +33,7 @@ public sealed class PowerAssetContractTests
             [typeof(AffinitySlidingStrengthPower)] = "images/powers/ChargeSwitchStrength.png",
             [typeof(LuckyVoucherPower)] = "images/powers/LuckyVoucher.png",
             [typeof(OverchargePower)] = "images/powers/Overcharge.png",
+            [typeof(ValorStylePower)] = "images/powers/ValorStyle.png",
             [typeof(FaceOffPower)] = "images/powers/FaceOff.png",
             [typeof(UnloadingStancePower)] = "images/powers/FaceOff.png",
             [typeof(WirefallPower)] = "images/powers/Wirefall.png",
@@ -60,13 +61,13 @@ public sealed class PowerAssetContractTests
     [Fact]
     public void EveryRegisteredPowerUsesItsPackagedAssignedIcon()
     {
-        Assert.Equal(33, RegisteredPowerTypes.Length);
+        Assert.Equal(34, RegisteredPowerTypes.Length);
         Assert.Equal(ConcretePowerTypes, RegisteredPowerTypes);
         Assert.Equal(RegisteredPowerTypes, AssignedIconPaths.Keys.OrderBy(
             static type => type.Name,
             StringComparer.Ordinal));
-        Assert.Equal(33, AssignedIconPaths.Count);
-        Assert.Equal(28, AssignedIconPaths.Values.Distinct().Count());
+        Assert.Equal(34, AssignedIconPaths.Count);
+        Assert.Equal(29, AssignedIconPaths.Values.Distinct().Count());
         Assert.Equal(
             AssignedIconPaths[typeof(ChallengerPower)],
             AssignedIconPaths[typeof(ChallengerStrengthPower)]);
